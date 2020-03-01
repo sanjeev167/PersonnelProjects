@@ -11,6 +11,7 @@ STS version 3.x
 Step-1 : Make a folder with the name of workspace [ PracticeOnNet_WS ] used in the repository at your local machine.
 Step-2 : Open a command prompt after installing git client at your local machine
 Step-3 : Now get into that folder where you have to clone the project
+
 Step=4 : type git clone "url of the repository to be cloned"
 
 
