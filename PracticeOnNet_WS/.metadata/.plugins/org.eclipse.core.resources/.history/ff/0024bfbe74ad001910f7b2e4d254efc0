@@ -1,0 +1,131 @@
+/**
+ *
+ */
+package com.config.security;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+import com.admin.pub.local_en.service.CustomAdministrativeUserDetailsServiceImpl;
+import com.config.security.web.UrlAndRoleMatcherService;
+import com.config.security.web.WebHttpSecurityConfiguration;
+import com.user.pub.local_en.service.CustomWebUserDetailsServiceImpl;
+/**
+ * @author Sanjeev Kumar
+ */
+
+@Configuration
+@EnableWebSecurity
+public class MultipleEntryPointsSecurityConfig {	 
+	  
+	@Bean
+	public static BCryptPasswordEncoder encoder() {
+		return new BCryptPasswordEncoder();
+	}
+	
+	/**
+	 * ###########################################################################
+	 * LOCAL ADMINISTRATIVE USERS CHANNEL SECURITY CONFIGURATION
+	 * ###########################################################################
+	 **/
+	
+	/*@Bean
+	  public  UserDetailsService customAdministrativeUserDetailsServiceDao() {
+	    return new CustomAdministrativeUserDetailsServiceImpl();
+	  }*/
+    
+	@Autowired
+	CustomAdministrativeUserDetailsServiceImpl customAdministrativeUserDetailsService;
+	@Autowired
+	UrlAndRoleMatcherService urlAndRoleMatcherService;
+	
+	
+	
+	@Bean
+	public  UserDetailsService customAdministrativeUserDetailsServiceInMemory() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(User.withUsername("contactSanjiv@gmail.com").password(encoder().encode("Super@123")).roles("SUPER_ADMIN").build());
+		return manager;
+	}
+
+	
+	
+	@Configuration
+	public  class LocalAdministrativeWebChannel extends WebSecurityConfigurerAdapter {
+		
+		//A constructor which is calling WebSecurityConfigurerAdapter constructor within it.
+		public LocalAdministrativeWebChannel() {super();	}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			//auth.userDetailsService(customAdministrativeUserDetailsServiceInMemory());//Through inmemory			
+			auth.userDetailsService(customAdministrativeUserDetailsService);//Through DAO
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			new WebHttpSecurityConfiguration().prepareAntMatcherForAdministrativeUserChannel(http);
+		}
+
+	}// End of AdminWebConfigurationAdapter
+	
+	
+	/**
+	 * ###########################################################################
+	 * LOCAL WEB USERS CHANNEL SECURITY CONFIGURATION
+	 * ###########################################################################
+	 **/
+
+	
+	/*@Bean
+	  public  UserDetailsService customWebUserDetailsServiceDao() {
+	    return new CustomWebUserDetailsServiceImpl();
+	  }*/
+	@Autowired	
+	CustomWebUserDetailsServiceImpl customWebUserDetailsService;
+	
+	
+	@Bean
+	public  UserDetailsService customWebUserDetailsServiceInMemory() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(User.withUsername("atul@gmail.com").password(encoder().encode("user@123")).roles("WEB_USER").build());
+		return manager;
+	}
+
+	@Configuration
+	@Order(1)
+	public  class LocalWebUserChannel extends WebSecurityConfigurerAdapter {
+
+		public LocalWebUserChannel() {super();}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			//auth.userDetailsService(customWebUserDetailsServiceInMemory());
+			auth.userDetailsService(customWebUserDetailsService);
+		}
+
+		protected void configure(HttpSecurity http) throws Exception {
+			new WebHttpSecurityConfiguration().prepareAntMatcherForWebUserChannel(http);
+		}// End of configure
+
+	}// End of UserWebConfigurationAdapter
+	
+	/**
+	 * ###########################################################################
+	 * API USERS CHANNEL SECURITY CONFIGURATION
+	 * ###########################################################################
+	 **/
+
+	
+}// End of MultipleEntryPointsSecurityConfig

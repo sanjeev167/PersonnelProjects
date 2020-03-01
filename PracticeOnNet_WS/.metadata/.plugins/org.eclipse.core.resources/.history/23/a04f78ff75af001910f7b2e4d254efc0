@@ -1,0 +1,197 @@
+
+
+<!-- Left side column. contains the logo and sidebar -->
+<aside class="main-sidebar">
+	<!-- sidebar: style can be found in sidebar.less -->
+	<section class="sidebar">
+		<!-- Sidebar user panel -->
+		<div class="user-panel">
+			<div class="pull-left image">
+				<img
+					src="${contextPath}/resources/assets/dist/img/user2-160x160.jpg"
+					class="img-circle" alt="User Image">
+			</div>
+			<div class="pull-left info">
+				<p>Sanjeev [ Admin ]</p>
+				<a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+			</div>
+		</div>
+		<!-- search form -->
+		
+		<!-- 
+		<form action="#" method="get" class="sidebar-form">
+			<div class="input-group">
+				<input type="text" name="q" class="form-control"
+					placeholder="Search..."> <span class="input-group-btn">
+					<button type="submit" name="search" id="search-btn"
+						class="btn btn-flat">
+						<i class="fa fa-search"></i>
+					</button>
+				</span>
+			</div>
+		</form>
+		
+		 -->
+		
+		<!-- /.search form -->
+		<!-- sidebar menu: : style can be found in sidebar.less -->
+		<ul class="sidebar-menu" data-widget="tree">
+			<!-- <li class="header">MAIN NAVIGATION</li>  -->
+			<li class="treeview"><a href="#"> <i class="fa fa-dashboard"></i>
+					<span>Dashboard</span> <span class="pull-right-container"> <i
+						class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+				<ul class="treeview-menu">
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/db"><i class="fa fa-circle-o"></i>
+							Dashboard v1</a></li>
+
+				</ul></li>
+			<li><a href="<%=request.getContextPath() %>/admin/pvt/profile"> <i class="fa fa-th"></i> <span>Profile</span>
+					<span class="pull-right-container"> <small
+						class="label pull-right bg-green">new</small>
+				</span>
+			</a></li>
+			
+			
+			<!-- Start: API Manager -->
+			<li class="treeview"><a href="#"> <i class="fa fa-files-o"></i>
+					<span>API Manager</span> <span class="pull-right-container"> <i
+						class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+				<ul class="treeview-menu">
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/api_mgr/manage_client/"><i class="fa fa-circle-o"></i>Manage Client</a></li>
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/api_mgr/manage_api/"><i class="fa fa-circle-o"></i>Manage API</a></li>
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/api_mgr/api_permission/"><i class="fa fa-circle-o"></i>Assign API permission</a></li>
+				    <li><a href="<%=request.getContextPath() %>/admin/pvt/api_mgr/test_api/"><i class="fa fa-circle-o"></i>Test API</a></li>
+				</ul>
+			</li>
+            
+            <!-- Start: API Manager -->
+			<li class="treeview"><a href="#"> <i class="fa fa-files-o"></i>
+					<span>Menu Manager</span> <span class="pull-right-container"> <i
+						class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+				<ul class="treeview-menu">
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/menu_mgr/manage_menu/"><i class="fa fa-circle-o"></i>Manage Menu</a></li>
+					
+				
+				</ul>
+			</li>
+
+      
+			<!-- End: API Manager -->
+			<!-- Start: Master Entry -->
+			<li class="treeview"><a href="#"> <i class="fa fa-files-o"></i>
+					<span>Masters</span> <span class="pull-right-container"> <i
+						class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+				<ul class="treeview-menu">
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/masters/country/"><i class="fa fa-circle-o"></i> Country Master</a></li>
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/masters/state/"><i class="fa fa-circle-o"></i>State Master</a></li>
+					<li><a href="<%=request.getContextPath() %>/admin/pvt/masters/city/"><i class="fa fa-circle-o"></i>City Master</a></li>
+				    <li><a href="<%=request.getContextPath() %>/admin/pvt/masters/city/"><i class="fa fa-circle-o"></i>Name Value Master</a></li>
+				
+				</ul>
+			</li>
+
+			<!-- End: Master Entry -->
+			
+			<!-- Start: Security Entry -->				
+            <li class="treeview">
+                           <a href="#">
+                                  <i class="fa fa-share"></i> <span>Security</span>
+                                  <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i> </span>
+                            </a>
+       					   <ul class="treeview-menu">
+       					       
+       					       
+       					       <!-- Start: Environment Entry -->	                               
+			                   <li class="treeview">
+					              <a href="#"><i class="fa fa-circle-o"></i> Environment
+					                <span class="pull-right-container">
+					                  <i class="fa fa-angle-left pull-right"></i>
+					                </span>
+					              </a>
+					              
+					              <ul class="treeview-menu">
+					              				                
+					                <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/env/department/"><i class="fa fa-circle-o"></i>Create App. Context</a></li>
+					                <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/env/module/"><i class="fa fa-circle-o"></i>Create module</a></li>
+					                <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/env/page/"><i class="fa fa-circle-o"></i>Record page</a></li>
+					                <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/env/op/"><i class="fa fa-circle-o"></i>Record page-operation</a></li>
+					              </ul>
+			                  </li>
+			                   <!-- End: Environment Entry -->
+			                   <!-- Base -->
+			                  <li class="treeview">
+					                        <a href="#">
+					                               <i class="fa fa-circle-o"></i>RBAC
+					                                 <span class="pull-right-container">
+					                                        <i class="fa fa-angle-left pull-right"></i>
+					                                 </span>
+					                        </a>
+					                        <ul class="treeview-menu">
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/role/"><i class="fa fa-circle-o"></i>Manage Role</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/group/"><i class="fa fa-circle-o"></i>Manage Group</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/roleToGroup/"><i class="fa fa-circle-o"></i>Assign role to Group</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/userCategory/"><i class="fa fa-circle-o"></i>User category</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/appAdminUser/"><i class="fa fa-circle-o"></i>Internal Users</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/webUser/"><i class="fa fa-circle-o"></i>Web Users</a></li>
+					                             <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/groupToUser/"><i class="fa fa-circle-o"></i>Assign group to user</a></li>					                               
+					                              <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/rbac/monitor/"><i class="fa fa-circle-o"></i> Assign RBAC</a></li>					                              			                               
+					                 
+					                        </ul>
+					                </li>
+					                     
+					             <!-- End : Base -->  
+			                 	
+			                    
+			                    <!-- Start: ACL Entry -->	
+       					       	<li class="treeview">
+					                        <a href="#">
+					                               <i class="fa fa-circle-o"></i> ACL
+					                                 <span class="pull-right-container">
+					                                        <i class="fa fa-angle-left pull-right"></i>
+					                                 </span>
+					                        </a>
+					                        <ul class="treeview-menu">
+					                         <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/acl/dmnMaster/"><i class="fa fa-circle-o"></i>Domain Master</a></li>
+					                         <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/acl/dmnActionMaster/"><i class="fa fa-circle-o"></i>Domain Action Master</a></li>
+					                               
+					                         <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/acl/aclPermissions/"><i class="fa fa-circle-o"></i>Assign Permissions</a></li>					                               
+					                      <li><a href="<%=request.getContextPath() %>/admin/pvt/sec/acl/monitor/aclInOne/"><i class="fa fa-circle-o"></i>View ACL tables</a></li>	
+					                            
+					                       </ul>
+					                </li>
+       					                                      
+			                    <!-- End: ACL Entry -->         
+			                   <!-- Start: ACL Entry -->	
+       					       	<li class="treeview">
+					                        <a href="#">
+					                               <i class="fa fa-circle-o"></i> ABAC
+					                                 <span class="pull-right-container">
+					                                        <i class="fa fa-angle-left pull-right"></i>
+					                                 </span>
+					                        </a>
+					                        <ul class="treeview-menu">
+					                         <li><a href="#"><i class="fa fa-circle-o"></i>Dummy</a></li>
+					                            
+					                       </ul>
+					                </li>
+       					                                      
+			                    <!-- End: ACL Entry -->         
+			                   
+                         </ul>
+        		   </li>
+            <!-- End: Security Entry -->	
+		</ul>
+	
+	
+	</section>
+	<!-- /.sidebar -->
+</aside>
+

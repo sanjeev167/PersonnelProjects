@@ -1,0 +1,43 @@
+/**
+ * 
+ */
+package com.config;
+
+import org.springframework.boot.web.servlet.DispatcherType;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.config.filters.CustomSiteMeshFilter;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Configuration
+public class ApplicationServletInitializer extends SpringBootServletInitializer {
+
+	/**
+	 * We are going to register customSiteMeshFilter with FilterRegistrationBean. We
+	 * will also tell this sitemesh at which it will listen the request for
+	 * decorating.
+	 **/
+
+	@Bean
+	public FilterRegistrationBean<CustomSiteMeshFilter> siteMeshFilter() {
+
+		FilterRegistrationBean<CustomSiteMeshFilter> filterRegistrationBean = new FilterRegistrationBean<CustomSiteMeshFilter>();
+
+		filterRegistrationBean.setFilter(new CustomSiteMeshFilter()); // Custom sitemesh filter is being registered with
+									// FilterRegistrationBean
+		filterRegistrationBean.setEnabled(true);
+		// So that whatever sitemesh definition has been defined could be used for
+		// decoration
+		
+		filterRegistrationBean.addUrlPatterns("/*");// This should match with the url of dispatcher servlet.
+		//filterRegistrationBean.setOrder(1);
+		
+		return filterRegistrationBean;
+	}
+}

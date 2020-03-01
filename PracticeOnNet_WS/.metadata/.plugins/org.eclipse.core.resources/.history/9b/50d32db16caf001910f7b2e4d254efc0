@@ -1,0 +1,106 @@
+
+<!-- jQuery 3 -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script type="text/javascript">
+
+
+$(document).ready(function() {	
+	
+	var data = [
+		
+		        {"id": "1", "name": "Dashboard", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-dashboard"},
+		        {"id": "2", "name": "Dashboard v1", "parent_id": "1","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "3", "name": "Profile", "parent_id": "0","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-th"},
+		        
+		        {"id": "4", "name": "API Manager", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-files-o"},
+		        {"id": "5", "name": "Manage Client", "parent_id": "4","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+	            
+	            ];
+	
+	
+
+	var endMenu =getMenu("0");
+
+	function getMenu( parentID ){
+
+	           return data.filter(function(node){ return ( node.parent_id === parentID ) ; }).map(function(node){
+	               var exists = data.some(function(childNode){  return childNode.parent_id === node.id; });	                
+	               var subMenu = (exists) ? '<ul class="treeview-menu">'+ getMenu(node.id) + '</ul>' : "";
+	               var menu;                
+	               if(exists)	            	 
+	            	   menu= '<li class="treeview">'
+		                          +'<a href="'+node.leafUrl+'"> <i class="fa fa-dashboard"></i>'
+		                          + '<span>' +node.name  +'</span>'
+		                          + '<span class="pull-right-container">' 
+		                          +'<i class="fa fa-angle-left pull-right"></i>'
+		                          +'</span>'
+		                          +'</a>'
+		                          +  subMenu
+		                          + '</li>'  ;
+		          else		        	
+		        	  menu= '<li>'
+                      +'<a href="'+node.leafUrl+'"> <i class="fa fa-circle-o"></i>'
+                      + '<span>' +node.name  +'</span>'                      
+                      +'</a>'
+                   + '</li>' ;
+	             
+                   return menu;
+		                    	   
+	           });
+	       }
+	
+	$('#menu').html('<ul class="sidebar-menu" data-widget="tree">'+endMenu.join('')+ '</ul>');
+	
+	
+});// End of document ready
+
+
+
+
+//A json data for generating tree
+var arr=[
+    {id: 1, title: 'hello', parent: 0},
+    {id: 2, title: 'hello', parent: 0},
+    {id: 3, title: 'hello', parent: 1},
+    {id: 4, title: 'hello', parent: 3},
+    {id: 5, title: 'hello', parent: 4},
+    {id: 6, title: 'hello', parent: 4},
+    {id: 7, title: 'hello', parent: 3},
+    {id: 8, title: 'hello', parent: 2}
+];
+
+//An expected output
+var outputArr=[
+    {id: 1, title: 'hello', parent: 0, children: [
+        {id: 3, title: 'hello', parent: 1, children: [
+            {id: 4, title: 'hello', parent: 3, children: [
+                {id: 5, title: 'hello', parent: 4},
+                {id: 6, title: 'hello', parent: 4}
+            ]},
+            {id: 7, title: 'hello', parent: 3}
+        ]}
+    ]},
+    {id: 2, title: 'hello', parent: 0, children: [
+        {id: 8, title: 'hello', parent: 2}
+    ]}
+]
+//a recursive function that generates a heirarchical tree structure.
+function getNestedChildren(arr, parent) {
+    var out = []
+    for(var i in arr) {
+        if(arr[i].parent == parent) {
+            var children = getNestedChildren(arr, arr[i].id)
+
+            if(children.length) {
+                arr[i].children = children
+            }
+            out.push(arr[i])
+        }
+    }
+    return out
+}
+
+
+</script>
+<div id="menu"></div>

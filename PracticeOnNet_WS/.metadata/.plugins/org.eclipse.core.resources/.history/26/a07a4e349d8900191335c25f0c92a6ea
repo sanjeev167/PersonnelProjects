@@ -1,0 +1,375 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.rbac.monitor.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.masters.dto.NameValue;
+import com.admin.pvt.sec.env.model.OperationMaster;
+import com.admin.pvt.sec.env.model.PageMaster;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.admin.pvt.sec.env.repo.ModuleRepository;
+import com.admin.pvt.sec.env.repo.OpRepository;
+import com.admin.pvt.sec.env.repo.PageRepository;
+import com.admin.pvt.sec.rbac.base.model.AppRole;
+import com.admin.pvt.sec.rbac.base.repo.AppRoleRepository;
+import com.admin.pvt.sec.rbac.monitor.dto.AccessRightsRbacDTO;
+import com.admin.pvt.sec.rbac.monitor.modal.AccessRightsRbac;
+import com.admin.pvt.sec.rbac.monitor.modal.OperationAccess;
+import com.admin.pvt.sec.rbac.monitor.repo.AccessRightsRbacRepository;
+import com.admin.pvt.sec.rbac.monitor.repo.OperationAccessRepository;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class AccessRightsRbacServiceImpl implements AccessRightsRbacService {
+
+	/** The entity manager. */
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	@Autowired
+	DepartmentRepository departmentRepository;
+
+	@Autowired
+	ModuleRepository moduleRepository;
+
+	@Autowired
+	PageRepository pageRepository;
+	@Autowired
+	OpRepository opRepository;
+	@Autowired
+	AppRoleRepository appRoleRepository;
+	
+	@Autowired
+	AccessRightsRbacRepository accessRightsRbacRepository;
+	
+	@Autowired
+	OperationAccessRepository operationAccessRepository;
+
+	@Override
+	public DataTableResults<AccessRightsRbacDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery) {
+
+		DataTableRequest<AccessRightsRbac> dataTableInRQ = new DataTableRequest<AccessRightsRbac>(request);
+		PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+		String baseQuery;
+
+		if (whereClauseForBaseQuery.equals(""))
+			baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+					+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+					+ " om.sortname as opSortName," + " om.opurl as opUrl, "
+					+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  "
+					+ " ) AS totalrecords"
+					+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id ";
+
+		else
+			baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+					+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+					+ " om.sortname as opSortName," + " om.opurl as opUrl, "
+					+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id and  "
+					+ whereClauseForBaseQuery + " ) AS totalrecords"
+					+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  and "
+					+ whereClauseForBaseQuery;
+
+		// System.out.println("baseQuery ="+baseQuery);
+		String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+		Query query = entityManager.createNativeQuery(paginatedQuery, "AccessRightsRbacDTOMapping");
+
+		@SuppressWarnings("unchecked")
+		List<AccessRightsRbacDTO> accessRightsRbacList = query.getResultList();
+
+		DataTableResults<AccessRightsRbacDTO> dataTableResult = new DataTableResults<AccessRightsRbacDTO>();
+		dataTableResult.setDraw(dataTableInRQ.getDraw());
+		dataTableResult.setListOfDataObjects(accessRightsRbacList);
+		if (!AppUtil.isObjectEmpty(accessRightsRbacList)) {
+			dataTableResult.setRecordsTotal(accessRightsRbacList.get(0).getTotalrecords().toString());
+			if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+				dataTableResult.setRecordsFiltered(accessRightsRbacList.get(0).getTotalrecords().toString());
+			} else {
+				dataTableResult.setRecordsFiltered(Integer.toString(accessRightsRbacList.size()));
+			}
+		}
+		return dataTableResult;
+	}
+
+	// This will directly put your result into your mapped dto
+	@Override
+	public AccessRightsRbacDTO getReordById(Integer id) {
+
+		PageMaster pageMaster = pageRepository.getOne(id);
+
+		AccessRightsRbacDTO accessRightsRbacDTO = new AccessRightsRbacDTO();
+
+		accessRightsRbacDTO.setDepartmentNameId(pageMaster.getModuleMaster().getDepartmentMaster().getId() + "");
+		accessRightsRbacDTO.setDepartmentName(pageMaster.getModuleMaster().getDepartmentMaster().getName());
+
+		accessRightsRbacDTO.setModuleNameId(pageMaster.getModuleMaster().getId() + "");
+		accessRightsRbacDTO.setModuleName(pageMaster.getModuleMaster().getName());
+
+		accessRightsRbacDTO.setPageNameId(pageMaster.getId() + "");
+		accessRightsRbacDTO.setPageName(pageMaster.getName());
+		// Set all the roles available in the department with name and id
+
+		accessRightsRbacDTO.setRoleListInDepartment(
+				getRoleListInDepartment(pageMaster.getModuleMaster().getDepartmentMaster().getAppRoles(),
+						pageMaster.getAccessRightsRbacs()));
+		// Set all the operations defined on this particular page with its name and id
+		accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(getAllOperationDefinedOnThisPage(pageMaster.getId()));
+
+		return accessRightsRbacDTO;
+	}
+
+	// This will directly put your result into your mapped dto
+	// @Override
+	public AccessRightsRbacDTO getReordByIdOld(Integer id) {
+
+		AccessRightsRbac accessRightsRbac = accessRightsRbacRepository.getOne(id);
+		AccessRightsRbacDTO accessRightsRbacDTO = new AccessRightsRbacDTO();
+
+		accessRightsRbacDTO.setId(accessRightsRbac.getId());
+
+		accessRightsRbacDTO.setDepartmentNameId(
+				accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getId() + "");
+		accessRightsRbacDTO
+				.setDepartmentName(accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getName());
+
+		accessRightsRbacDTO.setModuleNameId(accessRightsRbac.getPageMaster().getModuleMaster().getId() + "");
+		accessRightsRbacDTO.setModuleName(accessRightsRbac.getPageMaster().getModuleMaster().getName());
+
+		accessRightsRbacDTO.setPageNameId(accessRightsRbac.getPageMaster().getId() + "");
+		accessRightsRbacDTO.setPageName(accessRightsRbac.getPageMaster().getName());
+
+		// Set all the roles available in the department with name and id
+		//accessRightsRbacDTO.setRoleListInDepartment(getRoleListInDepartment(
+		//		accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getAppRoles()));
+
+		// Set all the roles that have rights on this page
+		accessRightsRbacDTO.setAllRoleIdsForAccessOnThisPage(
+				getRoleListHavingRightsOnThisPage(accessRightsRbac.getPageMaster().getAccessRightsRbacs()));
+
+		// Set all the operations defined on this particular page with its name and id
+		accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+				getAllOperationDefinedOnThisPage(accessRightsRbac.getPageMaster().getId()));
+
+		return accessRightsRbacDTO;
+	}
+
+	@Override
+	public List<NameValue> getAllOperationDefinedOnThisPage(Integer pageId) {
+		List<NameValue> opListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue;
+		for (OperationMaster operationMaster : pageRepository.getOne(pageId).getOperationMasters()) {
+			nameValue = new NameValue(operationMaster.getId(), operationMaster.getName());
+			opListWithNameAndId.add(nameValue);
+		}
+		return opListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getAllOperationRightsOnThisPage(Integer accessRightsRbacId) {
+		List<NameValue> opListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue;
+		for (OperationAccess operationAccess : accessRightsRbacRepository.getOne(accessRightsRbacId)
+				.getOperationAccesses()) {
+			nameValue = new NameValue(operationAccess.getOperationMaster().getId(),
+					operationAccess.getOperationMaster().getName());
+			opListWithNameAndId.add(nameValue);
+		}
+		return opListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getRoleListHavingRightsOnThisPage(List<AccessRightsRbac> accessRightsRbacsList) {
+		List<NameValue> roleListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue;
+		for (AccessRightsRbac accessRightsRbac : accessRightsRbacsList) {
+			nameValue = new NameValue(accessRightsRbac.getAppRole().getId(),
+					accessRightsRbac.getAppRole().getRoleName());
+			roleListWithNameAndId.add(nameValue);
+		}
+		return roleListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getRoleListInDepartment(List<AppRole> roleListInDepartment,
+			List<AccessRightsRbac> accessRightsRbacList) {
+		List<NameValue> roleListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue;
+		Integer accessCount=0;
+		for (AppRole appRole : roleListInDepartment) {
+			for(int j=0;j<accessRightsRbacList.size();j++) {
+			if (appRole.getId() == accessRightsRbacList.get(j).getId())
+				accessCount = accessRightsRbacList.get(j).getOperationAccesses().size();
+			}
+			nameValue = new NameValue(appRole.getId(), appRole.getRoleName(), accessCount);
+			roleListWithNameAndId.add(nameValue);
+		}
+		return roleListWithNameAndId;
+	}
+
+	@Override
+	public boolean saveAndUpdate(String accessRightsRbacId,String pageId,String roleId,String recordIdArray[]) {		
+		AccessRightsRbac accessRightsRbac;	
+		System.out.println("Coming accessRightsRbacId = "+accessRightsRbacId);
+		if (accessRightsRbacId.equals("")) {
+			System.out.println("Going to insert as a new access rights");
+			//New  Access rights
+			accessRightsRbac = new AccessRightsRbac();
+			accessRightsRbac.setPageMaster(pageRepository.getOne(Integer.parseInt(pageId)));
+			accessRightsRbac.setAppRole(appRoleRepository.getOne(Integer.parseInt(roleId)));
+			accessRightsRbac.setOperationAccesses(prepareOperationAccessList(accessRightsRbac,recordIdArray));
+			accessRightsRbacRepository.saveAndFlush(accessRightsRbac);
+		}			
+		else {
+			//Old Access rights
+			System.out.println("Going to update");
+			accessRightsRbac=accessRightsRbacRepository.getOne(Integer.parseInt(accessRightsRbacId));			
+			updateAllExistingPermission(accessRightsRbac, recordIdArray );			
+		}		
+		
+		return true;
+	}
+	
+	
+	
+public void updateAllExistingPermission(AccessRightsRbac existingAccessRightsRbac,String recordIdArray[] ) {		
+	   //Fetch all existing permission first
+	   List<OperationAccess> opertaionAccessList = existingAccessRightsRbac.getOperationAccesses();	   
+	   //Case: 1
+	   for(OperationAccess operationAccess: opertaionAccessList) {
+		   if(recordIdArray.length>0) {
+				 for(String id:recordIdArray) {
+					 System.out.println("id = "+id);
+					   if(operationAccess.getId()== Integer.parseInt(id)) {
+						   //Escape it.Let it as it is
+						   System.out.println("Case -1 [Matched ] Coming id = "+id +" existing id compared = "+operationAccess.getId()+" Leave it as it is.");
+					   }
+					   else {						 
+						// if the existing id is not coming, remove it
+						   System.out.println("Case -1 [Unmatched ] Coming id = "+id +" existing id compared = "+operationAccess.getId()+" Delete existing");
+						   operationAccessRepository.delete(operationAccess);
+					   }					   
+				   }//Inner for loop
+		   }else {
+			   //Remove all the permissions
+			   accessRightsRbacRepository.delete(existingAccessRightsRbac);
+		   }
+	   }//Outer for loop
+	   
+	 //Case: 2	   
+	   for(String id:recordIdArray) {
+		   for(OperationAccess operationAccess: opertaionAccessList) {
+				   if(operationAccess.getId()== Integer.parseInt(id)) {
+					   //Escape it.Let it as it is
+					   System.out.println("Case -2 [Matched ] Coming id = "+id +" existing id compared = "+operationAccess.getId()+" Leave it as it is.");
+				   }
+				   else {						 
+					// if the new id is coming, remove it
+					   System.out.println("Case -2 [Unmatched ] Coming id = "+id +" existing id compared = "+operationAccess.getId()+" Insert it as new one.");
+					   OperationAccess operationAccessNew= new OperationAccess();
+					   operationAccessNew.setOperationMaster(opRepository.getOne(Integer.parseInt(id)));
+					   operationAccessNew.setAccessRightsRbac(existingAccessRightsRbac);
+					   operationAccessRepository.saveAndFlush(operationAccessNew);
+				   }
+	           }//Inner for loop
+		   }//Outer for loop	
+	}
+	
+	
+	public List<OperationAccess> prepareOperationAccessList(AccessRightsRbac accessRightsRbac,String recordIdArray[]){
+		List<OperationAccess> operationAccessList=new ArrayList<>();
+		for(int i=0;i<recordIdArray.length;i++) {		          
+			OperationAccess operationAccess=new OperationAccess();
+			operationAccess.setAccessRightsRbac(accessRightsRbac);
+			operationAccess.setOperationMaster(opRepository.getOne(Integer.parseInt(recordIdArray[i])));
+		    operationAccessList.add(operationAccess);
+		}
+		System.out.println(operationAccessList.size());
+		return operationAccessList;		
+	}
+	
+
+	@Override
+	public boolean deleteOneRecord(Integer id) {
+		accessRightsRbacRepository.deleteById(id);
+		return true;
+	}
+
+	@Transactional
+	@Override
+	public void deleteMultipleRecords(Integer[] recordIdArray) {
+		accessRightsRbacRepository.deleteOperationWithIds(recordIdArray);
+	}
+
+	@Override
+	public AccessRightsRbacDTO loadOperationOnPage(Integer roleId, Integer pageId) {
+		List<AccessRightsRbac> accessRightsRbacList = accessRightsRbacRepository.loadOperationOnPage(roleId, pageId);		
+		AccessRightsRbacDTO accessRightsRbacDTO = null;
+
+		if (accessRightsRbacList.size() != 0) {
+			AccessRightsRbac accessRightsRbac = accessRightsRbacList.get(0);
+			accessRightsRbacDTO = new AccessRightsRbacDTO();			
+			accessRightsRbacDTO.setAccessRightsRbacId(accessRightsRbac.getId()+"");
+			accessRightsRbacDTO.setRoleName(accessRightsRbac.getAppRole().getRoleName());
+			accessRightsRbacDTO.setRoleNameId(roleId + "");
+			accessRightsRbacDTO.setPageNameId(pageId + "");
+			accessRightsRbacDTO.setPageName(accessRightsRbac.getPageMaster().getName());
+			accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+					getAllOperationDefinedOnThisPage(accessRightsRbac.getPageMaster().getOperationMasters()));
+			accessRightsRbacDTO.setAllOperationsAssignedToThisRoleOnPage(
+					getAllOperationAssignedToThisRoleOnThisPage(accessRightsRbac.getOperationAccesses()));
+		} else {
+			
+			accessRightsRbacDTO = new AccessRightsRbacDTO();
+			accessRightsRbacDTO.setAccessRightsRbacId("");
+			accessRightsRbacDTO.setRoleName(appRoleRepository.getOne(roleId).getRoleName());			
+			accessRightsRbacDTO.setRoleNameId(roleId + "");
+			accessRightsRbacDTO.setPageNameId(pageId + "");
+			accessRightsRbacDTO.setPageName(pageRepository.getOne(pageId).getName());
+			accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+					getAllOperationDefinedOnThisPage(pageRepository.getOne(pageId).getOperationMasters()));
+		}
+		return accessRightsRbacDTO;
+	}
+	
+	private List<NameValue> getAllOperationDefinedOnThisPage(List<OperationMaster> operationMasterList) {		
+			List<NameValue> operationOnPageListNew = new ArrayList<NameValue>();
+			NameValue nameValue;			
+			for (OperationMaster operationMaster : operationMasterList) {				
+				nameValue = new NameValue(operationMaster.getId(), operationMaster.getName());
+				operationOnPageListNew.add(nameValue);
+			}
+			return operationOnPageListNew;
+	}
+  
+    private List<NameValue> getAllOperationAssignedToThisRoleOnThisPage(List<OperationAccess> operationAccessList) {	
+    	List<NameValue> operationAccessListNew = new ArrayList<NameValue>();
+		NameValue nameValue;			
+		for (OperationAccess operationAccess : operationAccessList) {				
+			nameValue = new NameValue(operationAccess.getOperationMaster().getId(), operationAccess.getOperationMaster().getName());
+			operationAccessListNew.add(nameValue);
+		}
+		return operationAccessListNew;	  
+  }
+}

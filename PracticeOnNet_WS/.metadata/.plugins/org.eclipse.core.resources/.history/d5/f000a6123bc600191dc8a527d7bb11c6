@@ -1,0 +1,158 @@
+/**
+ * 
+ */
+package com.admin.pub.local_en.ctrl;
+
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+/**
+ * @author Sanjeev
+ *
+ */
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.JsonResponse.JsonResponse;
+import com.admin.pub.local_en.service.CustomAdministrativeUserDetailsServiceImpl;
+import com.admin.pvt.menu_mgr.dto.MenuDTO;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.google.gson.Gson;
+
+//@SessionAttributes({ "currentUser" })
+@Controller
+
+public class WebAdminUserLoginController {
+
+	
+	private static final Logger log = LogManager.getLogger(WebAdminUserLoginController.class);
+
+	//@Autowired
+	//UserDetailsService customAdministrativeUserDetailsService;
+	
+	
+	@RequestMapping(value = "/admin/pub/login", method = RequestMethod.GET)
+	public String login(Model model, String error, String logout,String invalid,String expired,String expiredThroughAjax) {
+		
+		if (error != null)
+			model.addAttribute("errorMessge", "Username or Password is incorrect !!");
+
+		if (logout != null)
+			model.addAttribute("errorMessge", "You have been logged out successfully !!");
+		if (invalid != null)
+			//model.addAttribute("invalid", "You are using invalid session !! Request received =>Http");//For testing only
+		    model.addAttribute("invalid", "You are using invalid session !!");
+		if (expired != null)			
+		   // model.addAttribute("expired", "Your session is expired !!. Request received =>Http");//For testing only
+		    model.addAttribute("expired", "Your session is expired !!");
+		
+		//For testing only
+		if (expiredThroughAjax != null)			
+		    model.addAttribute("expiredThroughAjax", "Your session is expired !! Request received =>Ajax");
+		
+		return "admin/pub/login";
+	}
+
+	// After a successful login the control can be transfered anywhere as per
+	// business need.
+	@RequestMapping(value = "/admin/pvt/postLogin", method = RequestMethod.GET)
+	public String postLogin(Model model, HttpSession session) {
+       
+		log.info("Admin postLogin is called");
+
+		// read principal out of security context and set it to session
+		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+				.getContext().getAuthentication();
+
+		validatePrinciple(authentication.getPrincipal());
+
+		// User loggedInUser = ((PdfUserDetails)
+		// authentication.getPrincipal()).getUserDetails();
+
+		// model.addAttribute("currentUser", loggedInUser.getUsername());
+
+		// session.setAttribute("userId", loggedInUser.getId());
+
+		// return "redirect:/wallPage";
+
+		return "admin/pvt/db/db";
+	}
+	
+	
+	@RequestMapping(value = "getSpecificTreeTypeStructureForLoggedInUser", method = RequestMethod.GET)
+	@ResponseBody
+	public String getSpecificTreeTypeStructureForLoggedInUser(@RequestParam Integer id,HttpServletRequest request, HttpServletResponse response) {
+
+		System.out.println("Role Role");
+		log.info("WebAdminUserLoginController :==> getSpecificTreeTypeStructureForLoggedInUser :==> Started");
+		JsonResponse jsonResponse = new JsonResponse();
+		try {			
+			jsonResponse.setFormObject(CustomAdministrativeUserDetailsServiceImpl.vMenuCollection);
+			//jsonResponse.setRecordId(menuManagerService.getMinId()+"");
+			jsonResponse.setRecordId(1+"");
+			jsonResponse.setStatus(true);
+			jsonResponse.setStatusMsg("All records have been fetched.");
+		}/* catch (CustomRuntimeException ex) {
+			// Handle this exception
+			String exceptionCause = ex.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		}*/ catch (Exception ex) {
+			CustomRuntimeException exLocal = ExceptionApplicationUtility.wrapRunTimeException(ex);
+			// Handle this exception
+			String exceptionCause = exLocal.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		}
+
+		log.info("WebAdminUserLoginController :==> getSpecificTreeTypeStructureForLoggedInUser :==> Ended");	
+		
+		System.out.println(new Gson().toJson(jsonResponse));
+		return new Gson().toJson(jsonResponse);
+	}
+	
+	
+
+	@RequestMapping(value = "/admin/pvt/db", method = RequestMethod.GET)
+	public String db(Model model, HttpSession session) {
+		log.info("Admin postLogin is called");
+		return "admin/pvt/db/db";
+	}
+
+	@RequestMapping(value = "/admin/pub/fgotpwd", method = RequestMethod.GET)
+	public String fgotpwd(Model model) {
+		log.info("fgotpwd()");
+
+		return "admin/pub/fgotpwd";
+	}
+
+	@RequestMapping(value = "/admin/pub/fgotpwd", method = RequestMethod.POST)
+	public String sendFgotpwd(Model model) {
+		log.info("fgotpwd()");
+
+		return "admin/pub/fgotpwd";
+	}
+
+	private void validatePrinciple(Object principal) {
+
+		// if (!(principal instanceof PdfUserDetails)) {
+		// throw new IllegalArgumentException("Principal can not be null!");
+		// }
+	}
+
+}// End of UserLoginController

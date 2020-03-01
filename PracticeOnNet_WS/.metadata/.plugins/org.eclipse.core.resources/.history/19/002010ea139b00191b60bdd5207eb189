@@ -1,0 +1,102 @@
+package com.admin.pub.en.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the operation_master database table.
+ * 
+ */
+@Entity
+@Table(name="operation_master")
+@NamedQuery(name="OperationMaster.findAll", query="SELECT o FROM OperationMaster o")
+public class OperationMaster implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	private String name;
+
+	private String opurl;
+
+	private String sortname;
+
+	//bi-directional many-to-one association to OperationAccess
+	@OneToMany(mappedBy="operationMaster")
+	private List<OperationAccess> operationAccesses;
+
+	//bi-directional many-to-one association to PageMaster
+	@ManyToOne
+	@JoinColumn(name="page_id")
+	private PageMaster pageMaster;
+
+	public OperationMaster() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getOpurl() {
+		return this.opurl;
+	}
+
+	public void setOpurl(String opurl) {
+		this.opurl = opurl;
+	}
+
+	public String getSortname() {
+		return this.sortname;
+	}
+
+	public void setSortname(String sortname) {
+		this.sortname = sortname;
+	}
+
+	public List<OperationAccess> getOperationAccesses() {
+		return this.operationAccesses;
+	}
+
+	public void setOperationAccesses(List<OperationAccess> operationAccesses) {
+		this.operationAccesses = operationAccesses;
+	}
+
+	public OperationAccess addOperationAccess(OperationAccess operationAccess) {
+		getOperationAccesses().add(operationAccess);
+		operationAccess.setOperationMaster(this);
+
+		return operationAccess;
+	}
+
+	public OperationAccess removeOperationAccess(OperationAccess operationAccess) {
+		getOperationAccesses().remove(operationAccess);
+		operationAccess.setOperationMaster(null);
+
+		return operationAccess;
+	}
+
+	public PageMaster getPageMaster() {
+		return this.pageMaster;
+	}
+
+	public void setPageMaster(PageMaster pageMaster) {
+		this.pageMaster = pageMaster;
+	}
+
+}

@@ -1,0 +1,53 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.repo;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.menu_mgr.dto.RoleHierarchyDTO;
+import com.admin.pvt.menu_mgr.entity.MenuManager;
+import com.admin.pvt.menu_mgr.entity.RoleHierarchy;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Repository
+public interface RoleHierarchyRepository extends JpaRepository<RoleHierarchy, Integer>{
+	
+	
+	// Query for a single record element.	
+	@Query("SELECT coalesce(min(rh.id), 0) from RoleHierarchy rh")
+	Integer getMinId();
+
+	
+	@Query(value = "SELECT rh FROM RoleHierarchy rh ORDER BY rh.id")
+	List<RoleHierarchy> findAllSortedTreeNodeList();
+	
+	@Query(value = "SELECT rh FROM RoleHierarchy rh ")
+	List<RoleHierarchy> findAllTreeNodeList();
+	
+	@Query(value = "SELECT rh FROM RoleHierarchy rh where rh.head='None'")
+	List<RoleHierarchy> findAllTreeNodeListWithSpecificNodeName();
+	
+	@Modifying
+	@Transactional
+	@Query("delete from RoleHierarchy rh where rh.id in ?1")
+	void deleteRoleHierarchyWithIds(Integer[] recordIdArray);
+	
+	@Query("SELECT CASE WHEN COUNT(rh.childName) > 0 THEN 'true' ELSE 'false' END FROM RoleHierarchy rh "
+			+ " where rh.departmentMaster.id in ?1 and rh.head in ?2")
+    public Boolean existsByDepartmentMasterIdAndRoleHierarchyNodeName(Integer departmentMasterId,String nodeName);
+		
+	
+	@Query("SELECT CASE WHEN COUNT(rh.childName) > 0 THEN 'true' ELSE 'false' END FROM RoleHierarchy rh where rh.departmentMaster.id in ?1 and rh.childName in ?2 and rh.id <> ?3")	
+	boolean existsByDepartmentMasterIdAndRoleHierarchyNodeNameExceptThisId(int departmentMasterId, String childName, int recordId);
+
+}

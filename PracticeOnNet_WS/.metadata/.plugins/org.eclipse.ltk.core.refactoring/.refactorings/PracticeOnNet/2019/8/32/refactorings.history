@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;PracticeOnNet/src/main/webapp/WEB-INF/jsp/error&apos; to &apos;error1&apos;" description="Rename resource &apos;error&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/webapp/WEB-INF/jsp/error" name="error1" stamp="1565246135051" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;PracticeOnNet/src/main/webapp/WEB-INF/jsp/error1&apos; to &apos;error&apos;" description="Rename resource &apos;error1&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/webapp/WEB-INF/jsp/error1" name="error" stamp="1565248108357" updateReferences="true"/>
+</session>

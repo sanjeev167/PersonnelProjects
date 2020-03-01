@@ -1,0 +1,41 @@
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+public class CommonDao {
+
+	
+
+	List<Properties> queryForResourceList(String sql){
+		
+		List<Properties> resourceProperties=new ArrayList<Properties>();
+		Properties properties=new Properties();	
+		
+		properties.setProperty("", "");
+		properties.setProperty("", "");
+		
+		resourceProperties.add(properties);
+		
+		return resourceProperties;
+		
+	}
+
+	@SuppressWarnings("rawtypes")
+	List<Map> queryForRoleList(String string){
+		
+		List<Map> roleMapList=new  ArrayList<Map>();
+		HashMap<String, String>roleMap=new HashMap<String, String>();
+		
+		roleMap.put("id", "");
+		roleMap.put("id", "");
+		
+		roleMapList.add(roleMap);
+		return roleMapList;
+		
+	}
+
+}

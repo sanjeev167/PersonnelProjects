@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.rbac.ctrl;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleHierarchyController {
+
+}

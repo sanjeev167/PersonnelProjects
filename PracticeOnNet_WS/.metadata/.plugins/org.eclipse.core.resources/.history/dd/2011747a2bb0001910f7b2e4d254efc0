@@ -1,0 +1,70 @@
+
+
+<link
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+	rel="stylesheet" />
+<style>
+select {
+	font-family: fontAwesome
+}
+</style>
+
+
+<select class="form-control">
+
+
+	<option value='fa-dashboard'>&#xf0e4; fa-dashboard</option>
+	<option value='fa-dashcube'>&#xf210; fa-dashcube</option>
+	<option value='fa-database'>&#xf1c0; fa-database</option>
+	<option value='fa fa-files-o'>&#xf0c5; fa fa-files-o</option>
+	<option value='fa fa-circle-o'>&#xf10c; fa fa-circle-o</option>
+	<option value='fa fa-th'>&#xf00a; fa fa-th</option>
+	<option value='fa fa-share'>&#xf1e0; fa fa-share</option>
+	<option value='fa fa-gear'>&#xf013; fa fa-gear</option>
+	<option value='fa fa-filter'>&#xf0b0;; fa fa-filter</option>
+
+	<option value='fa fa-wrench'>&#xf0ad; fa fa-wrench</option>
+	<option value='fa-user'>&#xf007; fa-user</option>
+	<option value='fa-user-circle'>&#xf2bd; fa-user-circle</option>
+	<option value='fa-user-circle-o'>&#xf2be; fa-user-circle-o</option>
+	<option value='fa-user-md'>&#xf0f0; fa-user-md</option>
+	<option value='fa-user-o'>&#xf2c0; fa-user-o</option>
+	<option value='fa-user-plus'>&#xf234; fa-user-plus</option>
+	<option value='fa-user-secret'>&#xf21b; fa-user-secret</option>
+	<option value='fa-user-times'>&#xf235; fa-user-times</option>
+	<option value='fa-users'>&#xf0c0; fa-users</option>
+	<option value='fa-flag'>&#xf024; fa-flag</option>
+	<option value='fa-flag-checkered'>&#xf11e; fa-flag-checkered</option>
+	<option value='fa-flag-o'>&#xf11d; fa-flag-o</option>
+	<option value='fa-flash'>&#xf0e7; fa-flash</option>
+	<option value='fa-flask'>&#xf0c3; fa-flask</option>
+	<option value='fa-flickr'>&#xf16e; fa-flickr</option>
+	<option value='fa-floppy-o'>&#xf0c7; fa-floppy-o</option>
+	<option value='fa-folder'>&#xf07b; fa-folder</option>
+	<option value='fa-folder-o'>&#xf114; fa-folder-o</option>
+	<option value='fa-folder-open'>&#xf07c; fa-folder-open</option>
+	<option value='fa-folder-open-o'>&#xf115; fa-folder-open-o</option>
+
+
+
+
+	<option value='fa-address-book'>&#xf2b9; fa-address-book</option>
+	<option value='fa-address-book-o'>&#xf2ba; fa-address-book-o</option>
+	<option value='fa-address-card'>&#xf2bb; fa-address-card</option>
+	<option value='fa-address-card-o'>&#xf2bc; fa-address-card-o</option>
+	
+	<option value='fa-anchor'>&#xf13d; fa-anchor</option>
+	<option value='fa-android'>&#xf17b; fa-android</option>
+	<option value='fa-bell'>&#xf0f3; fa-bell</option>
+	<option value='fa-bell-o'>&#xf0a2; fa-bell-o</option>
+	<option value='fa-bell-slash'>&#xf1f6; fa-bell-slash</option>
+	<option value='fa-bell-slash-o'>&#xf1f7; fa-bell-slash-o</option>
+	<option value='fa-bicycle'>&#xf206; fa-bicycle</option>
+	<option value='fa-binoculars'>&#xf1e5; fa-binoculars</option>
+	<option value='fa-birthday-cake'>&#xf1fd; fa-birthday-cake</option>
+	<option value='fa-bitbucket'>&#xf171; fa-bitbucket</option>
+	<option value='fa-angellist'>&#xf209; fa-angellist</option>
+	
+</select>
+
+

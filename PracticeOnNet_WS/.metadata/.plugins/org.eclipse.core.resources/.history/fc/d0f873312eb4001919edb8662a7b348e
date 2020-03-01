@@ -1,0 +1,113 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.custom.validation.interfaceForServices.FieldValueWithParentIdExists;
+import com.custom.validation.interfaceForServices.TreeMenuValidation;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentNodeRequiredWithTreeNodeTypeValidator implements ConstraintValidator<ParentNodeRequiredWithTreeNodeType, Object> {
+	@Autowired
+	private ApplicationContext applicationContext;
+	//private TreeMenuValidation service;
+	private String nodeType;
+	private String parentNodeCount;
+	private String menuManagerParentNodeName;
+	private String menuManagerParentId;
+	private String message;	
+	@Override
+	public void initialize(ParentNodeRequiredWithTreeNodeType parentNodeRequiredWithTreeNodeType) {
+		//Class<? extends TreeMenuValidation> clazz = parentNodeRequiredWithTreeNodeType.service();
+
+		this.nodeType = parentNodeRequiredWithTreeNodeType.nodeType();
+		this.parentNodeCount = parentNodeRequiredWithTreeNodeType.parentNodeCount();
+		this.menuManagerParentNodeName=parentNodeRequiredWithTreeNodeType.menuManagerParentNodeName();
+		this.menuManagerParentId=parentNodeRequiredWithTreeNodeType.menuManagerParentId();
+        this.message=parentNodeRequiredWithTreeNodeType.message();        
+		//String serviceQualifier = parentNodeRequiredWithTreeNodeType.serviceQualifier();
+		/*if (!serviceQualifier.equals("")) {
+			this.service = this.applicationContext.getBean(serviceQualifier, clazz);
+		} else {
+			this.service = this.applicationContext.getBean(clazz);
+		}*/
+	}
+	int  parentNodeCountValueForMsg;
+	String menuManagerParentIdValueForMsg;
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		final Object nodeTypeValue;
+		final Object parentNodeCountValue;
+		//It has not been used but its corresponding name is required for applying the logic.
+		//So it has been taken. 		
+		final Object menuManagerParentNodeNameValue;
+		
+		boolean isValid = true;		
+		try {
+			nodeTypeValue = BeanUtils.getProperty(object, this.nodeType);
+			parentNodeCountValue = BeanUtils.getProperty(object, this.parentNodeCount);	
+			
+			menuManagerParentNodeNameValue=BeanUtils.getProperty(object, this.menuManagerParentNodeName);	
+			menuManagerParentIdValueForMsg=(String)menuManagerParentNodeNameValue;
+			System.out.println("San menuManagerParentIdValueForMsg = "+menuManagerParentIdValueForMsg);
+				try {
+					//Wrie validation logic here
+					if(nodeTypeValue.equals("N")) {
+						//If the node type is "Node", check the parent node count for making it sure that whether the 
+						//the root node ["Root node will be populated in the parent combo as None."] has been created or not.
+						
+						if( !parentNodeCountValue.equals("") && Integer.parseInt((String)parentNodeCountValue) >1) {
+							//Root node as "None" has already be created. 
+							//Return false as the validation is required.
+							parentNodeCountValueForMsg=Integer.parseInt((String)parentNodeCountValue);
+							isValid= false;
+						}else {
+							isValid= true;
+						}					
+					}else {
+						//If the nodeType is leaf [ "L" ], the parent node must be selected. 
+						//so the validation is required. No need to check the parentNodeCountValue as 
+						//the leaf selection is allowed when the node count value is greater than 2. 
+						//It has been checked through javascript before page submission.
+						isValid= false;
+					}							
+				} catch (UnsupportedOperationException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				} 			
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			//Show the error message on menuManagerParentId field only as it is required there only.
+			System.out.println("parentNodeCountValueForMsg = "+parentNodeCountValueForMsg);
+			System.out.println("menuManagerParentIdValueForMsg = "+menuManagerParentIdValueForMsg);
+			if(parentNodeCountValueForMsg <4 && menuManagerParentIdValueForMsg.equals("None"))
+				
+			context.buildConstraintViolationWithTemplate("Parent node as None can be selected for a root node only.").addPropertyNode(this.menuManagerParentId)
+					.addConstraintViolation();
+			else
+				context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.menuManagerParentId)
+				.addConstraintViolation();
+		}
+
+		
+		return isValid;
+	}
+}

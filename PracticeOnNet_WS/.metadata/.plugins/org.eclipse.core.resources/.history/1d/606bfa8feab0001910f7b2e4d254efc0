@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.repo;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public interface MenuManagerRepository {
+
+}

@@ -1,0 +1,94 @@
+
+<link rel="icon"
+	href="${contextPath}/resources/assets/roleHierachy/new/img/logo.png">
+<link rel="stylesheet"
+	href="${contextPath}/resources/assets/roleHierachy/new/css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="${contextPath}/resources/assets/roleHierachy/new/css/jquery.orgchart.css">
+<link rel="stylesheet"
+	href="${contextPath}/resources/assets/roleHierachy/new/css/style.css">
+
+
+<style type="text/css">
+    .orgchart { background: #fff; }
+    .orgchart td.left, .orgchart td.right, .orgchart td.top { border-color: #aaa; }
+    .orgchart td>.down { background-color: #aaa; }
+    .orgchart .middle-level .title { background-color: #006699; }
+    .orgchart .middle-level .content { border-color: #006699; }
+    .orgchart .product-dept .title { background-color: #009933; }
+    .orgchart .product-dept .content { border-color: #009933; }
+    .orgchart .rd-dept .title { background-color: #993366; }
+    .orgchart .rd-dept .content { border-color: #993366; }
+    .orgchart .pipeline1 .title { background-color: #996633; }
+    .orgchart .pipeline1 .content { border-color: #996633; }
+    .orgchart .frontend1 .title { background-color: #cc0066; }
+    .orgchart .frontend1 .content { border-color: #cc0066; }
+  </style>
+
+
+<!-- $.noConflict(true);
+ jQuery.noConflict(true);-->
+
+<script type="text/javascript">
+	$(function() {
+		//$.noConflict(true);
+		var datasource = {
+			      'name': 'Lao Lao',
+			      'title': 'general manager',
+			      'children': [
+			        { 'name': 'Bo Miao', 'title': 'department manager' },
+			        { 'name': 'Su Miao', 'title': 'department manager',
+			          'children': [
+			            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+			            { 'name': 'Hei Hei', 'title': 'senior engineer',
+			              'children': [
+			                { 'name': 'Pang Pang', 'title': 'engineer' },
+			                { 'name': 'Dan Zai', 'title': 'UE engineer',
+			                  'children': [
+			                    { 'name': 'Er Dan Zai', 'title': 'engineer',
+			                      'children': [
+			                        { 'name': 'AAA', 'title': 'Intern' },
+			                        { 'name': 'BBB', 'title': 'Intern' }
+			                      ]
+			                    }
+			                  ]
+			                }
+			              ]
+			            }
+			          ]
+			        },
+			        { 'name': 'Hong Miao', 'title': 'department manager' },
+			        { 'name': 'Chun Miao', 'title': 'department manager' }
+			      ]
+			    };
+
+			    var showDescendents = function(node, visibleLevel) {
+			      if (visibleLevel === 1) {
+			        return false;
+			      }
+			      $(node).closest('tr').siblings(':last').children().find('.node:first').each(function(index, node) {
+			        var $temp = $(node).closest('tr').siblings().removeClass('hidden');
+			        var $children = $temp.last().children().find('.node:first');
+			        if ($children.length) {
+			          $children[0].style.offsetWidth = $children[0].offsetWidth;
+			        }
+			        $children.removeClass('slide-up');
+			        showDescendents(node, visibleLevel--);
+			      });
+			    };
+
+			    $('#chart-container').orgchart({
+			      'visibleLevel': 2,
+			      'data' : datasource,
+			      'nodeContent': 'title',
+			      'createNode': function($node, data) {
+			        $node.on('click', '.edge', function (event) {
+			          if ($(event.target).is('.fa-chevron-down')) {
+			            showDescendents(this, 3);
+			          }
+			        });
+			      }
+			    });
+
+			  });
+</script>

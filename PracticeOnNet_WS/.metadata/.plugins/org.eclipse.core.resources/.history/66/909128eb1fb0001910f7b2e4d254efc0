@@ -1,0 +1,32 @@
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="${contextPath}/resources/assets/chosen_v1.8.7/style.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="${contextPath}/resources/assets/chosen_v1.8.7/choosen.js"></script>
+
+<style>
+	select{
+		font-family: fontAwesome
+	}
+</style>
+
+<select class="chosen" style="width:500px;">
+<option>Html</option>
+<option>Css</option>
+<option>Css3</option>
+<option>Php</option>
+<option>MySql</option>
+<option>Javascript</option>
+<option>Jquery</option>
+<option>Html5</option>
+<option>Wordpress</option>
+<option>Joomla</option>
+<option>Druple</option>
+<option>Json</option>
+<option>Angular Js</option>
+</select>
+<script type="text/javascript">
+$(".chosen").chosen();
+</script>
+

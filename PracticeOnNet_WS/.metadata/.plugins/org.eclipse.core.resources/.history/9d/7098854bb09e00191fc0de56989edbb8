@@ -1,0 +1,45 @@
+/**
+ * 
+ */
+package com.user.pub.local_en.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
+
+import com.user.pub.local_en.entity.WebUser;
+import com.user.pub.local_en.repo.WebUserRepository;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Service
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
+
+	    @Autowired
+	    private WebUserRepository webUserRepository;
+	    
+	    
+	    @Override
+	    public UserDetails loadUserByUsername(String email) {	
+	    	
+	        Optional<WebUser> optionalUser = webUserRepository.findByEmail(email);
+	        WebUser webUser=optionalUser.get();
+	        
+	        //Now prepare user details compatible with spring security
+	        return Optional.ofNullable(optionalUser).orElseThrow(()->new UsernameNotFoundException("Username Not Found"))
+	                .map(CustomUserDetailsImpl::new).get();
+	        
+	        return null;
+	        
+	    }
+
+	
+
+
+}

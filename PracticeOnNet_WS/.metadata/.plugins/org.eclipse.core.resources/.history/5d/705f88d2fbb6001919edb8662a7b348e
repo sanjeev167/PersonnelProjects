@@ -1,0 +1,14 @@
+package com;
+
+import com.util.PathUtilities;
+
+public class StringTest {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+       String urlPattern="/admin/pvt/**";
+       String url="/admin/pvt/db/";      
+       System.out.println(PathUtilities.match(urlPattern, url));
+	}
+
+}

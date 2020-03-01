@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;PracticeOnNet/src/main/java/com/admin/pvt/menu_mgr/dto/MenuCollectionDTO.java&apos; to &apos;MenuCollection.java&apos;" description="Rename resource &apos;MenuCollectionDTO.java&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/java/com/admin/pvt/menu_mgr/dto/MenuCollectionDTO.java" name="MenuCollection.java" stamp="1564715387566" updateReferences="true"/>
+</session>

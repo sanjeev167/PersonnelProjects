@@ -1,0 +1,61 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyAccessDecisionManager implements AccessDecisionManager {
+	@Autowired
+	MyInvocationSecurityMetadataSourceService securityMetadataSource;
+	
+	public void decide(Authentication authentication, Object object,Collection<ConfigAttribute> configAttributes) throws AccessDeniedException,InsufficientAuthenticationException {
+		// TODO Auto-generated method stub
+		if(securityMetadataSource.isResourceMapEmpty()){
+			securityMetadataSource.refreshResource();
+		}
+		
+		if (configAttributes == null ) throw new AccessDeniedException("Sorry, you don't have this permission.");
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");		
+		for(ConfigAttribute ca:configAttributes){
+			String needRole = ca.getAttribute();			
+            for(GrantedAuthority userGA:authentication.getAuthorities()) {            	
+            	System.out.println("\n\t\tLogged user's Role = "+userGA.getAuthority());
+            	System.out.println("\t\t\Roles found in antmatchers were compared with \n\t\t"
+            			+ "User's Role available with Authentication Manager.\n\n\t\t Compared Result ="
+            	+needRole.equals(userGA.getAuthority()));
+            	if(needRole.equals(userGA.getAuthority())) {   // ga is user's role.
+            		System.out.println("\n\t\t##### Authorization Granted ######\n\n");
+            		return ;
+            	} 
+            } 
+		} 
+        throw new AccessDeniedException("Sorry, you don't have this permission.");
+	}
+
+	public boolean supports(ConfigAttribute arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+}

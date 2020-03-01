@@ -1,0 +1,44 @@
+/**
+ * 
+ */
+package com.config.security;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class AjaxAwareAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
+    public AjaxAwareAuthenticationEntryPoint(String loginFormUrl) {
+    	
+        super(loginFormUrl);
+        System.out.println("loginFormUrl set by spring security = "+loginFormUrl);
+    }
+
+	@Override
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authException) throws IOException, ServletException {
+
+		if (request.getSession().getAttribute("SPRING_SECURITY_CONTEXT") == null) {
+			if (request.getHeader("x-requested-with") != null
+					&& request.getHeader("x-requested-with").equalsIgnoreCase("XMLHttpRequest")) {
+				System.out.println("AjaxAwareAuthenticationEntryPoint = > Ajax call detected.");
+
+				System.out.println(
+						"AjaxAwareAuthenticationEntryPoint = > Session expired = > sending a SC_FORBIDDEN error code.");
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Ajax Request Denied (Session Expired)");
+			}
+		} else {
+			super.commence(request, response, authException);
+		}
+	}
+
+}//End of AjaxAwareAuthenticationEntryPoint 

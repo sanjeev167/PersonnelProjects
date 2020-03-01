@@ -1,0 +1,332 @@
+/**
+ * @Author: Sanjeev Kumar
+ * @Date: 12/5/2019 * 
+ * **/
+
+document
+.writeln("<script type='text/javascript' "
+		+ "src='/resources/assets/pageSpecific/js/jQueryGridFeature.js'></script>");
+
+$(document).ready(
+		function() {
+			
+			loadGrid();//Load grid while opening the page
+			
+			// [1] Open add modal
+			$(document).on("click", ".addClass", function() {
+				preparePage();
+				//clearFormData();				
+				$('#modal-add').modal('toggle');preparePage();
+			});
+
+			// [2] Save record
+			$('#saveFormButtonId').on('click', function(e) {
+				saveRecord();
+				clearFormData();
+				reloadGrid();
+			});
+
+			// [3] Open edit modal
+			$(document).on("click", ".eClass", function() {				
+				//clearFormData();
+				preparePage();
+				//getIdBasedRecord(id)
+				$('#modal-edit').modal('toggle');
+			});
+
+			// [4] Update record
+			$('#updateFormButtonId').on('click', function(e) {				
+				updateRecord();
+				clearFormData();
+				reloadGrid();
+			});
+
+			// [5] Open delete confirm modal
+			$(document).on("click", ".dClass", function() {
+				$('#modal-delete').modal('toggle');
+			});
+
+			// [6] Delete record
+			$('#deleteFormButtonId').on('click', function(e) {
+				deleteRecord();
+				reloadGrid();
+			});
+
+			// [7] Open view modal
+			$(document).on("click", ".vClass", function() {	
+				applyReadOnlyProp();
+				 preparePage();
+				//getIdBasedRecord(id)
+				$('#modal-view').modal('toggle');
+			});
+
+			// [8] Open selected delete confirm modal
+			$("#deleteSelected").click(
+					function() {
+						if (GetSelectedRowID() == "") {
+							$("#deleteSelFormButtonId").attr("disabled", true);
+							$('deleteSelFormButtonId').prop('disabled', true);
+							$('#showAllertMsg').html(
+							"Please select at least one record.");
+							$('#showSelectedRow').html("");
+						} else {
+							$('#deleteSelFormButtonId').attr("disabled", false);
+							$('#showAllertMsg').html(
+									"<span style='color:red'>Do you want to delete following "
+									+ GetSelectedRowID()[2]
+									+ " records ?</span>");
+							$('#showSelectedRow').html(GetSelectedRowID()[1]);
+						}
+
+						$('#modal-sDelete').modal('toggle');
+					});
+			// [9] Delete selected record
+			$('#deleteSelFormButtonId').on('click', function(e) {
+				deleteSelectedRecord();
+				reloadGrid();
+			});
+
+			// [10] Open search modal
+			$(document).on("click", ".searchClass", function() {
+				preparePage();
+				loadSearchPage();
+				$('#modal-search').modal('toggle');
+			});
+			// [11] Search record
+			$('#searchFormButtonId').on('click', function(e) {
+				searchRecords();
+				clearSearchFormData();				
+			});
+
+  });// End of document ready
+
+
+
+$("#reloadGrid").click(function() {
+	reloadGrid();
+});
+
+function reloadGrid(){
+	alert("Reloading grid");
+	clearCheckBoxSelection();
+	var table = $('#countryId').DataTable();
+	table.ajax.reload();
+	
+}
+
+//Get Selected Row IDs
+function GetSelectedRowID() {
+	var table = $('#countryId').DataTable();
+	var checkedRowIdAndName = [];
+	var checkedRowIds = [];
+	var checkedRowNames = [];
+	var recordCount = 0;
+	$(".chkIndvRow").each(
+			function() {
+				if ($(this).is(':checked')) {
+					// $(this).val() will return row index
+					var selectedRows = table.rows($(this).val()).data();
+					checkedRowNames.push(selectedRows[0].name
+							+ ' => Phone code ' + selectedRows[0].phonecode
+							+ "</br>");
+					checkedRowIds.push(selectedRows[0].id);
+					recordCount++;
+				}
+			});
+	// Here You will get all selected persons ID
+	// alert("Selected Rows:- " + checkedRowIds);
+	if (recordCount > 0) {
+		checkedRowIdAndName.push(checkedRowIds);
+		checkedRowIdAndName.push(checkedRowNames);
+		checkedRowIdAndName.push(recordCount);
+	}
+	return checkedRowIdAndName;
+}
+
+//## Code for loading grid ##
+function loadGrid() {
+	var t = $('#countryId').DataTable(
+			{
+				"retrieve" : true,// used for refreshing
+				"bAutoWidth" : true,
+				"scrollY" : '110vh',
+				"scrollCollapse" : true,
+				"lengthMenu" : [ 5, 10, 15, 20 ],
+				"processing" : true,
+				"serverSide" : true,
+				"ordering" : true,
+				"searching" : true,
+				"aaSorting" : [ [ 3, "asc" ], [ 4, "asc" ], [ 5, "asc" ] ],
+				"ajax" : {
+					"url" : "paginated",
+					"type" : "POST"
+				},
+
+				"columns" : [
+					{
+						"searchable" : false,
+						"orderable" : false,
+						"targets" : 0,
+						"render" : function(data, type, full, meta) {
+							return meta.row + 1;// Will
+							// send row index
+						}
+					},
+					{
+						"data" : null,
+						"sortable" : false,
+						"render" : function(data, type, full, meta) {
+							return '<input class="chkIndvRow" value='
+							+ meta.row + ' type="checkbox" >';// Will
+							// //
+							// index
+						}
+					},
+
+					{
+						"data" : "id",
+						"name" : "ID",
+						"title" : "ID",
+						"searchable" : false,
+						"bVisible" : false, // used for hiding a column
+					},
+					{
+						"data" : "name",
+						"name" : "name",
+						"title" : "name"
+					},
+					{
+						"data" : "sortname",
+						"name" : "sortname",
+						"title" : "sortname"
+					},
+					{
+						"searchable" : false,
+						// "orderable" : false,
+						"data" : "phonecode",
+						"name" : "phonecode",
+						"title" : "phonecode"
+					},
+
+					{
+						"data" : null,
+						"sortable" : false,
+						"render" : function(data, type, row) {
+							return '<a class="vClass" href=#' + row.id
+							+ '>' + '<i class="fa fa-eye"></i>'
+							+ '</a>';
+						}
+					},
+					{
+						"data" : null,
+						"sortable" : false,
+						"render" : function(data, type, row) {
+							return '<a class="eClass" href=#' + row.id
+							+ '>' + '<i  class="fa fa-edit"></i>'
+							+ '</a>';
+						}
+					},
+					{
+						"data" : null,
+						"sortable" : false,
+						"render" : function(data, type, row) {
+							return '<a class="dClass" href=#' + row.id
+							+ '>' + '<i class="fa fa-remove"></i>'
+							+ '</a>';
+						},
+					} ]
+			});
+	// Has been used for indexing the table
+	t.on('order.dt search.dt', function() {
+		t.column(0, {
+			search : 'applied',
+			order : 'applied'
+		}).nodes().each(function(cell, i) {
+			cell.innerHTML = i + 1;
+		});
+	}).draw();
+	// End of indexing
+}// End of loading grid
+//########## End of grid related code ############
+
+//########## Start of CRUD related code ############//
+
+function clearFormData() {
+	alert("Clearing form data");
+	$("#addEditFormId").trigger("reset");
+}
+
+function getIdBasedRecord(id) {
+	alert("IdBasedRecord fetching ");
+}
+function applyReadOnlyProp() {
+    $('#countryNameId').prop("readonly", true); 	
+	$('#countrySortNameId').prop("readonly", true);	
+	$('#countryPhoneCodeId').prop("readonly", true); 
+}
+function preparePage() {
+	
+	$('#countryNameId').val("India");
+	$('#countrySortNameId').val("IN");
+	$('#countryPhoneCodeId').val("89765");
+	
+}
+
+function saveRecord() {
+
+	alert("hh");
+	/* stop form from submitting normally */
+	event.preventDefault();
+
+	//
+	clearFormData();
+
+	//
+	var $form = $(this),
+	/*
+	 * get the method attribute from the <form method=""> element
+	 */
+	method = $form.attr('method');
+	/*
+	 * get the action attribute from the <form action=""> element
+	 */
+	url = $form.attr('action');
+	/* get the form data of the from */
+	var formSerializeData = $('form.addFormId').serialize();
+
+	$.ajax({
+		type : method,
+		url : url,
+		data : formSerializeData,
+		beforeSend : function(xhr) {
+			xhr.setRequestHeader("Accept", "application/json");
+			xhr.setRequestHeader("Content-Type", "application/json");
+		},
+		success : function(response) {
+			alert(response['response']);
+			loadGrid;// Reload the grid
+			alert("Grid has been loaded");
+		},
+		error : function() {
+			alert('Error');
+		}
+	});
+	return false;
+}
+
+function updateRecord() {
+	alert("Going to update a record ");
+	return true;
+}
+function deleteRecord() {
+	alert("Going to delete a record ");
+}
+function deleteSelectedRecord() {
+	alert("Going to delete selected record ");
+}
+function loadSearchPage() {
+	alert("Loading search page");
+}
+function searchRecords() {
+	alert("Going to search record ");
+}

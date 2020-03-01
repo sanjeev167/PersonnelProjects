@@ -1,0 +1,43 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.util.ArrayList;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleHierarchyJSON extends RoleHierarchyJSONLeaf{
+	
+
+	
+	private ArrayList<RoleHierarchyJSON> children=null;
+	
+	
+
+	public RoleHierarchyJSON() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+
+	/**
+	 * @return the children
+	 */
+	public ArrayList<RoleHierarchyJSON> getChildren() {
+		return children;
+	}
+
+
+
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(ArrayList<RoleHierarchyJSON> children) {
+		this.children = children;
+	}
+
+
+}

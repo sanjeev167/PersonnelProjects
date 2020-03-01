@@ -1,0 +1,92 @@
+package com;
+
+import java.util.Arrays;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+
+import com.admin.pvt.menu_mgr.service.MenuManagerService;
+import com.config.loadOnStartup.LoadObjectsInContextAtStartUp;
+import com.custom.exception.CustomRuntimeException;
+
+@SpringBootApplication
+public class PracticeOnNetApplication implements CommandLineRunner {
+
+	private static final Logger logger = LoggerFactory.getLogger(PracticeOnNetApplication.class);
+
+	@Autowired
+	private ApplicationContext appContext;
+	
+	//private static ConfigurableApplicationContext configurableAppContext;
+	
+	@Autowired
+	LoadObjectsInContextAtStartUp loadObjectsInContextAtStartUp;
+	
+	@Autowired
+	MenuManagerService menuManagerService;
+/*
+	@Bean
+	public ServletContextInitializer initializer() {
+	    return new ServletContextInitializer() {
+
+	        @Override
+	        public void onStartup(ServletContext servletContext) throws ServletException {
+	            try {
+					servletContext.setAttribute("RoleWiseMenuCollectionMap", menuManagerService.getRoleWiseMenuCollectionMap());
+				} catch (CustomRuntimeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+	    };
+	}
+	
+	*/
+	@Bean
+	public ModelMapper modelMapper() {
+		logger.info("Sanjeev: -- Creating Modal Mapper Bean.");
+		return new ModelMapper();
+	}
+
+	public static void main(String[] args) {
+		logger.info("Sanjeev: -- Start appplication loading.");
+		SpringApplication.run(PracticeOnNetApplication.class, args);
+	}
+	
+	/*public static void restart() {
+        ApplicationArguments args = configurableAppContext.getBean(ApplicationArguments.class);
+ 
+        Thread thread = new Thread(() -> {
+        	configurableAppContext.close();
+        	configurableAppContext = SpringApplication.run(PracticeOnNetApplication.class, args.getSourceArgs());
+        });
+ 
+        thread.setDaemon(false);
+        thread.start();
+    }*/
+
+	@Override
+	public void run(String... args) throws Exception {
+		System.out.println("\n\n\t\t\t\t###############################################################");
+		System.out.println("\t\t\t\t#### Application :==> Started and deployed successfully.! ####");
+		System.out.println("\t\t\t\t###############################################################\n\n\n");
+		/*
+		 * String[] beans = appContext.getBeanDefinitionNames(); Arrays.sort(beans); for
+		 * (String bean : beans) { System.out.println("Sanjeev = "+bean); }
+		 */
+	}
+
+}

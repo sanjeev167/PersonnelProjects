@@ -1,0 +1,16 @@
+<script src="${contextPath}/resources/assets/grid/jqueryJs/jquery-ui.js"></script>
+<link rel="stylesheet" href="${contextPath}/resources/assets/grid/jqueryJs/jquery-ui.css">
+<link rel="stylesheet" href="${contextPath}/resources/assets/grid/gridJs/css/ui.jqgrid.css">
+
+<script src="${contextPath}/resources/assets/grid/jqueryJs/external/jquery/jquery.js"></script>
+<script src="${contextPath}/resources/assets/grid/gridJs/js/i18n/grid.locale-en.js"></script>
+<script src="${contextPath}/resources/assets/grid/gridJs/js/jquery.jqGrid.min.js"></script>
+
+
+<script src="${contextPath}/resources/assets/grid/cityData.js"></script>
+	<table id="cityList">
+		<tr>
+			<td />
+		</tr>
+	</table>
+	<div id="pager"></div>

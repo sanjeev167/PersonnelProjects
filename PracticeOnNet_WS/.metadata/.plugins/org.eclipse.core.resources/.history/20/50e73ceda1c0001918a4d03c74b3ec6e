@@ -1,0 +1,110 @@
+package com.admin.pvt.menu_mgr.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the app_role database table.
+ * 
+ */
+@Entity
+@Table(name="app_role")
+@NamedQuery(name="AppRole.findAll", query="SELECT a FROM AppRole a")
+public class AppRole implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)
+	private Integer id;
+
+	@Column(name="role_name", length=50)
+	private String roleName;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="department_id")
+	private DepartmentMaster departmentMaster;
+
+	//bi-directional many-to-one association to RoleHierarchy
+	@OneToMany(mappedBy="appRoleForChild")
+	private List<RoleHierarchy> roleHierarchiesForChild;
+
+	//bi-directional many-to-one association to RoleHierarchy
+	@OneToMany(mappedBy="appRoleForParent")
+	private List<RoleHierarchy> roleHierarchiesForParent;
+
+	public AppRole() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getRoleName() {
+		return this.roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+	public List<RoleHierarchy> getRoleHierarchiesForChild() {
+		return this.roleHierarchiesForChild;
+	}
+
+	public void setRoleHierarchiesForChild(List<RoleHierarchy> roleHierarchiesForChild) {
+		this.roleHierarchiesForChild = roleHierarchiesForChild;
+	}
+
+	public RoleHierarchy addRoleHierarchiesForChild(RoleHierarchy roleHierarchiesForChild) {
+		getRoleHierarchiesForChild().add(roleHierarchiesForChild);
+		roleHierarchiesForChild.setAppRoleForChild(this);
+
+		return roleHierarchiesForChild;
+	}
+
+	public RoleHierarchy removeRoleHierarchies1(RoleHierarchy roleHierarchies1) {
+		getRoleHierarchies1().remove(roleHierarchies1);
+		roleHierarchies1.setAppRole1(null);
+
+		return roleHierarchies1;
+	}
+
+	public List<RoleHierarchy> getRoleHierarchies2() {
+		return this.roleHierarchies2;
+	}
+
+	public void setRoleHierarchies2(List<RoleHierarchy> roleHierarchies2) {
+		this.roleHierarchies2 = roleHierarchies2;
+	}
+
+	public RoleHierarchy addRoleHierarchies2(RoleHierarchy roleHierarchies2) {
+		getRoleHierarchies2().add(roleHierarchies2);
+		roleHierarchies2.setAppRole2(this);
+
+		return roleHierarchies2;
+	}
+
+	public RoleHierarchy removeRoleHierarchies2(RoleHierarchy roleHierarchies2) {
+		getRoleHierarchies2().remove(roleHierarchies2);
+		roleHierarchies2.setAppRole2(null);
+
+		return roleHierarchies2;
+	}
+
+}

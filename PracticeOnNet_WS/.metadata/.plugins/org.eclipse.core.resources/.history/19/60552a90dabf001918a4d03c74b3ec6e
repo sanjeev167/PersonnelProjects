@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.entity;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleHierarchyJSON {
+
+}

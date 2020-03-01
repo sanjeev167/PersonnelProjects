@@ -1,0 +1,33 @@
+################################
+# @Author : Sanjeev Kumar
+# @Date   : 12/3/2019
+################################
+
+#Configure SSL. Either https or http connector can be configured here at a time.
+#For configuring https and http both, one has to be configured programmatically. 
+
+#This will force to select any free port for running server
+#server.port=0
+
+#server.port: 8443
+#server.ssl.key-store: keystore.p12
+#server.ssl.key-store-password: mypassword
+#server.ssl.keyStoreType: PKCS12
+#server.ssl.keyAlias: tomcat
+
+#Set session time out
+server.servlet.session.timeout=10
+#spring.main.banner-mode=off
+
+#SpringApplication has a property webEnvironment. It defaults to true if Tomcat is on the classpath 
+#but you can set it to false (programmatically or with spring.main.webEnvironment).
+
+#spring.jpa.database=default
+
+
+############Spring MVC ########
+#spring.mvc.view.prefix: /WEB-INF/jsp/
+#spring.mvc.view.suffix: .jsp
+#spring.messages.basename=messages
+
+

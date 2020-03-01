@@ -1,0 +1,26 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.rbac.monitor;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+@RequestMapping(value = "/admin/pvt/sec/rbac/monitor/")
+public class RbacAccessRightsController {
+
+	@RequestMapping(value = "accRtOpen")
+	public String open(Model model) {
+		String target = "/admin/pvt/sec/rbac/monitor/access-rights";
+
+		return target;
+
+	}// End of open
+}// End of RbacAccessRightsController

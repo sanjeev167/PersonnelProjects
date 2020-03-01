@@ -1,0 +1,33 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.ctrl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Controller
+@RequestMapping(value = "/admin/pvt/menu_mgr/manage_menu/")
+public class ManageMenuController {
+
+	static final Logger log = LoggerFactory.getLogger(ManageMenuController.class);
+	@Autowired
+	ManageMenuService manageMenuService;
+
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public String listCities(Model model) {
+		log.info("ManageMenuController :==> listMenues :==> Started");
+		String target = "/admin/pvt/menu_mgr/manage_menu";
+		log.info("ManageMenuController :==> listMenues :==> End");
+		return target;
+	}
+}//End of ManageMenuController

@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.service;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public interface MenuManagerService {
+
+}

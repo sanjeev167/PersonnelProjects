@@ -1,0 +1,77 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.sec.rbac.entity.AccessRightsRbac;
+import com.admin.pvt.sec.rbac.entity.AppRole;
+import com.admin.pvt.sec.rbac.entity.OperationAccess;
+import com.admin.pvt.sec.rbac.repo.AppRoleRepository;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class UrlAndRoleMatcherServiceImpl implements UrlAndRoleMatcherService{
+	
+	
+	@Autowired
+	AppRoleRepository appRoleRepository;
+	
+	@Transactional
+	public List<Matcher> getUrlAndRoleMatcherList() {
+
+		List<Matcher> urlAndRoleMatchers = new ArrayList<Matcher>();
+		try {
+		List<AppRole> appRoles = appRoleRepository.findAll();
+		List<AccessRightsRbac> accessRightsRbacs = new ArrayList<AccessRightsRbac>();
+		List<OperationAccess> operationAccesses = new ArrayList<OperationAccess>();		
+		String pageBaseUrl = "";
+		String opUrl = "";
+		String accessRole = "";
+		Matcher urlAndRoleMatcher = new Matcher();	
+		
+		int counter=0;
+		for (AppRole appRole : appRoles) {
+			accessRightsRbacs = appRole.getAccessRightsRbacs();
+			for (AccessRightsRbac accessRightsRbac : accessRightsRbacs) {
+				pageBaseUrl = accessRightsRbac.getPageMaster().getBaseurl();
+				operationAccesses = accessRightsRbac.getOperationAccesses();
+				for (OperationAccess operationAccess : operationAccesses) {
+					accessRole = operationAccess.getAccessRightsRbac().getAppRole().getRoleName();
+					opUrl = operationAccess.getOperationMaster().getOpurl();
+					urlAndRoleMatcher = new Matcher();
+					urlAndRoleMatcher.setRole_access(accessRole.trim());
+					
+					
+					urlAndRoleMatcher.setUrl_pattern(pageBaseUrl.trim() + opUrl.trim());
+					urlAndRoleMatchers.add(urlAndRoleMatcher);
+					//System.out.print("Url Pattern = " + urlAndRoleMatcher.getUrl_pattern());
+					//System.out.println("  ==> Role Access = " + urlAndRoleMatcher.getRole_access());
+					counter++;
+				}
+			}
+		}
+		//This is for SUPER_ADMIN only
+				urlAndRoleMatcher = new Matcher();
+				urlAndRoleMatcher.setRole_access("SUPER_ADMIN");		
+				urlAndRoleMatcher.setUrl_pattern("/admin/pvt/**");
+				urlAndRoleMatchers.add(urlAndRoleMatcher);
+				///////////////////////////////////////////
+		//System.out.println("##############################################");
+		//System.out.println("Url Count = " +counter);
+		//System.out.println("##############################################");
+		}catch(Exception ex) {ex.printStackTrace();}
+		return urlAndRoleMatchers;
+
+	}
+
+}//End of UrlAndRoleMatcherServiceImpl

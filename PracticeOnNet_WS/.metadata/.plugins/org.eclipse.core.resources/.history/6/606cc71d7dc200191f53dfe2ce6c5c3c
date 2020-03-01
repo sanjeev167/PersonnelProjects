@@ -1,0 +1,316 @@
+
+<!-- Content Header (Page header) -->
+
+<section class="content-header">
+	<h1>Assign permissions to a role/user [ ACL ]</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		<li class="active">Assign permissions</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="row container3Div">
+		<div class="col-md-5 item" style="padding-right: 0px;">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Select Domain</h3>
+					<div class="box-tools pull-right">
+
+						<button type="button">
+							<i class="fa fa-search searchClass" data-toggle="modal">&nbsp;</i>
+						</button>
+						<button type="button" id="reloadGrid">
+							<i class="fa fa-refresh">&nbsp;Grid</i>
+						</button>
+						<button type="button" id="refreshGrid">
+							<i class="fa fa-refresh">&nbsp;Page</i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body " style="min-height: 410px;max-height: 410px;">
+					<table width="100%" id="accessRightsAclId"
+						class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+						<thead>
+							<tr>
+								<th width="6%">#</th>
+								<th width="6%">ID</th>
+								<th>App. Context</th>
+								<th>Module</th>
+								<th>Domain</th>
+								
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+			
+		<!-- /.col -->
+		<div class="col-md-4 item" style="padding-right: 0px;">
+			<div class="box box-primary " id="selectRoleDomainId" style="display: none; overflow: inherit;">
+				<div class="box-header with-border">
+					<div class="box-title">Select Role/User</div>
+				</div>
+				<div class="box-body ">
+					<h5><label>App. Context :&nbsp;</label>[<label  id="departmentNameIdForRole" style="color: blue;"></label>]</h5>
+					<h5><label>Permission for :&nbsp;</label>
+					       <input type="radio" class="permissionBaseClass" name="permissionBase" id="permissionBaseIdForRole" value="R" checked="checked"/><label style="color: blue;">Role</label> 
+					      <input type="radio" name="permissionBase" class="permissionBaseClass" id="permissionBaseIdForUser" value="U" /> <label style="color: blue;">User</label>
+						 
+					</h5>
+                    <div id="NoRoleDefinedEithinDepartmentId" style="min-height: 295px;max-height:295px;">
+					<table
+						class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+						<thead>
+							<tr>
+								<th width="80%" style="color: red;">No role has yet been defined within this department.</th>								
+							</tr>
+						</thead>						
+					</table>
+					</div>	
+				<div id="roleDefinedEithinDepartmentId" style="min-height: 295px;max-height:295px; display: none;">
+					<table  id="countryId"
+						class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+						<thead>
+							<tr>
+								<th >Roles</th>
+								<th >Rights</th>
+							</tr>
+						</thead>
+						<tbody id="roleHolder"></tbody>
+					</table>
+					</div>
+					
+					<div id="userAndRoleDefinedWithinDepartmentId" style="min-height: 295px;max-height:295px; display: none;">
+					<table  
+						class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+						<thead>
+							<tr>
+								<th width="40%">Roles</th>
+								<th width="50%">User</th>
+								<th width="10%">Rts</th>								
+							</tr>
+						</thead>
+						<tbody >
+						    <tr>
+						        <td> <table><tbody id="roleUserHolder"> </tbody></table></td>
+						        <td><table><tbody id="roleBaserUserHolderId"> </tbody></table></td>						        
+						        <td><table><tbody id="userLinkForSelHolderId"></tbody></table></td>						       
+						    </tr>
+						</tbody>
+					</table>
+					</div>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+		<!-- /.col -->
+
+		<div class="col-md-3 item">
+			<div class="box box-primary " id="selectActionDomainId" style="display: none;">
+				<div class="box-header with-border">
+					<div class="box-title">Assign Permission</div>
+				</div>
+				<div class="box-body ">
+					<h5>
+						<label>App. Context :&nbsp;</label>[<label  id="departmentNameIdOnActionSel" style="color: blue;"></label>]
+					</h5>
+					<h5>
+						<label>Module :&nbsp;</label>[<label id="moduleNameIdOnActionSel" style="color: blue;"></label>]
+					</h5>
+                     <h5>
+						<label>Permission for :&nbsp;</label> [<label id="permissionBaseId" style="color: orange;">Role</label>]
+					</h5>
+					<h5>
+						<label>Domain :&nbsp;</label>[<label id="domainNameIdOnActionSel" style="color: blue;"></label>]
+					</h5>
+                    
+					<h5>
+						<label>Role/User :&nbsp;</label> [<label id="roleSelectedId" style="color: orange;">None</label>]
+					</h5>
+					<div id="NoActionDefinedOnDomainId" style="min-height: 210px;max-height: 210px;">
+						<table width="100%" id="operationTableId"
+							class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+
+							<tbody><tr><th style="color: red;">No operation has yet been defined on this page.</th></tr></tbody>
+						</table>
+					</div>
+					<div id="actionDefinedOnDomainId" style="min-height: 210px;max-height: 210px;">
+						<table width="100%" id="actionTableId"
+							class="table table-striped table-bordered table-hover table-condensed dt-responsive data-table">
+							<tbody>
+								<tr>
+									<th><input type="checkbox" class="actionSelClass" name="role" id="chkAll" />&nbsp;<label
+										style="color: red;">All</label>&nbsp;&nbsp;&nbsp;<span id="updateSuccessMsgId"></span></th>
+								</tr>
+								<tr>
+									<td>
+										<table>
+											<tbody id="opHolder"></tbody>
+											<tr id="hideUpdateButtonId">
+												<td><input type="button" value="Update"
+													id="saveFormButtonId"/></td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+		<!-- /.col -->
+	</div>
+</section>
+<!-- /.content -->
+
+<input type="hidden" id="domainRecordIdForRole" /> 
+<input type="hidden" id="accessRightsAclId" />
+
+<input type="hidden" id="roleIdSelectedForActionListing" /> 
+<input type="hidden" id="roleIdSelectedForUsersListing" />
+
+<input type="hidden" id="userIdSelectedForRightsAssignment" />
+<!-- Modals for this form -->
+
+<style type="text/css">
+.field-error {
+	color: red;
+	font-size: small;
+}
+
+.example-modal .modal {
+	position: relative;
+	top: auto;
+	bottom: auto;
+	right: auto;
+	left: auto;
+	display: block;
+	z-index: 1;
+}
+
+.example-modal .modal {
+	background: transparent !important;
+}
+</style>
+
+
+<style type="text/css">
+.modal-dialog {
+	width: 400px;
+}
+
+.modal-header {
+	background-color: #337AB7;
+	padding: 16px 16px;
+	color: #FFF;
+	border-bottom: 2px dashed #337AB7;
+}
+</style>
+
+<!-- modal for add/update/view/search -->
+<div class="modal fade" id="modal-common">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="commonModalTitleId">Common Modal</h4>
+			</div>
+			<div class="modal-body">
+				<!-- form start -->
+				<form class="form-horizontal" id="commonFormId" action="">
+					<div class="box-body">
+						<h5 id="successMsgId"></h5>
+						<h5 id="searchMsgId"></h5>
+						<div class="form-group">
+							<label for="inputDepartmentName" class="col-sm-4 control-label">
+								App. Context</label>
+							<div class="col-sm-7">
+								<select class="form-control" name="departmentNameId" id="departmentNameId" >
+									<option value="">-- Select --</option>	
+																	
+								</select>
+								 <span id="departmentNameId_err" class="field-error"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputModuleName" class="col-sm-4 control-label">
+								Module</label>
+							<div class="col-sm-7">
+								<select class="form-control" name="moduleNameId" id="moduleNameId" >
+									<option value="">-- Select --</option>	
+																	
+								</select>
+								 <span id="moduleNameId_err" class="field-error"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPageName" class="col-sm-4 control-label">
+								Domain</label>
+							<div class="col-sm-7">
+								<select class="form-control" name="domainNameId" id="domainNameId" >
+									<option value="">-- Select --</option>																		
+								</select>
+								 <span id="domainNameId_err" class="field-error"></span>
+							</div>
+						</div>
+							
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+				<button type="button"
+					class="btn btn-warning commonButtonActionClass"
+					id="commonButtonActionId">Search</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+
+
+
+<script
+	src="${contextPath}/resources/assets/pageSpecific/js/accessRightsAcl.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

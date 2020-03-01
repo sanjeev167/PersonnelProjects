@@ -1,0 +1,159 @@
+package com.admin.pvt.menu_mgr.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+import com.admin.pvt.menu_mgr.dto.RoleHierarchyDTO;
+import com.admin.pvt.sec.env.entity.DepartmentMaster;
+import com.admin.pvt.sec.rbac.entity.AppRole;
+
+import java.sql.Time;
+
+
+/**
+ * The persistent class for the role_hierarchy database table.
+ * 
+ */
+@Entity
+@Table(name="role_hierarchy")
+@NamedQuery(name="RoleHierarchy.findAll", query="SELECT r FROM RoleHierarchy r")
+
+@SqlResultSetMapping(
+        name = "RoleHierarchyDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = RoleHierarchyDTO.class,
+                columns = { @ColumnResult(name = "id", type = Integer.class), 
+                	    @ColumnResult(name = "contextName", type = String.class), 
+                	    @ColumnResult(name = "parentName", type = String.class), 
+                	    @ColumnResult(name = "childName", type = String.class), 
+                	    @ColumnResult(name = "parentId", type = String.class),                	    
+                	    @ColumnResult(name = "contents", type = String.class),                	   
+                	    @ColumnResult(name = "activeC", type = String.class),                             
+                	    @ColumnResult(name = "totalrecords", type = Integer.class)
+                            }))
+
+public class RoleHierarchy implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)
+	private Integer id;
+
+	@Column(name="active_c", length=1)
+	private String activeC;
+
+	@Column(length=100)
+	private String contents;
+
+	@Column(name="created_by")
+	private Integer createdBy;
+
+	@Column(name="created_on")
+	private Time createdOn;
+
+	@Column(name="updated_by")
+	private Integer updatedBy;
+
+	@Column(name="updated_on")
+	private Time updatedOn;
+
+	//bi-directional many-to-one association to AppRole
+	@ManyToOne
+	@JoinColumn(name="child_id")
+	private AppRole appRole1;
+
+	//bi-directional many-to-one association to AppRole
+	@ManyToOne
+	@JoinColumn(name="parent_id")
+	private AppRole appRole2;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="app_context_id")
+	private DepartmentMaster departmentMaster;
+
+	public RoleHierarchy() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getActiveC() {
+		return this.activeC;
+	}
+
+	public void setActiveC(String activeC) {
+		this.activeC = activeC;
+	}
+
+	public String getContents() {
+		return this.contents;
+	}
+
+	public void setContents(String contents) {
+		this.contents = contents;
+	}
+
+	public Integer getCreatedBy() {
+		return this.createdBy;
+	}
+
+	public void setCreatedBy(Integer createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Time getCreatedOn() {
+		return this.createdOn;
+	}
+
+	public void setCreatedOn(Time createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Integer getUpdatedBy() {
+		return this.updatedBy;
+	}
+
+	public void setUpdatedBy(Integer updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Time getUpdatedOn() {
+		return this.updatedOn;
+	}
+
+	public void setUpdatedOn(Time updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public AppRole getAppRole1() {
+		return this.appRole1;
+	}
+
+	public void setAppRole1(AppRole appRole1) {
+		this.appRole1 = appRole1;
+	}
+
+	public AppRole getAppRole2() {
+		return this.appRole2;
+	}
+
+	public void setAppRole2(AppRole appRole2) {
+		this.appRole2 = appRole2;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+}

@@ -1,0 +1,137 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.util.AntPathMatcher;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyInvocationSecurityMetadataSourceService implements FilterInvocationSecurityMetadataSource {
+
+	private AntPathMatcher urlMatcher = new AntPathMatcher();
+
+	private static Map<String, Collection<ConfigAttribute>> resourceMap = null;
+
+	@Autowired
+	UrlAndRoleMatcherService urlAndRoleMatcherService;
+
+	/**
+	 * Load URL permission configuration
+	 */
+	private void loadResourceDefine() {
+		long starttime = new Date().getTime();
+
+		resourceMap = new HashMap<String, Collection<ConfigAttribute>>();
+		long endtime = new Date().getTime();
+		Map<String, ArrayList<String>> urlAndAccessRolesMap = urlAndRoleMatcherService.getUrlAndRoleMatcherList();
+
+		Collection<ConfigAttribute> atts = new ArrayList<ConfigAttribute>();
+		
+
+		System.out.println("Custom Ant Matcher Loading : time-consuming " + (endtime - starttime) + "  ms");
+		Iterator<Entry<String, ArrayList<String>>> urlAndAccessRolesIterator = urlAndAccessRolesMap.entrySet()
+				.iterator();
+		// Iterate through the hashmap
+		while (urlAndAccessRolesIterator.hasNext()) {
+			Map.Entry mapElement = (Map.Entry) urlAndAccessRolesIterator.next();
+			ArrayList<String> roleList=(ArrayList<String>) mapElement.getValue();
+			atts=prepareConfiAttribute(roleList);
+			resourceMap.put(mapElement.getKey().toString(), atts);
+		}
+		endtime = new Date().getTime();
+		System.out.println(
+				"Loading system permission configuration is complete, time-consuming " + (endtime - starttime) + " ms");
+
+	}
+
+	private Collection <ConfigAttribute> prepareConfiAttribute(ArrayList<String> roleArray) {
+		Collection <ConfigAttribute> atts  = new ArrayList < ConfigAttribute >();
+		ConfigAttribute ca;
+		for(String role:roleArray) {
+		 ca=new SecurityConfig(role);
+		 atts.add(ca);
+		}		
+		return atts;
+	}
+
+	private  static String toCSV(Object object) {
+		String result = "";
+		ArrayList<String> array=(ArrayList<String>) object;
+		if (array.size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			for (String s : array) {
+				sb.append(s).append(",");
+			}
+			result = sb.deleteCharAt(sb.length() - 1).toString();
+		}
+		return result;
+	}
+
+	public boolean isResourceMapEmpty() {
+		if (resourceMap == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public Collection<ConfigAttribute> getAllConfigAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+		if (resourceMap == null) {
+			loadResourceDefine();
+		}
+		// TODO Auto-generated method stub
+		String url = ((FilterInvocation) object).getRequestUrl();
+		// System.out.println("Coming Url = "+url);
+		if (resourceMap != null) {
+			Set<String> urlPatternSet = resourceMap.keySet();
+			for (String urlPattern : urlPatternSet) {
+				//System.out.println("Coming Url = "+url + " and matching with url = "+urlPattern);
+				if (urlMatcher.match(urlPattern, url)) {
+					System.out.println("Url["+url+"] matched and has access for roles  = " 
+				                                               + resourceMap.get(urlPattern));
+					return resourceMap.get(urlPattern);
+				}
+			}
+		}
+		return null;
+	}
+
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public String resourceSelfMatcher(String resURL) {
+		return null;
+	}
+
+	/**
+	 * Refresh resource allocation
+	 */
+	public void refreshResource() {
+		loadResourceDefine();
+	}
+}

@@ -1,0 +1,281 @@
+
+
+
+<style>
+.example-modal .modal {
+	position: relative;
+	top: auto;
+	bottom: auto;
+	right: auto;
+	left: auto;
+	display: block;
+	z-index: 1;
+}
+
+.example-modal .modal {
+	background: transparent !important;
+}
+</style>
+
+
+<!-- modal for view -->
+<div class="modal fade" id="modal-view">
+	 <div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country View</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- modal for edit -->
+<div class="modal fade" id="modal-edit">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country Edit</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- modal for add -->
+<div class="modal fade" id="modal-add">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country Add</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- modal for delete -->
+<div class="modal fade" id="modal-delete">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country Delete</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- modal for selected Delete -->
+<div class="modal fade" id="modal-sDelete">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country Selected Delete</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- modal for search -->
+<div class="modal fade" id="modal-search">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country Search</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -1,0 +1,97 @@
+/**
+ * 
+ */
+package com.admin.pub.local_en.ctrl;
+
+import javax.servlet.http.HttpSession;
+
+/**
+ * @author Sanjeev
+ *
+ */
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+//@SessionAttributes({ "currentUser" })
+@Controller
+
+public class WebAdminUserLoginController {
+
+	private static final Logger log = LogManager.getLogger(WebAdminUserLoginController.class);
+
+	@RequestMapping(value = "/admin/pub/login", method = RequestMethod.GET)
+	public String login(Model model, String error, String logout,String invalid,String expired,String expiredThroughAjax) {
+		
+		if (error != null)
+			model.addAttribute("errorMessge", "Username or Password is incorrect !!");
+
+		if (logout != null)
+			model.addAttribute("errorMessge", "You have been logged out successfully !!");
+		if (invalid != null)
+			model.addAttribute("invalid", "You are using invalid session !!");
+		if (expired != null)			
+		    model.addAttribute("expired", "Your session is expired !!.");
+		
+		return "admin/pub/login";
+	}
+
+	// After a successful login the control can be transfered anywhere as per
+	// business need.
+	@RequestMapping(value = "/admin/pvt/postLogin", method = RequestMethod.GET)
+	public String postLogin(Model model, HttpSession session) {
+       
+		log.info("Admin postLogin is called");
+
+		// read principal out of security context and set it to session
+		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+				.getContext().getAuthentication();
+
+		validatePrinciple(authentication.getPrincipal());
+
+		// User loggedInUser = ((PdfUserDetails)
+		// authentication.getPrincipal()).getUserDetails();
+
+		// model.addAttribute("currentUser", loggedInUser.getUsername());
+
+		// session.setAttribute("userId", loggedInUser.getId());
+
+		// return "redirect:/wallPage";
+
+		return "admin/pvt/db/db";
+	}
+
+	@RequestMapping(value = "/admin/pvt/db", method = RequestMethod.GET)
+	public String db(Model model, HttpSession session) {
+		log.info("Admin postLogin is called");
+		return "admin/pvt/db/db";
+	}
+
+	@RequestMapping(value = "/admin/pub/fgotpwd", method = RequestMethod.GET)
+	public String fgotpwd(Model model) {
+		log.info("fgotpwd()");
+
+		return "admin/pub/fgotpwd";
+	}
+
+	@RequestMapping(value = "/admin/pub/fgotpwd", method = RequestMethod.POST)
+	public String sendFgotpwd(Model model) {
+		log.info("fgotpwd()");
+
+		return "admin/pub/fgotpwd";
+	}
+
+	private void validatePrinciple(Object principal) {
+
+		// if (!(principal instanceof PdfUserDetails)) {
+		// throw new IllegalArgumentException("Principal can not be null!");
+		// }
+	}
+
+}// End of UserLoginController

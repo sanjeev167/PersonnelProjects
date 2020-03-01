@@ -1,0 +1,33 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MenuCollectionDTO {
+
+	List<MenuDTO> menuDTOList=new ArrayList<MenuDTO>();
+	public MenuCollectionDTO(List menuDTOList) {
+		this.menuDTOList=menuDTOList;
+	}
+	/**
+	 * @return the menuDTOList
+	 */
+	public List<MenuDTO> getMenuDTOList() {
+		return menuDTOList;
+	}
+	/**
+	 * @param menuDTOList the menuDTOList to set
+	 */
+	public void setMenuDTOList(List<MenuDTO> menuDTOList) {
+		this.menuDTOList = menuDTOList;
+	}
+	
+	
+}//End of MenuCollectionDTO

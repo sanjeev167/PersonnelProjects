@@ -1,0 +1,333 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.ColumnResult;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.masters.dto.NameValue;
+import com.admin.pvt.menu_mgr.dto.MenuManagerDTO;
+import com.admin.pvt.menu_mgr.entity.MenuManager;
+import com.admin.pvt.menu_mgr.entity.TreeMenuTypeMaster;
+import com.admin.pvt.menu_mgr.repo.MenuManagerRepository;
+import com.admin.pvt.menu_mgr.repo.TreeMenuTypeMasterRepository;
+import com.admin.pvt.sec.env.entity.PageMaster;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.admin.pvt.sec.env.repo.PageRepository;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppConstants;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class MenuManagerServiceImpl implements MenuManagerService{
+	static final Logger log = LoggerFactory.getLogger(MenuManagerServiceImpl.class);
+	/** The entity manager. */
+	@Autowired
+	@PersistenceContext(unitName = AppConstants.JPA_UNIT_PRACTICEONNET)
+	private EntityManager entityManager;
+	@Autowired
+	DepartmentRepository departmentRepository;
+	@Autowired
+	PageRepository pageRepository;
+	@Autowired
+	MenuManagerRepository menuManagerRepository;	
+	@Autowired
+	TreeMenuTypeMasterRepository treeMenuTypeMasterRepository;
+
+	@Override
+	public DataTableResults<MenuManagerDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> loadGrid ==> Started");
+		DataTableResults<MenuManagerDTO> dataTableResult;
+		try {
+			DataTableRequest<MenuManager> dataTableInRQ = new DataTableRequest<MenuManager>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery;
+			
+              
+			if (whereClauseForBaseQuery.equals(""))	
+				baseQuery ="SELECT child.id as ID, "
+						    + "dm.name as departmentMasterName,"
+						    + "tmtm.name as treeMenuTypeName, "
+						    + "parent.node_type as nodeType, "
+				            +" child.node_name  AS menuManagerParentNodeName,"
+				            + "parent.node_name AS nodeName,"
+				            + "parent.img_url as imgUrl, "
+				            + "pm.baseurl as pageBaseUrl, "
+				            + "parent.active_c as activeC,"
+				            + "(SELECT COUNT(1)-1 FROM menu_manager ) AS totalrecords "+
+				
+				            " FROM menu_manager parent, menu_manager child ,department_master dm ,"
+				            + "tree_menu_type_master tmtm ,page_master pm "+
+				            " WHERE parent.parent_node_id = child.id "
+				            + "and parent.department_id=dm.id "
+				            + "and  parent.tree_menu_type_id=tmtm.id "
+				            + "and  parent.page_id=pm.id";
+								
+				else					
+					baseQuery ="SELECT child.id as ID, "
+						    + "dm.name as departmentMasterName,"
+						    + "tmtm.name as treeMenuTypeName, "
+						    + "child.node_type as nodeType, "
+				            +" child.node_name  AS menuManagerParentNodeName,"
+				            + "parent.node_name AS nodeName,"
+				            + "parent.img_url as imgUrl, "
+				            + "pm.baseurl as pageBaseUrl, "
+				            + "child.active_c as activeC,"
+				            + "(SELECT COUNT(1)-1 FROM menu_manager"
+				            + whereClauseForBaseQuery +" ) AS totalrecords "+
+				
+				            " FROM menu_manager parent, menu_manager child ,department_master dm ,"
+				            + "tree_menu_type_master tmtm ,page_master pm "+
+				            " WHERE parent.parent_node_id = child.id "
+				            + "and child.department_id=dm.id "
+				            + "and  child.tree_menu_type_id=tmtm.id "
+				            + "and  child.page_id=pm.id";
+					
+			System.out.println("baseQuery ="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "MenuManagerDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<MenuManagerDTO> menuManagerList = query.getResultList();
+
+			dataTableResult = new DataTableResults<MenuManagerDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(menuManagerList);
+			if (!AppUtil.isObjectEmpty(menuManagerList)) {
+				dataTableResult.setRecordsTotal(menuManagerList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(menuManagerList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(menuManagerList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     MenuManagerServiceImpl :==> loadGrid ==> Ended");
+		return dataTableResult;
+	}
+
+	// This will directly put your result into your mapped dto
+	@Transactional
+	@Override
+	public MenuManagerDTO getReordById(Integer id) throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> getReordById ==> Started");
+		MenuManagerDTO menuManagerDTO;
+		try {
+			MenuManager menuManager = menuManagerRepository.getOne(id);
+			menuManagerDTO = new MenuManagerDTO();
+			menuManagerDTO.setId(menuManager.getId());
+			menuManagerDTO.setDepartmentMasterId(menuManager.getPageMaster().getModuleMaster().getDepartmentMaster().getId());
+			menuManagerDTO.setDepartmentMasterName(menuManager.getPageMaster().getModuleMaster().getDepartmentMaster().getName());
+			
+			menuManagerDTO.setMenuManagerParentId(menuManager.getParentNodeManager().getId());
+			menuManagerDTO.setMenuManagerParentNodeName(menuManager.getParentNodeManager().getNodeName());
+			
+			menuManagerDTO.setNodeName(menuManager.getNodeName());
+			
+			menuManagerDTO.setNodeType(menuManager.getNodeType());
+			menuManagerDTO.setTreeMenuTypeId(menuManager.getTreeMenuTypeMaster().getId());
+			
+			menuManagerDTO.setPageMasterId(menuManager.getPageMaster().getId());
+			menuManagerDTO.setPageBaseUrl(menuManager.getPageMaster().getBaseurl());			
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     MenuManagerServiceImpl :==> getReordById ==> Ended");
+		return menuManagerDTO;
+	}
+    @Transactional
+	@Override
+	public MenuManagerDTO saveAndUpdate(MenuManagerDTO menuManagerDTO) throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> saveAndUpdate ==> Started");
+		MenuManager menuManager;
+		MenuManagerDTO menuManagerDTONew;
+		try {			
+			if (menuManagerDTO.getId() != null) {//Edit case				
+				menuManager = menuManagerRepository.getOne(menuManagerDTO.getId());				
+			}
+			else {	//Add case				
+				menuManager = new MenuManager();				
+			}
+			
+						
+			menuManager.setDepartmentMaster(departmentRepository.getOne(menuManagerDTO.getDepartmentMasterId()));
+			if(menuManagerDTO.getMenuManagerParentId()!=null)
+			menuManager.setParentNodeManager(menuManagerRepository.getOne(menuManagerDTO.getMenuManagerParentId()));			
+			else
+				menuManager.setParentNodeManager(new MenuManager());
+			
+			menuManager.setNodeName(menuManagerDTO.getNodeName());			
+			menuManager.setNodeType(menuManagerDTO.getNodeType());
+			menuManager.setTreeMenuTypeMaster(treeMenuTypeMasterRepository.getOne(menuManagerDTO.getTreeMenuTypeId()));			
+			
+			if(menuManagerDTO.getPageMasterId()!=null)
+			menuManager.setPageMaster(pageRepository.getOne(menuManagerDTO.getPageMasterId()));	
+			else {
+				ArrayList<PageMaster> pageMasterList=pageRepository.getDummyNodePageIfExists();
+				if(pageMasterList.size()>0) {
+					menuManager.setPageMaster(pageMasterList.get(0));
+				}					
+				else {
+					PageMaster pageMaster=new PageMaster();
+					pageMaster.setBaseurl("#");
+					menuManager.setPageMaster(pageMaster);
+				}
+				
+			}
+			menuManager.setImgUrl(menuManagerDTO.getImgUrl());
+			
+			MenuManager returnedMenuManager = menuManagerRepository.saveAndFlush(menuManager);	
+            
+			menuManagerDTONew = new MenuManagerDTO(returnedMenuManager.getId(),					
+					returnedMenuManager.getDepartmentMaster().getName(),
+					returnedMenuManager.getTreeMenuTypeMaster().getName(), 
+					returnedMenuManager.getNodeType(),
+					returnedMenuManager.getParentNodeManager().getNodeName(),
+					returnedMenuManager.getNodeName(), 
+					returnedMenuManager.getImgUrl(),
+					returnedMenuManager.getPageMaster().getBaseurl(), 
+					returnedMenuManager.getActiveC()
+					);
+
+		} catch (Exception ex) {ex.printStackTrace();
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     MenuManagerServiceImpl :==> saveAndUpdate ==> Ended");
+		return menuManagerDTONew;
+	}
+
+	@Override
+	public boolean deleteOneRecord(Integer id) throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> deleteOneRecord ==> Started");
+		boolean isRecordDelete = true;
+		try {
+			menuManagerRepository.deleteById(id);
+		} catch (Exception ex) {
+			isRecordDelete = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     MenuManagerServiceImpl :==> deleteOneRecord ==> Ended");
+		return isRecordDelete;
+	}
+
+	@Transactional
+	@Override
+	public boolean deleteMultipleRecords(Integer[] recordIdArray) throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> deleteMultipleRecords ==> Started");
+		boolean isRecordDelete = true;
+		try {
+			menuManagerRepository.deleteMenuManagerWithIds(recordIdArray);
+		} catch (Exception ex) {
+			isRecordDelete = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     MenuManagerServiceImpl :==> deleteMultipleRecords ==> Started");
+		return isRecordDelete;
+	}
+
+	@Override
+	public List<NameValue> getListTreeMenuType() throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> getListTreeMenuType ==> Started");
+
+		List<NameValue> moduleList = new ArrayList<NameValue>();
+		NameValue nameValue;
+
+		try {
+			List<TreeMenuTypeMaster> treeMenuTypeMasterList = treeMenuTypeMasterRepository.findAll();
+			for (TreeMenuTypeMaster treeMenuTypeMaster : treeMenuTypeMasterList) {
+				nameValue = new NameValue(treeMenuTypeMaster.getId(), treeMenuTypeMaster.getName());
+				moduleList.add(nameValue);
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     MenuManagerServiceImpl :==> getListTreeMenuType ==> Ended");
+
+		return moduleList;
+	}
+	
+	@Override
+	public List<NameValue> getListTreeParentNode() throws CustomRuntimeException {
+		log.info("     MenuManagerServiceImpl :==> getListTreeParentNode ==> Started");
+
+		List<NameValue> moduleList = new ArrayList<NameValue>();		
+		//moduleList.add(new NameValue(0, "Root"));//For testing
+		NameValue nameValue;		
+		try {
+			List<MenuManager> menuManagerList = menuManagerRepository.findAllTreeNodeList();
+			for (MenuManager menuManager : menuManagerList) {
+				nameValue = new NameValue(menuManager.getId(), menuManager.getNodeName());
+				moduleList.add(nameValue);
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     MenuManagerServiceImpl :==> getListTreeParentNode ==> Ended");
+
+		return moduleList;
+	}
+	
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentValue, String parentId, Object fieldValue,
+			String fieldName) throws UnsupportedOperationException, CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean FirstChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean SecondChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean ThirdChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}	
+	
+}

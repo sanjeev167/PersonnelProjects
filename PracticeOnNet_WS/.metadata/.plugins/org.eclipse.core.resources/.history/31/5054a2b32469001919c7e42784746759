@@ -1,0 +1,245 @@
+
+<!-- Content Header (Page header) -->
+
+<section class="content-header">
+	<h1>Assign Access Rights</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		<li class="active">Assign Access Rights</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+
+	<!-- START CUSTOM TABS -->
+
+
+	<div class="row">
+		<div class="col-md-4" >
+			<!-- Custom Tabs -->
+			<div class="nav-tabs-custom">
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#search" data-toggle="tab">Search</a></li>
+					<li><a href="#adev" data-toggle="tab">Add/Edit/View</a></li>
+
+
+					<li class="pull-right"><a href="#" class="text-muted"><i
+							class="fa fa-gear"></i></a></li>
+				</ul>
+				<div class="tab-content" style="min-height: 200px">mm
+					<div class="tab-pane active" id="search" >
+						<%@ include file="searchRbacRts.jsp"%>
+
+					</div>
+					<!-- /.tab-pane -->
+
+
+					<div class="tab-pane" id="adev">
+						<%@ include file="addEditViewRbacRts.jsp"%>
+
+					</div>
+					<!-- /.tab-pane -->
+
+				</div>
+				<!-- /.tab-content -->
+			</div>
+			<!-- nav-tabs-custom -->
+		</div>
+		<!-- /.col -->
+
+
+		<div class="col-md-8">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Defined access rights</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool"
+							data-widget="regresh">
+							<i class="fa fa-refresh"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool"
+							data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+
+					</div>
+				</div>
+				<div class="box-body">
+					<table id="example1" class="table table-bordered table-striped ">
+						<thead>
+							<tr>
+								<th colspan="8" style="text-align: center;">Access rights
+									details : -- <span style="color: red;">[ C- Create, R-
+										Read, U- Update, D- Delete, A- Administration ] </span>
+
+								</th>
+
+							</tr>
+							<tr>
+								<th>#</th>
+								<th width="10%">Department</th>
+								<th width="10%">Module</th>
+								<th width="15%">Page</th>
+								<th width="15%">Access Rights</th>
+								<th width="45%">Allowwed Roles</th>
+								<th>Edit</th>
+								<th>Delete</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Department-1</td>
+								<td>Module-1</td>
+								<td>Page-1</td>
+								<td style="color: blue; font: bold;">
+									C,&nbsp;R,&nbsp;U,&nbsp;D,&nbsp;A</td>
+								<td style="color: blue; font: bold;">
+									Role-1,&nbsp;Role-2,&nbsp;Role-3,&nbsp;Role-4,&nbsp;Role-5,</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+
+		</div>
+		<!-- /.col -->
+	</div>
+
+	<!-- End of Grid Row -->
+
+
+</section>
+<!-- /.content -->
+
+
+
+
+
+
+
+<style>
+#tableHolder {
+	height: 100px;
+	overflow: scroll
+}
+
+#tableHolderOp {
+	height: 150px;
+	overflow: scroll
+}
+</style>
+

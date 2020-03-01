@@ -1,0 +1,76 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.LengthRule;
+import org.passay.PasswordData;
+import org.passay.PasswordValidator;
+import org.passay.RuleResult;
+import org.passay.WhitespaceRule;
+
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MatchPasswordConstraintValidator implements ConstraintValidator<MatchPassword, Object> {
+
+	private String password;
+	private String passwordConf;  
+	private String message;
+
+	@Override
+	public void initialize(MatchPassword matchPassword) {		
+		this.password = matchPassword.password();
+		this.passwordConf = matchPassword.passwordConf();		
+        this.message=matchPassword.message();
+	}
+
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		
+		final Object passwordValue;
+		final Object passwordConfvalue;		
+		boolean isValid = true;			
+			try {
+				passwordValue = BeanUtils.getProperty(object, this.password);
+				passwordConfvalue = BeanUtils.getProperty(object, this.passwordConf);				
+			    isValid = passwordValue.toString().equals(passwordConfvalue.toString());			    
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				ExceptionApplicationUtility.wrapRunTimeException(e);
+				
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				ExceptionApplicationUtility.wrapRunTimeException(e);
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				ExceptionApplicationUtility.wrapRunTimeException(e);
+			}
+			
+			// Set the error reporting path
+			if (!isValid) {
+				context.disableDefaultConstraintViolation();
+				context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.passwordConf)
+						.addConstraintViolation();
+			}
+			
+		return isValid;
+	}
+
+	
+}

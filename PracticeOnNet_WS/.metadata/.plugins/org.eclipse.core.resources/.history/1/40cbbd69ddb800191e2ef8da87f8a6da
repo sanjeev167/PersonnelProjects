@@ -1,0 +1,26 @@
+/**
+ * 
+ */
+package com.config.selector;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.sitemesh.webapp.contentfilter.BasicSelector;
+import org.springframework.boot.web.servlet.DispatcherType;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Component
+public class SiteMeshDecoratorSelector extends BasicSelector {
+	 @Override
+	    protected boolean filterAlreadyAppliedForRequest(HttpServletRequest request) {
+	      if (request.getDispatcherType().equals(DispatcherType.ERROR)) {
+	        LOG.debug("Currently in a ERROR dispatcher - preventing SiteMesh from skipping decoration");
+	        return false;
+	      }
+
+	      return super.filterAlreadyAppliedForRequest(request);
+	    }
+}

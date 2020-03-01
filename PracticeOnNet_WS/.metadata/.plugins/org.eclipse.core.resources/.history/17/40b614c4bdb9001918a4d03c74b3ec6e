@@ -1,0 +1,48 @@
+/**
+ * 
+ */
+package com.exception.ctrl;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.admin.pub.local_en.ctrl.WebAdminUserLoginController;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Controller
+@RequestMapping("/showError/")
+public class ShowErrorController {
+	private static final Logger log = LogManager.getLogger(WebAdminUserLoginController.class);
+
+	@RequestMapping(value = "404", method = RequestMethod.GET)
+	public String ResourceNoFound() {		
+		return "error/404";
+	}
+	
+	@RequestMapping(value = "500", method = RequestMethod.GET)
+	public String serverError() {		
+		return "error/500";
+	}
+	
+	
+	@RequestMapping(value = "401", method = RequestMethod.GET)
+	public String UnauthorizedAccess() {		
+		return "error/401";
+	}
+	
+	
+	@RequestMapping(value = "403", method = RequestMethod.GET)
+	public String UnauthorizedAccess2() {		
+		return "error/403";
+	}
+	
+	
+
+}

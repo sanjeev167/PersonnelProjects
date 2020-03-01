@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.config.security;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class AjaxAwareAuthenticationEntryPoint {
+
+}

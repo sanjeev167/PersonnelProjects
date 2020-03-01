@@ -1,0 +1,10 @@
+package com.config.security.web;
+
+import java.util.List;
+import java.util.Properties;
+
+public interface CommonDao {
+
+	List<Properties> queryForList(String sql);
+
+}

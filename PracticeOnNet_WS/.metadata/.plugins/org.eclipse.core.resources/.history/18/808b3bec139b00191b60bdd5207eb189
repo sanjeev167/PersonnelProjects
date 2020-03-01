@@ -1,0 +1,80 @@
+package com.admin.pub.en.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the user_category database table.
+ * 
+ */
+@Entity
+@Table(name="user_category")
+@NamedQuery(name="UserCategory.findAll", query="SELECT u FROM UserCategory u")
+public class UserCategory implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(name="department_id")
+	private Integer departmentId;
+
+	private String name;
+
+	//bi-directional many-to-one association to WebUser
+	@OneToMany(mappedBy="userCategory")
+	private List<WebUser> webUsers;
+
+	public UserCategory() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getDepartmentId() {
+		return this.departmentId;
+	}
+
+	public void setDepartmentId(Integer departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<WebUser> getWebUsers() {
+		return this.webUsers;
+	}
+
+	public void setWebUsers(List<WebUser> webUsers) {
+		this.webUsers = webUsers;
+	}
+
+	public WebUser addWebUser(WebUser webUser) {
+		getWebUsers().add(webUser);
+		webUser.setUserCategory(this);
+
+		return webUser;
+	}
+
+	public WebUser removeWebUser(WebUser webUser) {
+		getWebUsers().remove(webUser);
+		webUser.setUserCategory(null);
+
+		return webUser;
+	}
+
+}

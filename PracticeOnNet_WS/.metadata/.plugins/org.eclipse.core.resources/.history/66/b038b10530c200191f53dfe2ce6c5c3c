@@ -1,0 +1,78 @@
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Organization Chart Plugin</title>
+<link rel="icon" href="${contextPath}/resources/assets/roleHierachy/new/img/logo.png">
+<link rel="stylesheet" href="${contextPath}/resources/assets/roleHierachy/new/css/font-awesome.min.css">
+<link rel="stylesheet" href="${contextPath}/resources/assets/roleHierachy/new/css/jquery.orgchart.css">
+<link rel="stylesheet" href="${contextPath}/resources/assets/roleHierachy/new/css/style.css">
+</head>
+<body>
+	
+
+	<script type="text/javascript" src="${contextPath}/resources/assets/roleHierachy/new/js/jquery.min.js"></script>
+	<script type="text/javascript" src="${contextPath}/resources/assets/roleHierachy/new/js/jquery.mockjax.min.js"></script>
+	<script type="text/javascript" src="${contextPath}/resources/assets/roleHierachy/new/js/jquery.orgchart.js"></script>
+	<script type="text/javascript">
+		$(function() {
+
+			$.mockjax({
+				url : '/orgchart/initdata',
+				responseTime : 1000,
+				contentType : 'application/json',
+				responseText : {
+					'name' : 'Lao Lao',
+					'title' : 'general manager',
+					'children' : [ {
+						'name' : 'Bo Miao',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Su Miao',
+						'title' : 'department manager',
+						'children' : [ {
+							'name' : 'Tie Hua',
+							'title' : 'senior engineer'
+						}, {
+							'name' : 'Hei Hei',
+							'title' : 'senior engineer',
+							'children' : [ {
+								'name' : 'Pang Pang',
+								'title' : 'engineer'
+							}, {
+								'name' : 'Xiang Xiang',
+								'title' : 'UE engineer'
+							} ]
+						} ]
+					}, {
+						'name' : 'Yu Jie',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Yu Li',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Hong Miao',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Yu Wei',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Chun Miao',
+						'title' : 'department manager'
+					}, {
+						'name' : 'Yu Tie',
+						'title' : 'department manager'
+					} ]
+				}
+			});
+
+			$('#tree').orgchart({
+				'data' : '/orgchart/initdata',
+				'nodeContent' : 'title'
+			});
+
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyAccessDecisionManager {
+
+}

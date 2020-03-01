@@ -1,0 +1,162 @@
+
+<!-- Content Header (Page header) -->
+
+<section class="content-header">
+	<h1>
+		State Master
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		<li class="active">State Master</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">State</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool"
+							data-widget="regresh">
+							<i class="fa fa-refresh"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool"
+							data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						
+					</div>
+				</div>
+				<div class="box-body">
+					<table id="example1"  class="table table-bordered table-striped ">
+						<thead>
+							<tr>
+								<th># &nbsp;<a href="#">
+								<i class="fa fa-plus" data-toggle="modal" data-target="#modal-default"></i>
+								</a></th>
+								<th>Country</th>
+								<th>State</th>
+								<th>Edit</th>
+								<th>Delete</th>		
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->			
+		</div>
+		<!-- /.col -->
+   </div>
+</section>
+<!-- /.content -->
+
+
+
+
+
+
+
+<style>
+    .example-modal .modal {
+      position: relative;
+      top: auto;
+      bottom: auto;
+      right: auto;
+      left: auto;
+      display: block;
+      z-index: 1;
+    }
+
+    .example-modal .modal {
+      background: transparent !important;
+    }
+  </style>
+
+
+<div class="modal fade" id="modal-default">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">State</h4>
+              </div>
+              <div class="modal-body">
+              
+                <!-- form start -->
+			<form class="form-horizontal">
+				<div class="box-body">
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="countryId"
+								placeholder="Country Name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">State</label>
+
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="StateId"
+								placeholder="State Name">
+						</div>
+					</div>			
+					
+				</div>
+				<!-- /.box-body -->
+				
+				<!-- /.box-footer -->
+			</form>
+
+                
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+<!-- /.modal -->

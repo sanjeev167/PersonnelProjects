@@ -1,0 +1,90 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.custom.validation.interfaceForServices.FieldValueWithParentIdExists;
+import com.custom.validation.interfaceForServices.TreeMenuValidation;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentNodeRequiredWithTreeNodeTypeValidator implements ConstraintValidator<ParentNodeRequiredWithTreeNodeType, Object> {
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	private TreeMenuValidation service;
+	private String fieldName;
+	private String parentId;
+	private String id;
+	private String message;
+	
+
+	@Override
+	public void initialize(ParentNodeRequiredWithTreeNodeType parentNodeRequiredWithTreeNodeType) {
+		Class<? extends TreeMenuValidation> clazz = parentNodeRequiredWithTreeNodeType.service();
+
+		this.fieldName = parentNodeRequiredWithTreeNodeType.fieldName();
+		this.parentId = parentNodeRequiredWithTreeNodeType.parentId();
+		this.id=parentNodeRequiredWithTreeNodeType.id();
+        this.message=parentNodeRequiredWithTreeNodeType.message();
+        
+		String serviceQualifier = parentNodeRequiredWithTreeNodeType.serviceQualifier();
+		if (!serviceQualifier.equals("")) {
+			this.service = this.applicationContext.getBean(serviceQualifier, clazz);
+		} else {
+			this.service = this.applicationContext.getBean(clazz);
+		}
+	}
+
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		final Object nodeTypeValue;
+		final Object parentNodeCountValue;
+		final Object parentNodeValue;
+		
+		
+		boolean isValid = true;		
+		try {
+			nodeTypeValue = BeanUtils.getProperty(object, this.nodeTypeValue);
+			parentNodeCountValue = BeanUtils.getProperty(object, this.parentNodeCountValue);	
+			parentNodeValue=BeanUtils.getProperty(object, this.parentNodeValue);		
+			
+				try {
+					isValid = !this.service.parentNodeRequiredWithTreeNodeType(
+							this.nodeTypeValue, this.nodeTypeName, this.parentNodeCountValue, 
+							this.parentNodeCount, this.parentNodeValue, this.parentNodeName);
+							
+				} catch (UnsupportedOperationException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				} catch (CustomRuntimeException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				}			
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.fieldName)
+					.addConstraintViolation();
+		}
+
+		
+		return isValid;
+	}
+}

@@ -1,0 +1,19 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Entity
+@Table(name="tree_menu_type_master")
+@NamedQuery(name="TreeMenuTypeMaster.findAll", query="SELECT m FROM TreeMenuTypeMaster m")
+public class TreeMenuTypeMaster {
+
+}

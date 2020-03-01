@@ -1,0 +1,28 @@
+/**
+ * 
+ */
+package com.config.httpTOhttps;
+
+import org.springframework.boot.web.server.Ssl;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.stereotype.Component;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Component
+public class CustomContainer implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
+  public void customize(ConfigurableServletWebServerFactory factory) {
+      factory.setPort(8080);
+      factory.setContextPath("");
+      //Set all ssl details here
+      
+      Ssl ssl=new Ssl();
+      
+      factory.setSsl(ssl);
+   }
+}

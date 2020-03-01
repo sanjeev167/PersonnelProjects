@@ -1,0 +1,74 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import com.util.AppConstants;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyAccessDecisionManager implements AccessDecisionManager {
+	@Autowired
+	MyInvocationSecurityMetadataSourceService securityMetadataSource;
+	
+	public void decide(Authentication authentication, Object secureObject,Collection<ConfigAttribute> configAttributes) throws AccessDeniedException,InsufficientAuthenticationException {
+		
+		// TODO Auto-generated method stub
+		if(securityMetadataSource.isResourceMapEmpty()){
+			securityMetadataSource.refreshResource();
+		}		
+		//Will update resource access rights if the security update takes place
+				if(AppConstants.securityUpdate){
+					securityMetadataSource.refreshResource();
+					AppConstants.securityUpdate=false;
+				}
+		//System.out.println("configAttributes value = "+configAttributes);
+		if (configAttributes == null ) throw new AccessDeniedException("Sorry, you don't have this permission.");
+		
+		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");	
+		System.out.println("\n\t#################### Authorization Started ###################\n");
+		System.out.println("\t\tURL ACCESS Role LIST Found = "+configAttributes);
+		for(ConfigAttribute ca:configAttributes){
+			String needRole = ca.getAttribute();		
+			
+            for(GrantedAuthority userGA:authentication.getAuthorities()) {      	
+            	
+            	System.out.println("\n\t\tAuthenticated Role Found = "+userGA.getAuthority());
+            	System.out.println("\n\t\tAuthenticated Role ["+userGA.getAuthority()+"] \n\n\t\t      Is Compared with      \n\n\t\t URL ACCESS ROLE ["+needRole+"]\n\n\t\tCompared Result ="
+            	+needRole.equals(userGA.getAuthority()));
+            	if(needRole.equals(userGA.getAuthority())) {   // ga is user's role.
+            		System.out.println("\n\t#################### Authorization Granted ###################\n\n");
+            		return ;
+            	} else {
+            		System.out.println("\n\t#################### Authorization Not Granted ###################\n\n");
+            		
+            	}
+            } 
+		} 
+		
+        throw new AccessDeniedException("Sorry, you don't have this permission.");
+	}
+
+	public boolean supports(ConfigAttribute arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+}

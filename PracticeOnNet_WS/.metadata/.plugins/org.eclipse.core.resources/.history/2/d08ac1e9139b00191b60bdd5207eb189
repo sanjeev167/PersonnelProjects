@@ -1,0 +1,147 @@
+package com.admin.pub.en.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the department_master database table.
+ * 
+ */
+@Entity
+@Table(name="department_master")
+@NamedQuery(name="DepartmentMaster.findAll", query="SELECT d FROM DepartmentMaster d")
+public class DepartmentMaster implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	private String name;
+
+	//bi-directional many-to-one association to AppGroup
+	@OneToMany(mappedBy="departmentMaster")
+	private List<AppGroup> appGroups;
+
+	//bi-directional many-to-one association to AppRole
+	@OneToMany(mappedBy="departmentMaster")
+	private List<AppRole> appRoles;
+
+	//bi-directional many-to-one association to ModuleMaster
+	@OneToMany(mappedBy="departmentMaster")
+	private List<ModuleMaster> moduleMasters;
+
+	//bi-directional many-to-one association to UserCategory
+	@OneToMany(mappedBy="departmentMaster")
+	private List<UserCategory> userCategories;
+
+	public DepartmentMaster() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<AppGroup> getAppGroups() {
+		return this.appGroups;
+	}
+
+	public void setAppGroups(List<AppGroup> appGroups) {
+		this.appGroups = appGroups;
+	}
+
+	public AppGroup addAppGroup(AppGroup appGroup) {
+		getAppGroups().add(appGroup);
+		appGroup.setDepartmentMaster(this);
+
+		return appGroup;
+	}
+
+	public AppGroup removeAppGroup(AppGroup appGroup) {
+		getAppGroups().remove(appGroup);
+		appGroup.setDepartmentMaster(null);
+
+		return appGroup;
+	}
+
+	public List<AppRole> getAppRoles() {
+		return this.appRoles;
+	}
+
+	public void setAppRoles(List<AppRole> appRoles) {
+		this.appRoles = appRoles;
+	}
+
+	public AppRole addAppRole(AppRole appRole) {
+		getAppRoles().add(appRole);
+		appRole.setDepartmentMaster(this);
+
+		return appRole;
+	}
+
+	public AppRole removeAppRole(AppRole appRole) {
+		getAppRoles().remove(appRole);
+		appRole.setDepartmentMaster(null);
+
+		return appRole;
+	}
+
+	public List<ModuleMaster> getModuleMasters() {
+		return this.moduleMasters;
+	}
+
+	public void setModuleMasters(List<ModuleMaster> moduleMasters) {
+		this.moduleMasters = moduleMasters;
+	}
+
+	public ModuleMaster addModuleMaster(ModuleMaster moduleMaster) {
+		getModuleMasters().add(moduleMaster);
+		moduleMaster.setDepartmentMaster(this);
+
+		return moduleMaster;
+	}
+
+	public ModuleMaster removeModuleMaster(ModuleMaster moduleMaster) {
+		getModuleMasters().remove(moduleMaster);
+		moduleMaster.setDepartmentMaster(null);
+
+		return moduleMaster;
+	}
+
+	public List<UserCategory> getUserCategories() {
+		return this.userCategories;
+	}
+
+	public void setUserCategories(List<UserCategory> userCategories) {
+		this.userCategories = userCategories;
+	}
+
+	public UserCategory addUserCategory(UserCategory userCategory) {
+		getUserCategories().add(userCategory);
+		userCategory.setDepartmentMaster(this);
+
+		return userCategory;
+	}
+
+	public UserCategory removeUserCategory(UserCategory userCategory) {
+		getUserCategories().remove(userCategory);
+		userCategory.setDepartmentMaster(null);
+
+		return userCategory;
+	}
+
+}

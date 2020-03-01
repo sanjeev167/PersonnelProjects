@@ -1,0 +1,164 @@
+package com.admin.pvt.menu_mgr.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.sql.Time;
+import java.util.List;
+
+
+/**
+ * The persistent class for the role_hierarchy database table.
+ * 
+ */
+@Entity
+@Table(name="role_hierarchy")
+@NamedQuery(name="RoleHierarchy.findAll", query="SELECT r FROM RoleHierarchy r")
+public class RoleHierarchy implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)
+	private Integer id;
+
+	@Column(name="active_c", length=1)
+	private String activeC;
+
+	@Column(length=100)
+	private String contents;
+
+	@Column(name="created_by")
+	private Integer createdBy;
+
+	@Column(name="created_on")
+	private Time createdOn;
+
+	@Column(length=50)
+	private String head;
+
+	@Column(name="updated_by")
+	private Integer updatedBy;
+
+	@Column(name="updated_on")
+	private Time updatedOn;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="app_context_id")
+	private DepartmentMaster departmentMaster;
+
+	//bi-directional many-to-one association to RoleHierarchy
+	@ManyToOne
+	@JoinColumn(name="children")
+	private RoleHierarchy roleHierarchy;
+
+	//bi-directional many-to-one association to RoleHierarchy
+	@OneToMany(mappedBy="roleHierarchy")
+	private List<RoleHierarchy> roleHierarchies;
+
+	public RoleHierarchy() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getActiveC() {
+		return this.activeC;
+	}
+
+	public void setActiveC(String activeC) {
+		this.activeC = activeC;
+	}
+
+	public String getContents() {
+		return this.contents;
+	}
+
+	public void setContents(String contents) {
+		this.contents = contents;
+	}
+
+	public Integer getCreatedBy() {
+		return this.createdBy;
+	}
+
+	public void setCreatedBy(Integer createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Time getCreatedOn() {
+		return this.createdOn;
+	}
+
+	public void setCreatedOn(Time createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public String getHead() {
+		return this.head;
+	}
+
+	public void setHead(String head) {
+		this.head = head;
+	}
+
+	public Integer getUpdatedBy() {
+		return this.updatedBy;
+	}
+
+	public void setUpdatedBy(Integer updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Time getUpdatedOn() {
+		return this.updatedOn;
+	}
+
+	public void setUpdatedOn(Time updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+	public RoleHierarchy getRoleHierarchy() {
+		return this.roleHierarchy;
+	}
+
+	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+		this.roleHierarchy = roleHierarchy;
+	}
+
+	public List<RoleHierarchy> getRoleHierarchies() {
+		return this.roleHierarchies;
+	}
+
+	public void setRoleHierarchies(List<RoleHierarchy> roleHierarchies) {
+		this.roleHierarchies = roleHierarchies;
+	}
+
+	public RoleHierarchy addRoleHierarchy(RoleHierarchy roleHierarchy) {
+		getRoleHierarchies().add(roleHierarchy);
+		roleHierarchy.setRoleHierarchy(this);
+
+		return roleHierarchy;
+	}
+
+	public RoleHierarchy removeRoleHierarchy(RoleHierarchy roleHierarchy) {
+		getRoleHierarchies().remove(roleHierarchy);
+		roleHierarchy.setRoleHierarchy(null);
+
+		return roleHierarchy;
+	}
+
+}

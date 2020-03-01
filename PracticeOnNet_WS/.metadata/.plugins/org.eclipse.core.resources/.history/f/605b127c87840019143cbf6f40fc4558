@@ -1,0 +1,153 @@
+/**
+ * 
+ */
+package com.admin.pvt.masters.ctrl;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.JsonResponse.JsonResponse;
+import com.admin.pvt.masters.dto.CityMasterDTO;
+import com.admin.pvt.masters.service.CityService;
+import com.google.gson.Gson;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+@RequestMapping(value = "/admin/pvt/masters/city/")
+public class CityMasterController {
+
+	@Autowired
+	CityService cityService;
+
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public String listStates(Model model) {
+		String target = "/admin/pvt/masters/city_master";
+		return target;
+	}
+
+	@RequestMapping(value = "paginated", method = RequestMethod.POST)
+	@ResponseBody
+	public String listStatesPaginated(HttpServletRequest request, HttpServletResponse response, String countryNameId,
+			String stateNameId) throws Exception {
+
+		String whereClauseForBaseQuery = "";
+
+		if (!countryNameId.isEmpty() && !countryNameId.equals("")&&stateNameId.isEmpty() && stateNameId.equals(""))
+			whereClauseForBaseQuery =  " sm.country_id=" + Integer.parseInt(countryNameId);
+
+		if (!stateNameId.isEmpty() && !stateNameId.equals("")&& countryNameId.isEmpty() && countryNameId.equals(""))
+			whereClauseForBaseQuery =  " ctm.state_id=" + Integer.parseInt(stateNameId);
+
+		if (!countryNameId.isEmpty() && !countryNameId.equals("")&& !stateNameId.isEmpty() && !stateNameId.equals(""))
+			whereClauseForBaseQuery =  " sm.country_id=" + Integer.parseInt(countryNameId)+
+					                   " and ctm.state_id=" + Integer.parseInt(stateNameId);
+		
+		return new Gson().toJson(cityService.loadGrid(request, whereClauseForBaseQuery));
+	}
+
+	@RequestMapping(value = "getRecord", method = RequestMethod.GET)
+	@ResponseBody
+	public String getRecord(@RequestParam Integer id, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		JsonResponse jsonResponse = new JsonResponse();
+		try {
+			jsonResponse.setFormObject(cityService.getReordById(id));
+			jsonResponse.setStatus(true);
+			jsonResponse.setStatusMsg("Record found.");
+		} catch (Exception ex) {
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg("There is some error.Continue operation after refreshing grid.");
+			ex.printStackTrace();
+		}
+		return new Gson().toJson(jsonResponse);
+	}
+
+	@RequestMapping(value = "saveAndUpdateRecord", method = RequestMethod.POST)
+	@ResponseBody
+	public String saveAndUpdateRecord(@RequestBody @Valid CityMasterDTO cityMasterDTO, BindingResult result,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		JsonResponse jsonResponse = new JsonResponse();
+
+		try {
+			if (result.hasErrors()) {
+
+				// Get error message
+				Map<String, String> errors = result.getFieldErrors().stream()
+						.collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+
+				jsonResponse.setStatus(false);
+				jsonResponse.setStatusMsg("");
+				jsonResponse.setFieldErrMsgMap(errors);
+
+			} else {
+				// Implement business logic to save record into database
+				jsonResponse.setFormObject(cityService.saveAndUpdate(cityMasterDTO));
+				jsonResponse.setStatus(true);
+				jsonResponse.setStatusMsg("Record has been saved or updated successfully.");
+			}
+		} catch (Exception ex) {
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg("There is some error. Continue operation after refreshing grid.");
+			ex.printStackTrace();
+		}
+
+		return new Gson().toJson(jsonResponse);
+
+	}
+
+	@RequestMapping(value = "deleteRecord", method = RequestMethod.GET)
+	@ResponseBody
+	public String deleteRecord(@RequestParam Integer id, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		JsonResponse jsonResponse = new JsonResponse();
+		try {
+			jsonResponse.setFormObject(cityService.deleteOneRecord(id));
+			jsonResponse.setStatusMsg("Record has been deleted successfully.");
+			jsonResponse.setStatus(true);
+		} catch (Exception ex) {
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg("There is some error.Continue operation after refreshing grid.");
+			ex.printStackTrace();
+		}
+		return new Gson().toJson(jsonResponse);
+
+	}
+
+	@RequestMapping(value = "deleteSelected", method = RequestMethod.POST)
+	@ResponseBody
+	public String deleteSelected(@RequestBody Integer[] recordIdArray, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		JsonResponse jsonResponse = new JsonResponse();
+		try {
+			cityService.deleteMultipleRecords(recordIdArray);
+			jsonResponse.setStatus(true);
+			jsonResponse.setStatusMsg("All selected records have been deleted.");
+		} catch (Exception ex) {
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg("There is some error.Continue operation after refreshing grid.");
+			ex.printStackTrace();
+		}
+		return new Gson().toJson(jsonResponse);
+
+	}
+
+}// End of StateMasterController

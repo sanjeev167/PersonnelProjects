@@ -1,0 +1,54 @@
+
+<link rel="icon" href="${contextPath}/resources/assets/roleHierachy/new/img/logo.png">
+<link rel="stylesheet"	href="${contextPath}/resources/assets/roleHierachy/new/css/font-awesome.min.css">
+<link rel="stylesheet"	href="${contextPath}/resources/assets/roleHierachy/new/css/jquery.orgchart.css">
+<link rel="stylesheet"	href="${contextPath}/resources/assets/roleHierachy/new/css/style.css">
+
+
+<script type="text/javascript" src="${contextPath}/resources/assets/roleHierachy/new/js/jquery.min.js"></script>
+
+<script type="text/javascript"	src="${contextPath}/resources/assets/roleHierachy/new/js/jquery.orgchart.js"></script>
+
+<script type="text/javascript">
+	//$.noConflict(true);
+	$(function() {
+
+		var datasource = {
+			'name' : 'Lao Lao',
+			'title' : 'general manager',
+			'children' : [ {
+				'name' : 'Bo Miao',
+				'title' : 'department manager'
+			}, {
+				'name' : 'Su Miao',
+				'title' : 'department manager',
+				'children' : [ {
+					'name' : 'Tie Hua',
+					'title' : 'senior engineer'
+				}, {
+					'name' : 'Hei Hei',
+					'title' : 'senior engineer',
+					'children' : [ {
+						'name' : 'Dan Dan',
+						'title' : 'engineer'
+					} ]
+				}, {
+					'name' : 'Pang Pang',
+					'title' : 'senior engineer'
+				} ]
+			}, {
+				'name' : 'Hong Miao',
+				'title' : 'department manager'
+			} ]
+		};
+
+		$('#tree').orgchart({
+			'data' : datasource,
+			'nodeContent' : 'title'
+		});
+
+	});
+</script>
+
+</body>
+</html>

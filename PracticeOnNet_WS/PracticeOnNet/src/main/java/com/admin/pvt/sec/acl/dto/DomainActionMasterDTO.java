@@ -1,0 +1,277 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.acl.dto;
+
+import javax.persistence.ColumnResult;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.admin.pvt.sec.acl.service.DomainActionService;
+import com.custom.validation.classLevelValidator.FirstChildUniqueWithParentId;
+import com.custom.validation.classLevelValidator.SecondChildUniqueWithParentId;
+import com.custom.validation.classLevelValidator.ThirdChildUniqueWithParentId;
+import com.custom.validation.classLevelValidator.UniqueWithParentId;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@FirstChildUniqueWithParentId(parentId="domainNameId", fieldName = "actionName", service = DomainActionService.class, message = "{domainAction.unique.actionNameValue.violation}",
+id="id")
+
+@SecondChildUniqueWithParentId(parentId="domainNameId", fieldName = "sortName", service = DomainActionService.class, message = "{domainAction.unique.sortNameValue.violation}",
+id="id")
+
+@ThirdChildUniqueWithParentId(parentId="domainNameId", fieldName = "actionNumber", service = DomainActionService.class, message = "{domainAction.unique.actionNumberalue.violation}",
+id="id")
+public class DomainActionMasterDTO {
+
+	private Integer id;
+	private String departmentName;
+	private String moduleName;
+	private String domainName;
+	private String actionNameUniqueness;
+	@NotEmpty(message = "Select App. Context")
+	private String departmentNameId;
+	
+	@NotEmpty(message = "Select a module")
+	private String moduleNameId;
+	
+	@NotEmpty(message = "Select a domain")
+	private String domainNameId;
+	
+	//@NotEmpty(message = "Sanjee Base url is required.")
+	private String packageName;
+	
+	@NotEmpty(message = "Action name is required.")		
+	private String actionName;
+	
+	@NotNull(message = "Action number is required.")		
+	private Integer actionNumber;
+	
+	
+	@NotEmpty(message = "Operation sort name is required.")
+	private String sortName;
+	
+	
+	
+	private Integer totalrecords;
+
+	//Will be utilized by @Valid
+	public DomainActionMasterDTO() {}
+		
+	//Will be utilized by grid
+	public DomainActionMasterDTO(Integer id, String departmentName, String moduleName, String domainName,String packageName, 
+			String actionName,String sortName, Integer actionNumber,
+			Integer totalrecords) {
+		this.id = id;
+		this.departmentName = departmentName;
+		this.moduleName = moduleName;
+		this.domainName = domainName;
+		this.packageName=packageName;
+		this.actionName=actionName;		
+		this.sortName=sortName;	
+		this.actionNumber=actionNumber;
+		this.totalrecords = totalrecords;
+	}
+	
+	//Will be utilized while fetching a record
+		public DomainActionMasterDTO(Integer id, String departmentNameId, String moduleNameId, String domainNameId,String packageName,
+				String actionName,String sortName,Integer actionNumber) {
+			this.id = id;
+			this.departmentNameId = departmentNameId;
+			this.moduleNameId = moduleNameId;
+			this.domainNameId = domainNameId;
+			this.packageName=packageName;
+			this.actionName=actionName;		
+			this.sortName=sortName;	
+			this.actionNumber=actionNumber;
+		}
+
+		/**
+		 * @return the id
+		 */
+		public Integer getId() {
+			return id;
+		}
+
+		/**
+		 * @param id the id to set
+		 */
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		/**
+		 * @return the departmentName
+		 */
+		public String getDepartmentName() {
+			return departmentName;
+		}
+
+		/**
+		 * @param departmentName the departmentName to set
+		 */
+		public void setDepartmentName(String departmentName) {
+			this.departmentName = departmentName;
+		}
+
+		/**
+		 * @return the moduleName
+		 */
+		public String getModuleName() {
+			return moduleName;
+		}
+
+		/**
+		 * @param moduleName the moduleName to set
+		 */
+		public void setModuleName(String moduleName) {
+			this.moduleName = moduleName;
+		}
+
+		/**
+		 * @return the domainName
+		 */
+		public String getDomainName() {
+			return domainName;
+		}
+
+		/**
+		 * @param domainName the domainName to set
+		 */
+		public void setDomainName(String domainName) {
+			this.domainName = domainName;
+		}
+
+		/**
+		 * @return the actionNameUniqueness
+		 */
+		public String getActionNameUniqueness() {
+			return actionNameUniqueness;
+		}
+
+		/**
+		 * @param actionNameUniqueness the actionNameUniqueness to set
+		 */
+		public void setActionNameUniqueness(String actionNameUniqueness) {
+			this.actionNameUniqueness = actionNameUniqueness;
+		}
+
+		/**
+		 * @return the departmentNameId
+		 */
+		public String getDepartmentNameId() {
+			return departmentNameId;
+		}
+
+		/**
+		 * @param departmentNameId the departmentNameId to set
+		 */
+		public void setDepartmentNameId(String departmentNameId) {
+			this.departmentNameId = departmentNameId;
+		}
+
+		/**
+		 * @return the moduleNameId
+		 */
+		public String getModuleNameId() {
+			return moduleNameId;
+		}
+
+		/**
+		 * @param moduleNameId the moduleNameId to set
+		 */
+		public void setModuleNameId(String moduleNameId) {
+			this.moduleNameId = moduleNameId;
+		}
+
+		/**
+		 * @return the domainNameId
+		 */
+		public String getDomainNameId() {
+			return domainNameId;
+		}
+
+		/**
+		 * @param domainNameId the domainNameId to set
+		 */
+		public void setDomainNameId(String domainNameId) {
+			this.domainNameId = domainNameId;
+		}
+
+		/**
+		 * @return the packageName
+		 */
+		public String getPackageName() {
+			return packageName;
+		}
+
+		/**
+		 * @param packageName the packageName to set
+		 */
+		public void setPackageName(String packageName) {
+			this.packageName = packageName;
+		}
+
+		/**
+		 * @return the actionName
+		 */
+		public String getActionName() {
+			return actionName;
+		}
+
+		/**
+		 * @param actionName the actionName to set
+		 */
+		public void setActionName(String actionName) {
+			this.actionName = actionName;
+		}
+
+		
+		
+		/**
+		 * @return the actionNumber
+		 */
+		public Integer getActionNumber() {
+			return actionNumber;
+		}
+
+		/**
+		 * @param actionNumber the actionNumber to set
+		 */
+		public void setActionNumber(Integer actionNumber) {
+			this.actionNumber = actionNumber;
+		}
+
+		/**
+		 * @return the sortName
+		 */
+		public String getSortName() {
+			return sortName;
+		}
+
+		/**
+		 * @param sortName the sortName to set
+		 */
+		public void setSortName(String sortName) {
+			this.sortName = sortName;
+		}
+
+		/**
+		 * @return the totalrecords
+		 */
+		public Integer getTotalrecords() {
+			return totalrecords;
+		}
+
+		/**
+		 * @param totalrecords the totalrecords to set
+		 */
+		public void setTotalrecords(Integer totalrecords) {
+			this.totalrecords = totalrecords;
+		}
+
+	
+}

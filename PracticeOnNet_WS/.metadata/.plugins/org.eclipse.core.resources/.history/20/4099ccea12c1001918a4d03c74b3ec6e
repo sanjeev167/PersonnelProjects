@@ -1,0 +1,122 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.admin.pvt.menu_mgr.repo.MenuManagerRepository;
+import com.admin.pvt.menu_mgr.repo.RoleHierarchyRepository;
+import com.custom.exception.ExceptionApplicationUtility;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentRoleHierarchyNodeIsRequiredValidator
+		implements ConstraintValidator<ParentRoleHierarchyNodeIsRequired, Object> {
+	 
+	
+	private String parentNodeCount;	
+	private String parentName;
+	private String parentId;	
+	private String id;
+	private String message;
+
+	@Override
+	public void initialize(ParentRoleHierarchyNodeIsRequired parentRoleHierarchyNodeIsRequired) {
+		
+		this.parentNodeCount = parentRoleHierarchyNodeIsRequired.parentNodeCount();
+		this.parentName = parentRoleHierarchyNodeIsRequired.parentName();
+		this.parentId = parentRoleHierarchyNodeIsRequired.parentId();
+		this.id=parentRoleHierarchyNodeIsRequired.id();
+		this.message = parentRoleHierarchyNodeIsRequired.message();
+	}
+
+	int parentNodeCountValueForMsg;
+	String parentIdValueForMsg;	
+	String dynamicErrorMsg;
+
+	@Autowired
+	RoleHierarchyRepository roleHierarchyRepository;
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		
+		final Object parentNodeCountValue;
+		final Object parentIdValue;
+		final Object parentNameValue;
+		final Object idValue;
+		boolean isValid = true;
+		int existingNoneNodeChildCount=0;
+		try {			
+			if(roleHierarchyRepository.findAllTreeNodeListWithSpecificNodeName().size()>0)
+			existingNoneNodeChildCount=roleHierarchyRepository.findAllTreeNodeListWithSpecificNodeName().get(0).getRoleHierarchies().size();
+						
+			parentNodeCountValue = BeanUtils.getProperty(object, this.parentNodeCount);
+			parentNameValue = BeanUtils.getProperty(object, this.parentName);
+			parentIdValueForMsg = (String) parentNameValue;
+			parentIdValue = (String) BeanUtils.getProperty(object, this.parentId);
+			idValue=BeanUtils.getProperty(object, this.id);
+			System.out.println("parentNodeCountValue = "+parentNodeCountValue);
+			System.out.println("existingNoneNodeChildCount = "+existingNoneNodeChildCount);
+			try {
+				// Write validation logic here
+				
+					if (!parentNodeCountValue.equals("") && Integer.parseInt((String) parentNodeCountValue) > 1
+							&& parentIdValue.equals("")) {
+						parentNodeCountValueForMsg = Integer.parseInt((String) parentNodeCountValue);
+						isValid = false;
+					} else {
+						//This will allow you to create a root node under a parent as "None" if it exists. 
+						//or it will also allow you to create a root node along with this None node if None doesn't exist
+						if(parentNameValue.equals("") && existingNoneNodeChildCount =0)
+						if (parentNameValue.equals("None") && existingNoneNodeChildCount <2) {
+							//existingNoneNodeChildCount will be either 1 or 0 if there is a single None node in the system
+							if(idValue!=null)
+							isValid = true;
+							else {
+								System.out.println("NNNNNNNNNN");
+								isValid = false;//In case of add, prevent creating any node under None if root is 
+							                    //already created	
+								dynamicErrorMsg = "None has already been used for a Root-Node. Can't be used more than onece.";
+							}
+						} else {
+							if (parentNameValue.equals("None")
+									&& Integer.parseInt((String) parentNodeCountValue) > 2) {
+								isValid = false;
+								dynamicErrorMsg = "None has already been used for a Root-Node. Can't be used more than onece.";
+							} else
+								isValid = true;
+						}
+					}
+				
+			} catch (UnsupportedOperationException e) {
+				// TODO Auto-generated catch block
+				ExceptionApplicationUtility.wrapRunTimeException(e);
+			}
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			// Show the error message on menuManagerParentId field only as it is required
+			// there only.
+			if (parentNodeCountValueForMsg < 4 && parentIdValueForMsg.equals("None"))
+				context.buildConstraintViolationWithTemplate(dynamicErrorMsg).addPropertyNode(this.parentId)
+						.addConstraintViolation();
+			else
+				context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.parentId)
+						.addConstraintViolation();
+		}
+		return isValid;
+	}
+}

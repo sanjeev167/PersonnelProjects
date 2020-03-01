@@ -1,0 +1,190 @@
+/**
+ * 
+ */
+package com.admin.pub.local_en.service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
+
+import com.admin.pvt.menu_mgr.dto.MenuDTO;
+import com.admin.pvt.menu_mgr.entity.TreeMenuTypeMaster;
+import com.admin.pvt.menu_mgr.repo.TreeMenuTypeMasterRepository;
+import com.admin.pvt.menu_mgr.service.MenuManagerService;
+import com.custom.exception.CustomRuntimeException;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class UserRolesBasedTreeService {
+	@Autowired
+	ServletContext servletContext;
+
+	@Autowired
+	MenuManagerService menuManagerService;
+
+	@Autowired
+	TreeMenuTypeMasterRepository treeMenuTypeMasterRepository;
+
+	ArrayList<String> finalHierarchicalRoleCollection = new ArrayList<String>();
+
+	
+	
+	public ArrayList<MenuDTO> getMenuListForLoggedInUser(Collection<GrantedAuthority> authorities)
+			throws CustomRuntimeException {
+				
+		ArrayList<MenuDTO> vMenuCollection = new ArrayList<MenuDTO>();
+		// TODO Auto-generated method stub
+		Map<String, Map<String, List<MenuDTO>>> roleWiseMenuCollectionMap = (Map<String, Map<String, List<MenuDTO>>>) servletContext
+				.getAttribute("RoleWiseMenuCollectionMap");
+
+		Map<String, List<MenuDTO>> treeTypeWiseMenuCollectionMap = null;
+		String role = "";
+		for (GrantedAuthority grantedAuthority : authorities) {
+			// Take out role one by one
+			role = grantedAuthority.getAuthority();
+		    System.out.println("Coming role = "+role);
+			// Take out all tree type menu collection for this role
+			if (!checkWhetherThisRoleIsAlreadyBeenAddedOrNot(role))
+				finalHierarchicalRoleCollection.add(role);
+			/////////
+			findAllRolesDefinedForARoleInHierarchy(role);
+			 System.out.println("findAllRolesDefinedForARoleInHierarchy = "+findAllRolesDefinedForARoleInHierarchy(role));
+
+			for (String roleInHierarchy : finalHierarchicalRoleCollection) {
+				String newRole[] = roleInHierarchy.split("ROLE_");
+				treeTypeWiseMenuCollectionMap = roleWiseMenuCollectionMap.get(newRole[1]);// Fetch all tree type wise
+																							// menu
+				// System.out.println("treeTypeWiseMenuCollectionMap =
+				// "+treeTypeWiseMenuCollectionMap); // collection
+				// Now take out each menu type menuDTOList
+				String treeTypeName;
+				if (treeTypeWiseMenuCollectionMap != null)
+					for (Entry<String, List<MenuDTO>> treeTypeMenuEntryForARole : treeTypeWiseMenuCollectionMap
+							.entrySet()) {
+						treeTypeName = treeTypeMenuEntryForARole.getKey();
+						// Take out tree type menu id using tree type name
+						List<TreeMenuTypeMaster> treeMenuTypeMasterList = treeMenuTypeMasterRepository.findAll();
+						int id = 0;
+						for (TreeMenuTypeMaster treeMenuTypeMaster : treeMenuTypeMasterList) {
+							if (treeMenuTypeMaster.getName().equals(treeTypeName)) {
+								id = treeMenuTypeMaster.getId();
+							}
+						}
+						ArrayList<MenuDTO> menuDTOListDefinedForARole = (ArrayList<MenuDTO>) treeTypeMenuEntryForARole
+								.getValue();
+						// Take out complete vertical tree menu structure available in the system
+						ArrayList<MenuDTO> menuDTOListAvailableInSystem = menuManagerService
+								.getSpecificTreeTypeStructure(id);
+						// Now start collecting those tree structure which is allowed for this role.
+						// For doing so, we simply pick that menDTO from the existing tree list which is
+						// allowed for this role
+						// Collect it into a list.
+						for (MenuDTO menuDTODefinedForRole : menuDTOListDefinedForARole) {
+							for (MenuDTO menuDTOAvailable : menuDTOListAvailableInSystem) {
+
+								if (menuDTOAvailable.getId().equals(menuDTODefinedForRole.getId())) {
+									// if matched, collect it in an array list
+									// System.out.println("menuDTOAvailable.getId() ="+menuDTOAvailable.getId());
+									// System.out.println("menuDTODefinedForRole.getId()
+									// ="+menuDTODefinedForRole.getId());
+									if (!checkIfThisMenuDTOAvailableAlreadyAddedd(menuDTOAvailable,vMenuCollection))
+										vMenuCollection.add(menuDTOAvailable);
+								}
+							}
+						}
+					} //
+			} //
+		}
+         
+		//printTreeNodeForARole(vMenuCollection);
+		
+		return vMenuCollection;
+
+	}// End of prepareMenuListForLoggedInUser
+
+	private void printTreeNodeForARole(ArrayList<MenuDTO> vMenuCollection2) {
+		int i = 1;
+		for (MenuDTO menuDTO : vMenuCollection2) {
+			System.out.println("\t\t [" + (i++) + "]");
+			System.out.println("\t\t\tNode Type = " + menuDTO.getNodeType());
+			System.out.println("\t\t\tParent Node ID = " + menuDTO.getParent_id());
+			System.out.println("\t\t\tNode Id = " + menuDTO.getId());
+			System.out.println("\t\t\tNode Name = " + menuDTO.getName());
+			System.out.println("\t\t\tUrl = " + menuDTO.getLeafUrl());
+			System.out.println("\t\t\tImage Url = " + menuDTO.getNodeImgUrl());
+		} // Tree node or leaf level looping
+
+	}
+
+	private boolean checkIfThisMenuDTOAvailableAlreadyAddedd(MenuDTO menuDTOAvailable, ArrayList<MenuDTO> vMenuCollection) {
+		boolean isAdded = false;
+		// isAdded=vMenuCollection.contains(menuDTOAvailable);
+		for (MenuDTO menuDTO : vMenuCollection) {
+			if (menuDTO.getId().equals(menuDTOAvailable.getId()))
+				isAdded = true;
+		}
+		return isAdded;
+	}
+
+	private ArrayList<String> findAllRolesDefinedForARoleInHierarchy(String role) {
+		Map<String, List<String>> definedRoleHierarchyMap = (Map<String, List<String>>) servletContext
+				.getAttribute("RolesInHierarchy");
+
+		// First find all roles dependent on a role
+		// Collect role and dependent roles in a collection
+		// Then find all dependent roles of each dependent role
+		// Keep looping as long as all dependent roles get exhausted
+		// Now we have a collection of all roles dependencies in hierarchy
+		Set<Entry<String, List<String>>> definedRoleHierarchyMapEntrySet = definedRoleHierarchyMap.entrySet();
+
+		for (Entry<String, List<String>> dependentRoleHierarchyEntry : definedRoleHierarchyMapEntrySet) {
+			String availableRoleInHierarcicalCollection = dependentRoleHierarchyEntry.getKey();
+			//System.out.println("availableRoleInHierarcicalCollection  = "+availableRoleInHierarcicalCollection);
+			//System.out.println("role  = "+role);
+			//System.out.println("Compared Result = "+availableRoleInHierarcicalCollection.equals(role));
+			if (availableRoleInHierarcicalCollection.equals(role)) {
+				if (!checkWhetherThisRoleIsAlreadyBeenAddedOrNot(role))
+					finalHierarchicalRoleCollection.add(role);				
+				//System.out.println("finalHierarchicalRoleCollection b4 adding dependent role   = "+finalHierarchicalRoleCollection);
+				// Now take its all dependent roles
+				List<String> dependentRoleInHierarchyList = dependentRoleHierarchyEntry.getValue();
+				for (String dependentRole : dependentRoleInHierarchyList) {
+					//System.out.println("Dependent Role = "+dependentRole);
+					if (!checkWhetherThisRoleIsAlreadyBeenAddedOrNot(dependentRole))
+						finalHierarchicalRoleCollection.add(dependentRole);
+					findAllRolesDefinedForARoleInHierarchy(dependentRole);
+				}
+			}
+			
+			
+		}
+		
+		
+		return finalHierarchicalRoleCollection;
+	}// End of findAllRolesDefinedForARoleInHierarchy
+
+	private boolean checkWhetherThisRoleIsAlreadyBeenAddedOrNot(String role) {
+		boolean allReadyAdded = false;
+		allReadyAdded = finalHierarchicalRoleCollection.contains(role);
+		return allReadyAdded;
+	}// End of checkWhetherThisRoleIsAlreadyBeenAddedOrNot
+
+	// Map<String, Map<String, List<MenuDTO>>>
+
+	
+	
+	
+}

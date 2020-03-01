@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;PracticeOnNet/src/main/java/com/custom/validation/ErrorHandlingControllerAdvice.java&apos; to &apos;CustomRestExceptionHandler.java&apos;" description="Rename resource &apos;ErrorHandlingControllerAdvice.java&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/java/com/custom/validation/ErrorHandlingControllerAdvice.java" name="CustomRestExceptionHandler.java" stamp="1558339615990" updateReferences="true"/>
+</session>

@@ -1,0 +1,333 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.env.service;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.modelmapper.internal.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.sec.env.dto.OpMasterDTO;
+import com.admin.pvt.sec.env.entity.OperationMaster;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.admin.pvt.sec.env.repo.ModuleRepository;
+import com.admin.pvt.sec.env.repo.OpRepository;
+import com.admin.pvt.sec.env.repo.PageRepository;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppConstants;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class OpServiceImpl implements OpService {
+
+	static final Logger log = LoggerFactory.getLogger(OpServiceImpl.class);
+	/** The entity manager. */
+	@Autowired
+	@PersistenceContext(unitName = AppConstants.JPA_UNIT_PRACTICEONNET)
+	private EntityManager entityManager;
+
+	@Autowired
+	DepartmentRepository departmentRepository;
+
+	@Autowired
+	ModuleRepository moduleRepository;
+
+	@Autowired
+	PageRepository pageRepository;
+
+	@Autowired
+	OpRepository opRepository;
+
+	@Override
+	public DataTableResults<OpMasterDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> loadGrid ==> Started");
+
+		DataTableResults<OpMasterDTO> dataTableResult = null;
+		try {
+
+			DataTableRequest<OperationMaster> dataTableInRQ = new DataTableRequest<OperationMaster>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery;
+
+			if (whereClauseForBaseQuery.equals(""))
+				baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+						+ " om.opurl as opUrl, "
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+						+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  "
+						+ " ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+						+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id ";
+
+			else
+				baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+					    + " om.opurl as opUrl, "
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+						+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id and  "
+						+ whereClauseForBaseQuery + " ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+						+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  and "
+						+ whereClauseForBaseQuery;
+
+			// System.out.println("baseQuery ="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "OpMasterDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<OpMasterDTO> opMasterList = query.getResultList();
+
+			dataTableResult = new DataTableResults<OpMasterDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(opMasterList);
+			if (!AppUtil.isObjectEmpty(opMasterList)) {
+				dataTableResult.setRecordsTotal(opMasterList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(opMasterList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(opMasterList.size()));
+				}
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> loadGrid ==> Ended");
+
+		return dataTableResult;
+	}
+
+	// This will directly put your result into your mapped dto
+	@Override
+	public OpMasterDTO getReordById(Integer id) throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> getReordById ==> Started");
+
+		OpMasterDTO opMasterDTO = null;
+		try {
+			OperationMaster operationMaster = opRepository.getOne(id);
+			opMasterDTO = new OpMasterDTO();
+			opMasterDTO.setId(operationMaster.getId());
+			opMasterDTO.setDepartmentNameId(
+					operationMaster.getPageMaster().getModuleMaster().getDepartmentMaster().getId() + "");
+
+			opMasterDTO.setModuleNameId(operationMaster.getPageMaster().getModuleMaster().getId() + "");
+			opMasterDTO.setPageNameId(operationMaster.getPageMaster().getId() + "");
+			opMasterDTO.setBaseurl(operationMaster.getPageMaster().getBaseurl());
+			opMasterDTO.setOpName(operationMaster.getName());
+			opMasterDTO.setOpUrl(operationMaster.getOpurl());
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> getReordById ==> Ended");
+
+		return opMasterDTO;
+	}
+
+	@Override
+	public OpMasterDTO saveAndUpdate(OpMasterDTO opMasterDTO) throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> saveAndUpdate ==> Started");
+
+		OperationMaster operationMaster = null;
+		OpMasterDTO opMasterDTONew = null;
+		try {
+			if (opMasterDTO.getId() != null)
+				operationMaster = opRepository.getOne(opMasterDTO.getId());
+			else
+				operationMaster = new OperationMaster();
+
+			operationMaster.setId(opMasterDTO.getId());
+			operationMaster.setName(opMasterDTO.getOpName());
+			
+			operationMaster.setOpurl(opMasterDTO.getOpUrl());
+			operationMaster.setPageMaster(pageRepository.getOne(Integer.parseInt(opMasterDTO.getPageNameId())));
+			OperationMaster returnedOperationMaster = opRepository.saveAndFlush(operationMaster);
+			opMasterDTONew = new OpMasterDTO(
+
+					returnedOperationMaster.getId(),
+
+					returnedOperationMaster.getPageMaster().getModuleMaster().getDepartmentMaster().getId() + "",
+
+					returnedOperationMaster.getPageMaster().getModuleMaster().getId() + "",
+
+					returnedOperationMaster.getPageMaster().getId() + "",
+					returnedOperationMaster.getPageMaster().getBaseurl(),
+
+					returnedOperationMaster.getName(), 
+					returnedOperationMaster.getOpurl());
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     OpServiceImpl :==> saveAndUpdate ==> Ended");
+
+		return opMasterDTONew;
+	}
+
+	@Override
+	public boolean deleteOneRecord(Integer id) throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> deleteOneRecord ==> Started");
+
+		try {
+			opRepository.deleteById(id);
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> deleteOneRecord ==> Ended");
+
+		return true;
+	}
+
+	@Transactional
+	@Override
+	public void deleteMultipleRecords(Integer[] recordIdArray) throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> deleteMultipleRecords ==> Started");
+
+		try {
+			opRepository.deleteOperationWithIds(recordIdArray);
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> deleteMultipleRecords ==> Ended");
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+
+		log.info("     OpServiceImpl :==> FieldValueWithParentIdAndChildExists ==> Started");
+
+		boolean recordFound = false;
+		try {
+
+			Assert.notNull(parentIdValue);
+			Assert.notNull(fieldName);
+
+			if (!parentIdValue.equals("pageNameId") && !fieldName.equals("opName") && !idFieldName.equals("id")) {
+				throw ExceptionApplicationUtility
+						.wrapRunTimeException(new UnsupportedOperationException("Field name not supported"));
+			}
+
+			if (parentIdValue == null && fieldValue == null) {
+				return false;
+			}
+			if (!parentIdValue.equals("") && !fieldValue.equals("") && idValue == null) {
+				System.out.println("First Add parentIdValue = " + parentIdValue.toString());
+				System.out.println("First Add op name = " + fieldValue);
+
+				// Case of adding new one
+				recordFound = this.opRepository.existsByPageIdAndOpName(Integer.parseInt(parentIdValue.toString()),
+						fieldValue.toString());
+				System.out.println("First Add recordFound = " + recordFound);
+			}
+			if (!parentIdValue.equals("") && !fieldValue.equals("") && idValue != null) {
+				System.out.println("First Edit parentIdValue = " + parentIdValue.toString());
+				System.out.println("First Edit op name = " + fieldValue);
+				System.out.println("First Edit id = " + idValue.toString());
+				// Case of editing existing one
+				recordFound = this.opRepository.existsByPageIdAndOpNameExceptThisId(
+						Integer.parseInt(parentIdValue.toString()), fieldValue.toString(),
+						Integer.parseInt(idValue.toString()));
+				System.out.println("First Edit recordFound = " + recordFound);
+			}
+			///////
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> FieldValueWithParentIdAndChildExists ==> Ended");
+
+		return recordFound;
+	}
+
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentValue, String parentId, Object fieldValue,
+			String fieldName) throws UnsupportedOperationException, CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean FirstChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	
+	@SuppressWarnings("unused")
+	@Override
+	public boolean ThirdChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		log.info("     OpServiceImpl :==> ThirdChildValueWithParentIdExists ==> Started");
+
+		boolean recordFound = false;
+		try {
+			Assert.notNull(parentIdValue);
+			Assert.notNull(fieldName);
+			if (!parentIdValue.equals("pageNameId") && !fieldName.equals("opUrl") && !idFieldName.equals("id")) {
+				throw ExceptionApplicationUtility
+						.wrapRunTimeException(new UnsupportedOperationException("Field name not supported"));
+			}
+			if (parentIdValue == null && fieldValue == null) {
+				return false;
+			}
+			if (!parentIdValue.equals("") && !fieldValue.equals("") && idValue == null) {	
+				System.out.println("Third Add parentIdValue = " + parentIdValue.toString());
+				System.out.println("Third Add opUrl = " + fieldValue);
+				// Case of adding new one
+				recordFound = this.opRepository.existsByPageIdAndOpUrlName(Integer.parseInt(parentIdValue.toString()),
+						fieldValue.toString());
+				System.out.println("Third Add recordFound = " + recordFound);
+			}
+			if (!parentIdValue.equals("") && !fieldValue.equals("") && idValue != null) {
+				System.out.println("Third Edit parentIdValue = " + parentIdValue.toString());
+				System.out.println("Third Edit opUrl = " + fieldValue);
+				System.out.println("Third Edit id = " + idValue.toString());
+				// Case of editing existing one
+				recordFound = this.opRepository.existsByPageIdAndOpUrlNameExceptThisId(
+						Integer.parseInt(parentIdValue.toString()), fieldValue.toString(),
+						Integer.parseInt(idValue.toString()));
+				System.out.println("Third Edit recordFound = " + recordFound);
+			}
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     OpServiceImpl :==> ThirdChildValueWithParentIdExists ==> Ended");
+
+		return recordFound;
+	}
+
+}

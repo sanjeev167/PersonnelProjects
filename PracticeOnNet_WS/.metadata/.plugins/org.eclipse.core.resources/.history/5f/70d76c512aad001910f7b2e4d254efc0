@@ -1,0 +1,29 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class UrlAndRoleMatcherServiceImpl implements UrlAndRoleMatcherService{
+	
+	public List<Matcher> getUrlAndRoleMatcherList(){
+		
+		List<Matcher> urlAndRoleMatchers=new ArrayList<Matcher>();
+    	Matcher urlAndRoleMatcher=new Matcher();
+    	urlAndRoleMatcher.setUrl_pattern("/admin/bpvt/**");
+    	urlAndRoleMatcher.setRole_access("SUPER_ADMIN");
+    	urlAndRoleMatchers.add(urlAndRoleMatcher);
+		return urlAndRoleMatchers;
+		
+	}
+
+}//End of UrlAndRoleMatcherServiceImpl

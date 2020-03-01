@@ -1,0 +1,13 @@
+/**
+ * 
+ */
+package com.admin.pub.local_en.service;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class UserRolesBasedTreeService {
+
+}

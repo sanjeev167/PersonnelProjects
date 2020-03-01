@@ -1,0 +1,71 @@
+/**
+ * 
+ */
+package com.custom.validation;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+
+import com.JsonResponse.ApiFieldError;
+import com.JsonResponse.ApiGlobalError;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@ControllerAdvice
+public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
+	
+	//@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+	  MethodArgumentNotValidException ex, 
+	  HttpHeaders headers, 
+	  HttpStatus status, 
+	  WebRequest request) {
+		
+		//Set the field level error with all its details
+	    List<ApiFieldError> apiFieldErrorList = new ArrayList<ApiFieldError>();
+	    ApiFieldError apiFieldError;
+	    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+	    	
+	    	apiFieldError=new ApiFieldError(
+	    			error.getField(),
+	    			error.getCode(),
+	    			error.getRejectedValue(),
+	    			error.getDefaultMessage()
+	    			);
+	    	apiFieldErrorList.add(apiFieldError); 	
+	    }
+	    
+	  //Set the global error
+	    List<ApiGlobalError> apiGlobalErrorList = new ArrayList<ApiGlobalError>();	    
+	    ApiGlobalError apiGlobalError;
+	    
+	    for (ObjectError error : ex.getBindingResult().getGlobalErrors()) {
+	    	apiGlobalError=new ApiGlobalError(
+	    			error.getObjectName(),	    			
+	    			error.getDefaultMessage()
+	    			);
+	    	apiGlobalErrorList.add(apiGlobalError); 
+	       
+	    }
+	     
+	    ApiErrorView apiErrorView = new ApiErrorView(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), apiFieldErrorList,apiGlobalErrorList);
+	    
+	    return handleExceptionInternal(ex, apiErrorView, headers, apiErrorView.getStatus(), request);
+	}
+}

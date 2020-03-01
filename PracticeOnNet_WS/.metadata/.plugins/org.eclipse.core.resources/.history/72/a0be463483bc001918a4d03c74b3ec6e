@@ -1,0 +1,119 @@
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+
+<link href="https://www.jqueryscript.net/css/jquerysctipttop.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${contextPath}/resources/assets/roleHierachy/Themes/smoothness/jquery-ui-1.10.4.custom.min.css"
+	rel="stylesheet" />
+<link href="${contextPath}/resources/assets/roleHierachy/CSS/jHTree.css"
+	rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+	integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+	crossorigin="anonymous"></script>
+<script
+	src="${contextPath}/resources/assets/roleHierachy/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script
+	src="${contextPath}/resources/assets/roleHierachy/js/jQuery.jHTree.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+		$("#tree").jHTree({
+			  callType: 'obj',
+			  structureObj: myData,
+			  nodeDropComplete: function (event, data) {
+			    //----- Do Something @ Server side or client side -----------
+			    //alert("Node ID: " + data.nodeId + " Parent Node ID: " + data.parentNodeId);
+			    //-----------------------------------------------------------
+			  }
+			});
+		
+});// End of document ready
+</script>
+
+<style type="text/css">
+body {
+	background-color: #fafafa;
+	font-family: 'Roboto';
+}
+
+.container {
+	margin: 150px auto;
+	max-width: 960px;
+}
+
+#themes {
+	font-size: 1.2em;
+}
+
+#set {
+	border: 2px solid #ddd;
+	padding: 2px;
+	background: #444;
+	width: 350px;
+	height: 30px;
+}
+
+#set a {
+	margin: 2px;
+	border: 1px solid #444;
+	float: left;
+}
+
+#set a:hover {
+	border-color: #fff;
+}
+</style>
+
+		<br />
+		<div id="tree"></div>
+	
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push([ '_setAccount', 'UA-36251023-1' ]);
+		_gaq.push([ '_setDomainName', 'jqueryscript.net' ]);
+		_gaq.push([ '_trackPageview' ]);
+
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+					: 'http://www')
+					+ '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+		
+		
+		var myData = [{
+			  "head": "A",
+			  "id": "aa",
+			  "contents": "A Contents",
+			  "children": [
+			    {
+			      "head": "A-1",
+			      "id": "a1",
+			      "contents": "A-1 Contents",
+			      "children": [
+			        { "head": "A-1-1", "id": "a11", "contents": "A-1-1 Contents" }
+			      ]
+			    },
+			    {
+			      "head": "A-2",
+			      "id": "a2",
+			      "contents": "A-2 Contents",
+			      "children": [
+			        { "head": "A-2-1", "id": "a21", "contents": "A-2-1 Contents" },
+			        { "head": "A-2-2", "id": "a22", "contents": "A-2-2 Contents" }
+			      ]
+			    }
+			  ]
+			}]
+	</script>
+

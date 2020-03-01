@@ -1,0 +1,528 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.rbac.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.masters.dto.NameValue;
+import com.admin.pvt.sec.env.entity.OperationMaster;
+import com.admin.pvt.sec.env.entity.PageMaster;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.admin.pvt.sec.env.repo.ModuleRepository;
+import com.admin.pvt.sec.env.repo.OpRepository;
+import com.admin.pvt.sec.env.repo.PageRepository;
+import com.admin.pvt.sec.rbac.dto.AccessRightsRbacDTO;
+import com.admin.pvt.sec.rbac.entity.AccessRightsRbac;
+import com.admin.pvt.sec.rbac.entity.AppRole;
+import com.admin.pvt.sec.rbac.entity.OperationAccess;
+import com.admin.pvt.sec.rbac.repo.AccessRightsRbacRepository;
+import com.admin.pvt.sec.rbac.repo.AppRoleRepository;
+import com.admin.pvt.sec.rbac.repo.OperationAccessRepository;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppConstants;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class RbacAccessRightsServiceImpl implements RbacAccessRightsService {
+	
+	static final Logger log = LoggerFactory.getLogger(RbacAccessRightsServiceImpl.class);
+
+	/** The entity manager. */
+	@Autowired
+    @PersistenceContext( unitName= AppConstants.JPA_UNIT_PRACTICEONNET)
+	private EntityManager entityManager;
+
+	@Autowired
+	DepartmentRepository departmentRepository;
+
+	@Autowired
+	ModuleRepository moduleRepository;
+
+	@Autowired
+	PageRepository pageRepository;
+	@Autowired
+	OpRepository opRepository;
+	@Autowired
+	AppRoleRepository appRoleRepository;
+	
+	@Autowired
+	AccessRightsRbacRepository accessRightsRbacRepository;
+	
+	@Autowired
+	OperationAccessRepository operationAccessRepository;
+
+	@Override
+	public DataTableResults<AccessRightsRbacDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> loadGrid ==> Started");
+		
+		DataTableResults<AccessRightsRbacDTO> dataTableResult=null;
+		try {
+		DataTableRequest<AccessRightsRbac> dataTableInRQ = new DataTableRequest<AccessRightsRbac>(request);
+		PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+		String baseQuery;
+
+		if (whereClauseForBaseQuery.equals(""))
+			baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+					+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+					+ " om.sortname as opSortName," + " om.opurl as opUrl, "
+					+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  "
+					+ " ) AS totalrecords"
+					+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id ";
+
+		else
+			baseQuery = "select om.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+					+ " pm.name as pageName," + " pm.baseurl as baseurl," + " om.name as opName,"
+					+ " om.sortname as opSortName," + " om.opurl as opUrl, "
+					+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id and  "
+					+ whereClauseForBaseQuery + " ) AS totalrecords"
+					+ " from page_master pm, module_master mm , department_master dm, operation_master om "
+					+ " where om.page_id=pm.id  and pm.module_id=mm.id and mm.department_id=dm.id  and "
+					+ whereClauseForBaseQuery;
+
+		// System.out.println("baseQuery ="+baseQuery);
+		String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+		Query query = entityManager.createNativeQuery(paginatedQuery, "AccessRightsRbacDTOMapping");
+
+		@SuppressWarnings("unchecked")
+		List<AccessRightsRbacDTO> accessRightsRbacList = query.getResultList();
+
+		dataTableResult = new DataTableResults<AccessRightsRbacDTO>();
+		dataTableResult.setDraw(dataTableInRQ.getDraw());
+		dataTableResult.setListOfDataObjects(accessRightsRbacList);
+		if (!AppUtil.isObjectEmpty(accessRightsRbacList)) {
+			dataTableResult.setRecordsTotal(accessRightsRbacList.get(0).getTotalrecords().toString());
+			if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+				dataTableResult.setRecordsFiltered(accessRightsRbacList.get(0).getTotalrecords().toString());
+			} else {
+				dataTableResult.setRecordsFiltered(Integer.toString(accessRightsRbacList.size()));
+			}
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> loadGrid ==> Ended");
+		return dataTableResult;
+	}
+
+	// This will directly put your result into your mapped dto
+	@Override
+	public AccessRightsRbacDTO getReordById(Integer id) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> getReordById ==> Started");
+		
+		AccessRightsRbacDTO accessRightsRbacDTO = null;
+		
+		try {
+		PageMaster pageMaster = pageRepository.getOne(id);
+
+		accessRightsRbacDTO = new AccessRightsRbacDTO();
+
+		accessRightsRbacDTO.setDepartmentNameId(pageMaster.getModuleMaster().getDepartmentMaster().getId() + "");
+		accessRightsRbacDTO.setDepartmentName(pageMaster.getModuleMaster().getDepartmentMaster().getName());
+
+		accessRightsRbacDTO.setModuleNameId(pageMaster.getModuleMaster().getId() + "");
+		accessRightsRbacDTO.setModuleName(pageMaster.getModuleMaster().getName());
+
+		accessRightsRbacDTO.setPageNameId(pageMaster.getId() + "");
+		accessRightsRbacDTO.setPageName(pageMaster.getName());
+		// Set all the roles available in the department with name and id
+
+		accessRightsRbacDTO.setRoleListInDepartment(
+				getRoleListInDepartment(pageMaster.getModuleMaster().getDepartmentMaster().getAppRoles(),
+						pageMaster.getAccessRightsRbacs()));
+		// Set all the operations defined on this particular page with its name and id
+		accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(getAllOperationDefinedOnThisPage(pageMaster.getId()));
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getReordById ==> Ended");
+		return accessRightsRbacDTO;
+	}
+
+	// This will directly put your result into your mapped dto
+	// @Override
+	public AccessRightsRbacDTO getReordByIdOld(Integer id) throws CustomRuntimeException {
+		
+		log.info("     RbacAccessRightsServiceImpl :==> getReordByIdOld ==> Started");
+		AccessRightsRbacDTO accessRightsRbacDTO = null;
+		try {
+		AccessRightsRbac accessRightsRbac = accessRightsRbacRepository.getOne(id);
+		accessRightsRbacDTO = new AccessRightsRbacDTO();
+
+		accessRightsRbacDTO.setId(accessRightsRbac.getId());
+
+		accessRightsRbacDTO.setDepartmentNameId(
+				accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getId() + "");
+		accessRightsRbacDTO
+				.setDepartmentName(accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getName());
+
+		accessRightsRbacDTO.setModuleNameId(accessRightsRbac.getPageMaster().getModuleMaster().getId() + "");
+		accessRightsRbacDTO.setModuleName(accessRightsRbac.getPageMaster().getModuleMaster().getName());
+
+		accessRightsRbacDTO.setPageNameId(accessRightsRbac.getPageMaster().getId() + "");
+		accessRightsRbacDTO.setPageName(accessRightsRbac.getPageMaster().getName());
+
+		// Set all the roles available in the department with name and id
+		//accessRightsRbacDTO.setRoleListInDepartment(getRoleListInDepartment(
+		//		accessRightsRbac.getPageMaster().getModuleMaster().getDepartmentMaster().getAppRoles()));
+
+		// Set all the roles that have rights on this page
+		accessRightsRbacDTO.setAllRoleIdsForAccessOnThisPage(
+				getRoleListHavingRightsOnThisPage(accessRightsRbac.getPageMaster().getAccessRightsRbacs()));
+
+		// Set all the operations defined on this particular page with its name and id
+		accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+				getAllOperationDefinedOnThisPage(accessRightsRbac.getPageMaster().getId()));
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getReordByIdOld ==> Ended");
+		return accessRightsRbacDTO;
+	}
+
+	@Override
+	public List<NameValue> getAllOperationDefinedOnThisPage(Integer pageId) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> getAllOperationDefinedOnThisPage ==> Started");
+		
+		List<NameValue> opListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue=null;
+		
+		try {
+		for (OperationMaster operationMaster : pageRepository.getOne(pageId).getOperationMasters()) {
+			nameValue = new NameValue(operationMaster.getId(), operationMaster.getName());
+			opListWithNameAndId.add(nameValue);
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getAllOperationDefinedOnThisPage ==> Ended");
+		return opListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getAllOperationRightsOnThisPage(Integer accessRightsRbacId) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> getAllOperationRightsOnThisPage ==> Started");
+		List<NameValue> opListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue=null;
+		
+		try {
+		for (OperationAccess operationAccess : accessRightsRbacRepository.getOne(accessRightsRbacId)
+				.getOperationAccesses()) {
+			nameValue = new NameValue(operationAccess.getOperationMaster().getId(),
+					operationAccess.getOperationMaster().getName());
+			opListWithNameAndId.add(nameValue);
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getAllOperationRightsOnThisPage ==> Ended");
+		return opListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getRoleListHavingRightsOnThisPage(List<AccessRightsRbac> accessRightsRbacsList) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> getRoleListHavingRightsOnThisPage ==> Started");
+		List<NameValue> roleListWithNameAndId = new ArrayList<NameValue>();
+		NameValue nameValue=null;
+		try {
+		for (AccessRightsRbac accessRightsRbac : accessRightsRbacsList) {
+			nameValue = new NameValue(accessRightsRbac.getAppRole().getId(),
+					accessRightsRbac.getAppRole().getRoleName());
+			roleListWithNameAndId.add(nameValue);
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getRoleListHavingRightsOnThisPage ==> Ended");
+		return roleListWithNameAndId;
+	}
+
+	@Override
+	public List<NameValue> getRoleListInDepartment(List<AppRole> roleListInDepartment,
+			List<AccessRightsRbac> accessRightsRbacList) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> getRoleListInDepartment ==> Started");
+		List<NameValue> roleListWithNameAndId = new ArrayList<NameValue>();
+		
+		NameValue nameValue=null;
+		Integer accessCount=0;
+		try {
+		for (AppRole appRole : roleListInDepartment) {			
+			for(int j=0;j<accessRightsRbacList.size();j++) {				
+			if (appRole.getId() == accessRightsRbacList.get(j).getAppRole().getId())
+				accessCount = accessRightsRbacList.get(j).getOperationAccesses().size();			
+			}
+			nameValue = new NameValue(appRole.getId(), appRole.getRoleName(), accessCount);
+			accessCount=0;			
+			roleListWithNameAndId.add(nameValue);
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> getRoleListInDepartment ==> Ended");
+		return roleListWithNameAndId;
+	}
+
+	@Override
+	public boolean saveAndUpdate(String accessRightsRbacId,String pageId,String roleId,String recordIdArray[]) throws CustomRuntimeException {	
+		log.info("     RbacAccessRightsServiceImpl :==> saveAndUpdate ==> Started");
+		AccessRightsRbac accessRightsRbac=null;		
+		boolean isSaved=true;
+		try {
+		if (accessRightsRbacId.equals("")) {			
+			//New  Access rights
+			accessRightsRbac = new AccessRightsRbac();
+			accessRightsRbac.setPageMaster(pageRepository.getOne(Integer.parseInt(pageId)));
+			accessRightsRbac.setAppRole(appRoleRepository.getOne(Integer.parseInt(roleId)));
+			accessRightsRbac.setOperationAccesses(prepareOperationAccessList(accessRightsRbac,recordIdArray));
+			accessRightsRbacRepository.saveAndFlush(accessRightsRbac);
+		}			
+		else {
+			//Old Access rights			
+			accessRightsRbac=accessRightsRbacRepository.getOne(Integer.parseInt(accessRightsRbacId));
+			if(recordIdArray.length!=0)
+			  updateAllExistingPermission(accessRightsRbac, recordIdArray );	
+			else
+				accessRightsRbacRepository.delete(accessRightsRbac);	
+		}			
+		} catch (Exception ex) {
+			isSaved=false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> saveAndUpdate ==> Ended");
+		return isSaved;
+	}
+	
+		
+   public void updateAllExistingPermission(AccessRightsRbac existingAccessRightsRbac,String recordIdArray[] ) throws CustomRuntimeException {
+	   log.info("     RbacAccessRightsServiceImpl :==> updateAllExistingPermission ==> Started");
+	   try {
+	//Fetch all existing permission first
+	   List<OperationAccess> opertaionAccessList = existingAccessRightsRbac.getOperationAccesses();		   
+	   List<OperationAccess> operationAccessListForInsert=new ArrayList<>();
+	   List<OperationAccess> operationAccessForDelete=new ArrayList<>();	
+	//Pick ids for inserting new one and leaving old one as it if the old id is coming
+	   int idComing;
+	 for(String id:recordIdArray) {
+		 idComing=Integer.parseInt(id);
+		 if(matchComingIdWithExistingList(idComing,opertaionAccessList)) {
+			 //ComingId is old one. Leave as it is 
+			;
+		 }			 
+		 else {
+			 //ComingId is new one
+			 OperationAccess operationAccess=new OperationAccess();
+			 operationAccess.setAccessRightsRbac(existingAccessRightsRbac);
+			 operationAccess.setOperationMaster(opRepository.getOne(idComing));
+			 operationAccessListForInsert.add(operationAccess);						 
+		 }
+	 }
+	//Pick all those ids which are in existing but not coming. These ids will be deleted
+	 int idExisting;
+	 for(OperationAccess operationAccess:opertaionAccessList) {
+		 idExisting=operationAccess.getOperationMaster().getId();
+		 if(matchExistingIdWithComingId(idExisting,recordIdArray)) {
+			 //Leave as it is
+			 ;
+		 }else {
+			 //Delete this ids			
+			 operationAccessForDelete.add(operationAccess);			
+		 }		 
+	 }
+	 
+	 //Now do bulk delete and bulk insert	
+	 operationAccessRepository.deleteInBatch(operationAccessForDelete);
+	 operationAccessRepository.saveAll(operationAccessListForInsert);
+	 //if no op id is coming, delete all the access entry
+	   } catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+	 log.info("     RbacAccessRightsServiceImpl :==> updateAllExistingPermission ==> Ended");
+	}//End of updateAllExistingPermission
+	
+   public boolean matchComingIdWithExistingList(Integer idComing,List<OperationAccess> opertaionAccessList) throws CustomRuntimeException {
+	   log.info("     RbacAccessRightsServiceImpl :==> matchComingIdWithExistingList ==> Started");
+	   boolean comparedStatus=false;
+	   try {
+	   for(OperationAccess operationAccess:opertaionAccessList) {
+		   if(operationAccess.getOperationMaster().getId()==idComing)
+			   comparedStatus=true;
+	   }
+	   } catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+	   log.info("     RbacAccessRightsServiceImpl :==> matchComingIdWithExistingList ==> Ended");
+	   return comparedStatus;
+	   
+   }
+   
+   public boolean matchExistingIdWithComingId(Integer idExisting,String recordIdArray[]) throws CustomRuntimeException {
+	   log.info("     RbacAccessRightsServiceImpl :==> matchExistingIdWithComingId ==> Started");
+	   
+	   boolean comparedStatus=false;
+	   try {
+	   for(String id:recordIdArray) {
+		   if(Integer.parseInt(id)==idExisting)
+			   comparedStatus=true;
+	   }
+	   } catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+	   log.info("     RbacAccessRightsServiceImpl :==> matchExistingIdWithComingId ==> Ended");
+	   return comparedStatus;
+	   
+   }
+
+	public List<OperationAccess> prepareOperationAccessList(AccessRightsRbac accessRightsRbac,String recordIdArray[]) throws CustomRuntimeException{
+		log.info("     RbacAccessRightsServiceImpl :==> prepareOperationAccessList ==> Started");
+		
+		List<OperationAccess> operationAccessList=new ArrayList<>();
+		try {
+		for(int i=0;i<recordIdArray.length;i++) {		          
+			OperationAccess operationAccess=new OperationAccess();
+			operationAccess.setAccessRightsRbac(accessRightsRbac);
+			operationAccess.setOperationMaster(opRepository.getOne(Integer.parseInt(recordIdArray[i])));
+		    operationAccessList.add(operationAccess);
+		}		
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> prepareOperationAccessList ==> Ended");
+		return operationAccessList;		
+	}
+	
+
+	@Override
+	public boolean deleteRecordById(Integer id) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> deleteRecordById ==> Started");
+		boolean isDeleted=true;
+		try {
+		accessRightsRbacRepository.deleteById(id);
+		} catch (Exception ex) {
+			isDeleted=false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> deleteRecordById ==> Ended");
+		return isDeleted;
+	}
+
+	@Transactional
+	@Override
+	public boolean deleteMultipleRecords(Integer[] recordIdArray) throws CustomRuntimeException {
+		log.info("     RbacAccessRightsServiceImpl :==> deleteMultipleRecords ==> Started");
+		boolean isDeleted=true;
+		try {
+		accessRightsRbacRepository.deleteOperationWithIds(recordIdArray);
+	} catch (Exception ex) {
+		isDeleted=false;
+		throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+	}
+		log.info("     RbacAccessRightsServiceImpl :==> deleteMultipleRecords ==> Ended");
+		
+		return isDeleted;
+	}
+
+	@Override
+	public AccessRightsRbacDTO loadOperationOnPage(Integer roleId, Integer pageId) throws CustomRuntimeException {
+		
+		log.info("     RbacAccessRightsServiceImpl :==> loadOperationOnPage ==> Started");
+		List<OperationAccess> operationAccessList=null;
+		AccessRightsRbacDTO accessRightsRbacDTO = null;
+		try {
+		List<AccessRightsRbac> accessRightsRbacList = accessRightsRbacRepository.loadOperationOnPage(roleId, pageId);	
+
+		if (accessRightsRbacList.size() != 0) {
+			AccessRightsRbac accessRightsRbac = accessRightsRbacList.get(0);
+			accessRightsRbacDTO = new AccessRightsRbacDTO();			
+			accessRightsRbacDTO.setAccessRightsRbacId(accessRightsRbac.getId()+"");
+			accessRightsRbacDTO.setRoleName(accessRightsRbac.getAppRole().getRoleName());
+			accessRightsRbacDTO.setRoleNameId(roleId + "");
+			accessRightsRbacDTO.setPageNameId(pageId + "");
+			accessRightsRbacDTO.setPageName(accessRightsRbac.getPageMaster().getName());
+			accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+					getAllOperationDefinedOnThisPage(
+							                         accessRightsRbac.getPageMaster().getOperationMasters(),
+					                                 accessRightsRbac.getOperationAccesses()
+					                                 )
+					);                    
+		} else {
+			
+			accessRightsRbacDTO = new AccessRightsRbacDTO();
+			accessRightsRbacDTO.setAccessRightsRbacId("");
+			accessRightsRbacDTO.setRoleName(appRoleRepository.getOne(roleId).getRoleName());			
+			accessRightsRbacDTO.setRoleNameId(roleId + "");
+			accessRightsRbacDTO.setPageNameId(pageId + "");
+			accessRightsRbacDTO.setPageName(pageRepository.getOne(pageId).getName());
+			accessRightsRbacDTO.setAllOperationsDefinedOnThisPage(
+					getAllOperationDefinedOnThisPage(
+							                           pageRepository.getOne(pageId).getOperationMasters(),
+							                           operationAccessList
+							                           )
+					                         );
+		}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> loadOperationOnPage ==> Ended");
+		return accessRightsRbacDTO;
+	}
+	
+	private List<NameValue> getAllOperationDefinedOnThisPage(List<OperationMaster> operationMasterList,
+			List<OperationAccess> operationAccessList) throws CustomRuntimeException {	
+		    log.info("     RbacAccessRightsServiceImpl :==> getAllOperationDefinedOnThisPage ==> Started");
+			List<NameValue> operationOnPageListNew = new ArrayList<NameValue>();
+			NameValue nameValue=null;			
+			try {
+			for (OperationMaster operationMaster : operationMasterList) {
+				if(isThisAccessAllReadyAssigned(operationMaster.getId(),operationAccessList)) {
+				nameValue = new NameValue(operationMaster.getId(), operationMaster.getName(),"checked");
+				}else {
+					nameValue = new NameValue(operationMaster.getId(), operationMaster.getName(),"");	
+				}
+				operationOnPageListNew.add(nameValue);
+			}
+			} catch (Exception ex) {
+				throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+			}
+			log.info("     RbacAccessRightsServiceImpl :==> getAllOperationDefinedOnThisPage ==> Ended");
+			return operationOnPageListNew;
+	}
+  
+    private boolean isThisAccessAllReadyAssigned(Integer opId,List<OperationAccess> operationAccessList) throws CustomRuntimeException {
+    	log.info("     RbacAccessRightsServiceImpl :==> isThisAccessAllReadyAssigned ==> Started");
+		boolean isAssigned=false;	
+		try {
+		if(operationAccessList!=null)
+		for (OperationAccess operationAccess : operationAccessList) {
+			if(operationAccess.getOperationMaster().getId()==opId)
+				isAssigned=true;
+		}	
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RbacAccessRightsServiceImpl :==> isThisAccessAllReadyAssigned ==> Ended");
+		return isAssigned;	  
+  }
+}

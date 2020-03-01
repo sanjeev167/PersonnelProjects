@@ -1,0 +1,132 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.entity;
+
+import java.sql.Timestamp;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Entity
+@Table(name = "tree_menu_type_master")
+@NamedQuery(name = "TreeMenuTypeMaster.findAll", query = "SELECT m FROM TreeMenuTypeMaster m")
+public class TreeMenuTypeMaster {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(name = "active_c")
+	private String activeC;
+
+	@Column(name = "created_by")
+	private Integer createdBy;
+
+	@Column(name = "created_on")
+	private Timestamp createdOn;
+
+	@Column(name = "updated_by")
+	private Integer updatedBy;
+
+	@Column(name = "updated_on")
+	private Timestamp updatedOn;
+	@Column(name = "name")
+	private String name;
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	/**
+	 * @return the activeC
+	 */
+	public String getActiveC() {
+		return activeC;
+	}
+	/**
+	 * @param activeC the activeC to set
+	 */
+	public void setActiveC(String activeC) {
+		this.activeC = activeC;
+	}
+	/**
+	 * @return the createdBy
+	 */
+	public Integer getCreatedBy() {
+		return createdBy;
+	}
+	/**
+	 * @param createdBy the createdBy to set
+	 */
+	public void setCreatedBy(Integer createdBy) {
+		this.createdBy = createdBy;
+	}
+	/**
+	 * @return the createdOn
+	 */
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+	/**
+	 * @param createdOn the createdOn to set
+	 */
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+	/**
+	 * @return the updatedBy
+	 */
+	public Integer getUpdatedBy() {
+		return updatedBy;
+	}
+	/**
+	 * @param updatedBy the updatedBy to set
+	 */
+	public void setUpdatedBy(Integer updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+	/**
+	 * @return the updatedOn
+	 */
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+	/**
+	 * @param updatedOn the updatedOn to set
+	 */
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	
+}

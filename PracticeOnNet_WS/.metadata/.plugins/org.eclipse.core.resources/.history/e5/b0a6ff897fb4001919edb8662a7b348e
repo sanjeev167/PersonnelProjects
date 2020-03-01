@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package com.config.loadOnStartup;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Component
+@Scope(value = "prototype")
+public class LoadObjectsInContextAtStartUp {
+
+}

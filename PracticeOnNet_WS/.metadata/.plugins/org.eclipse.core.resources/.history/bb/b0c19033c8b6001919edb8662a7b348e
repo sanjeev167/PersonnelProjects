@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.List;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public interface UrlAndRoleMatcherService {
+
+	public List<Matcher> getUrlAndRoleMatcherList();
+}//End of UrlAndRoleMatcherService

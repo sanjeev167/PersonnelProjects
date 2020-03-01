@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.ctrl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.base.BaseController;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Controller
+@RequestMapping(value = "/admin/pvt/sec/rbac/roleHierarchy/")
+public class RoleHierarchyController extends BaseController{
+	static final Logger log = LoggerFactory.getLogger(RbacAccessRightsController.class);
+	
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public String getRoleHierarchy(Model model) {
+		log.info("RoleHierarchyController :==> getRoleHierarchy :==> Started");
+		String target = "/admin/pvt/sec/rbac/roleHierarchy";
+		log.info("RoleHierarchyController :==> getRoleHierarchy :==> Ended");
+		return target;
+	}
+	
+}//End of RoleHierarchyController

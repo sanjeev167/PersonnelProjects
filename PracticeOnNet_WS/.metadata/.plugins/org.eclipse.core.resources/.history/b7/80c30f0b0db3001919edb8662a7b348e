@@ -1,0 +1,21 @@
+################################
+# @Author : Sanjeev Kumar
+# @Date   : 12/3/2019
+################################
+server.servlet.session.timeout=1m
+#spring.main.banner-mode=off
+
+#This will force to select any free port for running server
+
+#server.port=0
+
+
+#spring.jpa.database=default
+
+
+############Spring MVC ########
+#spring.mvc.view.prefix: /WEB-INF/jsp/
+#spring.mvc.view.suffix: .jsp
+#spring.messages.basename=messages
+
+

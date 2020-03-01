@@ -1,0 +1,398 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.masters.dto.NameValue;
+import com.admin.pvt.menu_mgr.dto.RoleHierarchyDTO;
+import com.admin.pvt.menu_mgr.dto.RoleHierarchyJSON;
+import com.admin.pvt.menu_mgr.entity.RoleHierarchy;
+import com.admin.pvt.menu_mgr.repo.RoleHierarchyRepository;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppConstants;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+ @Service
+public class RoleHierarchyServiceImpl implements RoleHierarchyService {
+	static final Logger log = LoggerFactory.getLogger(RoleHierarchyServiceImpl.class);
+	
+	/** The entity manager. */
+	@Autowired
+	@PersistenceContext(unitName = AppConstants.JPA_UNIT_PRACTICEONNET)
+	private EntityManager entityManager;
+	
+	@Autowired
+	DepartmentRepository departmentRepository;
+	
+	@Autowired
+	RoleHierarchyRepository roleHierarchyRepository;
+	
+
+
+	@Override
+	public DataTableResults<RoleHierarchyDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> loadGrid ==> Started");
+		DataTableResults<RoleHierarchyDTO> dataTableResult;
+		try {
+			DataTableRequest<RoleHierarchy> dataTableInRQ = new DataTableRequest<RoleHierarchy>(request);
+			
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery="";
+
+			if (whereClauseForBaseQuery.equals("")) {
+				
+				baseQuery="select" 
+					       +" rh.id,"
+					       +" dm.name as contextName,"					       
+					       +" (select "
+					       +" prh.head "
+					       +" from role_hierarchy prh, role_hierarchy crh "
+					       +" where prh.parent_id=crh.id )as parentName,"					       
+                           +" rh.head as childName,"
+					       +" rh.contents as contents,"
+					       +" rh.active_c as activeC,"
+					       +" ( select count(1) from role_hierarchy )as totalrecords"
+					       +" from role_hierarchy rh, department_master dm";
+				
+		        }else {
+		        	baseQuery="select" 
+						       +" rh.id,"
+						       +" dm.name as contextName,"					       
+						       +" (select "
+						       +" prh.head "
+						       +" from role_hierarchy prh, role_hierarchy crh "
+						       +" where prh.parent_id=crh.id )as parentName,"					       
+	                           +" rh.head as childName,"
+						       +" rh.contents as contents,"
+						       +" rh.active_c as activeC,"
+						       +" ( select count(1) from role_hierarchy )as totalrecords"
+						       +" from role_hierarchy rh, department_master dm";
+		        }
+				
+				
+				
+			
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			System.out.println("paginatedQuery ="+paginatedQuery);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "RoleHierarchyDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<RoleHierarchyDTO> roleHierarchyList = query.getResultList();
+			
+			dataTableResult = new DataTableResults<RoleHierarchyDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(roleHierarchyList);
+			if (!AppUtil.isObjectEmpty(roleHierarchyList)) {
+				dataTableResult.setRecordsTotal(roleHierarchyList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(roleHierarchyList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(roleHierarchyList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RoleHierarchyServiceImpl :==> loadGrid ==> Ended");
+		return dataTableResult;
+	}
+
+	// This will directly put your result into your mapped dto
+	@Transactional
+	@Override
+	public RoleHierarchyDTO getReordById(Integer id) throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> getReordById ==> Started");
+		RoleHierarchyDTO roleHierarchyDTO;
+		try {
+			RoleHierarchy roleHierarchy = roleHierarchyRepository.getOne(id);
+			roleHierarchyDTO = new RoleHierarchyDTO();
+			roleHierarchyDTO.setId(roleHierarchy.getId());
+			roleHierarchyDTO.setContextId(roleHierarchy.getDepartmentMaster().getId() + "");
+			roleHierarchyDTO.setParentId(roleHierarchy.getRoleHierarchy().getId() + "");
+			roleHierarchyDTO.setChildId(roleHierarchy.getId()+"");
+			roleHierarchyDTO.setChildName(roleHierarchy.getHead());
+			roleHierarchyDTO.setContents(roleHierarchy.getContents());
+			roleHierarchyDTO.setActiveC(roleHierarchy.getActiveC());
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RoleHierarchyServiceImpl :==> getReordById ==> Ended");
+		return roleHierarchyDTO;
+	}
+
+	@Transactional
+	@Override
+	public RoleHierarchyDTO saveAndUpdate(RoleHierarchyDTO roleHierarchyDTO) throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> saveAndUpdate ==> Started");
+		RoleHierarchy roleHierarchy;
+		RoleHierarchyDTO roleHierarchyDTONew;
+		try {
+			if (roleHierarchyDTO.getId() != null) {// Edit case
+				//Load the record
+				roleHierarchy = roleHierarchyRepository.getOne(roleHierarchyDTO.getId());
+				//Set the rest field coming for update
+				int departmentId=Integer.parseInt(roleHierarchyDTO.getContextId());
+				roleHierarchy.setDepartmentMaster(departmentRepository.getOne(departmentId));				
+				//Set parent node
+				int parentId=Integer.parseInt(roleHierarchyDTO.getParentId());
+				roleHierarchy.setRoleHierarchy(roleHierarchyRepository.getOne(parentId));
+				//Set its node name
+				roleHierarchy.setHead(roleHierarchyDTO.getChildName());//Child Node name coming
+				roleHierarchy.setContents(roleHierarchyDTO.getContents());
+				roleHierarchy.setActiveC("Y");
+				
+			} else { // Add case
+				roleHierarchy = new RoleHierarchy();
+				int departmentId=Integer.parseInt(roleHierarchyDTO.getContextId());
+				roleHierarchy.setDepartmentMaster(departmentRepository.getOne(departmentId));
+				//Now there two possiblities
+				//1. Either parent node is coming
+				//2. No parent is coming
+				if (roleHierarchyDTO.getParentId() != null && !roleHierarchyDTO.getParentId().equals("")) {
+					//Set parent if it exists
+					roleHierarchy.setRoleHierarchy(roleHierarchyRepository.getOne(Integer.parseInt(roleHierarchyDTO.getParentId())));
+					//Set Head/Child Node name
+					roleHierarchy.setHead(roleHierarchyDTO.getChildName());//Coming node from page	
+					roleHierarchy.setContents(roleHierarchyDTO.getContents());
+					roleHierarchy.setActiveC("Y");
+				}
+				else {
+					//Set parent if it is coming as null or blank
+					RoleHierarchy firstRoleHierarchyNode = new RoleHierarchy();
+					firstRoleHierarchyNode.setRoleHierarchy(new RoleHierarchy());//Parent
+					firstRoleHierarchyNode.setHead(roleHierarchyDTO.getChildName());	//First node which doesn't have any parent			
+					roleHierarchy.setContents(roleHierarchyDTO.getContents());					
+					roleHierarchy.setActiveC("Y");
+				}
+			}//End of Add
+			
+			//Now roleHierarchy is ready for saving or update
+			RoleHierarchy returnedRoleHierarchy = roleHierarchyRepository.saveAndFlush(roleHierarchy);			
+			roleHierarchyDTONew = new RoleHierarchyDTO(
+					returnedRoleHierarchy.getId(),//Child id						
+					returnedRoleHierarchy.getDepartmentMaster().getId()+"",//Context Id
+					returnedRoleHierarchy.getRoleHierarchy().getId()+"",//Parent Id
+					returnedRoleHierarchy.getRoleHierarchy().getId()+"", //Child id 					
+					returnedRoleHierarchy.getHead(),//Child name					
+					returnedRoleHierarchy.getContents(),//Content name
+					returnedRoleHierarchy.getActiveC()//Active C
+					);
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RoleHierarchyServiceImpl :==> saveAndUpdate ==> Ended");
+		return roleHierarchyDTONew;
+	}
+
+	@Override
+	public boolean deleteOneRecord(Integer id) throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> deleteOneRecord ==> Started");
+		boolean isRecordDelete = true;
+		try {
+			roleHierarchyRepository.deleteById(id);
+		} catch (Exception ex) {
+			isRecordDelete = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RoleHierarchyServiceImpl :==> deleteOneRecord ==> Ended");
+		return isRecordDelete;
+	}
+
+	@Transactional
+	@Override
+	public boolean deleteMultipleRecords(Integer[] recordIdArray) throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> deleteMultipleRecords ==> Started");
+		boolean isRecordDelete = true;
+		try {
+			roleHierarchyRepository.deleteRoleHierarchyWithIds(recordIdArray);
+		} catch (Exception ex) {
+			isRecordDelete = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     RoleHierarchyServiceImpl :==> deleteMultipleRecords ==> Started");
+		return isRecordDelete;
+	}
+
+	
+	
+	@Override
+	public List<NameValue> getListRoleParentNode() throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> getListRoleParentNode ==> Started");
+
+		List<NameValue> parentNodeList = new ArrayList<NameValue>();
+		// moduleList.add(new NameValue(0, "Root"));//For testing
+		NameValue nameValue;
+		try {
+			List<RoleHierarchy> roleHierarchyList = roleHierarchyRepository.findAllTreeNodeList();
+			for (RoleHierarchy roleHierarchy : roleHierarchyList) {
+				nameValue = new NameValue(roleHierarchy.getId(), roleHierarchy.getHead());
+				parentNodeList.add(nameValue);
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     RoleHierarchyServiceImpl :==> getListRoleParentNode ==> Ended");
+
+		return parentNodeList;
+	}
+
+	@Override
+	public Integer getMinId() throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> getMinId ==> Started");
+		Integer recordId = roleHierarchyRepository.getMinId();
+		log.info("     RoleHierarchyServiceImpl :==> getMinId ==> Ended");
+		return recordId;
+	}
+
+	@Transactional
+	@Override
+	public ArrayList<RoleHierarchyJSON> getRoleHierarchyLevelWiseStructure() throws CustomRuntimeException {
+		log.info("     RoleHierarchyServiceImpl :==> getSpecificTreeTypeStructure ==> Started");
+		List<RoleHierarchy> roleHierarchyList = roleHierarchyRepository.findAllSortedTreeNodeList();		
+		ArrayList<RoleHierarchyJSON> roleStructureList = new ArrayList<RoleHierarchyJSON>();
+		RoleHierarchyJSON roleHierarchyJSON = null;		
+		//this.childArrayList = childArrayList;		
+		for (RoleHierarchy roleHierarchy : roleHierarchyList) {
+			if (roleHierarchy.getRoleHierarchy() != null) {
+				roleHierarchyJSON = new RoleHierarchyJSON(
+						roleHierarchy.getId() + "", 
+						roleHierarchy.getHead(),
+						roleHierarchy.getContents(), 
+						getChildRoleHeirarchy(roleHierarchy.getRoleHierarchies())						
+						);
+				roleStructureList.add(roleHierarchyJSON);
+			}
+		}
+		log.info("     RoleHierarchyServiceImpl :==> getSpecificTreeTypeStructure ==> Ended");
+		return roleStructureList;
+	}
+
+	private ArrayList<RoleHierarchyJSON> getChildRoleHeirarchy(List<RoleHierarchy> roleHierarchyList) {
+		RoleHierarchyJSON roleHierarchyJSON=null;
+		ArrayList<RoleHierarchyJSON> roleStructureList = new ArrayList<RoleHierarchyJSON>();
+		for (RoleHierarchy roleHierarchy : roleHierarchyList) {
+			if (roleHierarchy.getRoleHierarchy() != null) {
+				roleHierarchyJSON = new RoleHierarchyJSON(
+						roleHierarchy.getId() + "", 
+						roleHierarchy.getHead(),
+						roleHierarchy.getContents(), 
+						getChildRoleHeirarchy(roleHierarchy.getRoleHierarchies())						
+						);
+				roleStructureList.add(roleHierarchyJSON);
+			}
+		}
+		return roleStructureList;
+	} 
+	
+	
+	private void printRoleHieraStructure(Map<String, Map<String, List<RoleHierarchyJSON>>> contextWiseRoleHierarchyMap ) {
+		
+		// Print all role wise tree map
+				//System.out.println("\tRole No. in RoleMap = " + roleWiseTreeMenuMap.size());
+				for (Entry<String, Map<String, List<RoleHierarchyJSON>>> contextWiseRoleHierarchyMapEntry : contextWiseRoleHierarchyMap.entrySet()) {
+
+					System.out.print("\tMenu Access rights for [Context => " + contextWiseRoleHierarchyMapEntry.getKey()+"]");
+					Map<String, List<RoleHierarchyJSON>> contextWiseRoleHierarchyMapLocal = contextWiseRoleHierarchyMapEntry.getValue();
+					//System.out.println("\tcontextWiseRoleHierarchyMapLocal size [" + contextWiseRoleHierarchyMapLocal.size()+"] tree type.");
+					for (Entry<String, List<RoleHierarchyJSON>> roleHierarchyEntry : contextWiseRoleHierarchyMapLocal.entrySet()) {
+						{
+							System.out.println(" On [" + roleHierarchyEntry.getKey()+"]");
+							List<RoleHierarchyJSON> roleHierarchyCollection = roleHierarchyEntry.getValue();
+							//System.out.println("\t\tNode or Leaf tree-depth [" + menuCollection.size()+"] level");
+							int i = 1;
+							for (RoleHierarchyJSON roleHierarchyJSON : roleHierarchyCollection) {						
+								//System.out.println("\t\t [" + (i++) + "]");
+								System.out.println("\t\t\tHead = " + roleHierarchyJSON.getHeadName());
+								System.out.println("\t\t\tID = " + roleHierarchyJSON.getId());
+								System.out.println("\t\t\tcontents = " + roleHierarchyJSON.getContents());
+								System.out.println("\t\t\tChildren = ");
+								printChildren(roleHierarchyJSON.getChildren());
+								
+							} // Tree node or leaf level looping
+						} // Tree Menu Type level looping
+					} // Role level looping
+				} // End of contextWiseRoleHierarchyMap looping
+	}//End of printRoleHieraStructure
+	
+	private void printChildren(List<RoleHierarchyJSON> roleHierarchyCollection) {
+		int i = 1;
+		for (RoleHierarchyJSON roleHierarchyJSON : roleHierarchyCollection) {						
+			//System.out.println("\t\t [" + (i++) + "]");
+			System.out.println("\t\t\tHead = " + roleHierarchyJSON.getHeadName());
+			System.out.println("\t\t\tID = " + roleHierarchyJSON.getId());
+			System.out.println("\t\t\tcontents = " + roleHierarchyJSON.getContents());
+			System.out.println("\t\t\tChildren = " + roleHierarchyJSON.getChildren());
+		}
+		
+	}
+	
+	
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentValue, String parentId, Object fieldValue,
+			String fieldName) throws UnsupportedOperationException, CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean FirstChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean SecondChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean ThirdChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+
+}

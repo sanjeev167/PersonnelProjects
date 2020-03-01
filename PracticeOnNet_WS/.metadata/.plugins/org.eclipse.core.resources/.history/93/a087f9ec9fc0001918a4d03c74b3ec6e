@@ -1,0 +1,57 @@
+package com.admin.pvt.menu_mgr.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+
+/**
+ * The persistent class for the app_role database table.
+ * 
+ */
+@Entity
+@Table(name="app_role")
+@NamedQuery(name="AppRole.findAll", query="SELECT a FROM AppRole a")
+public class AppRole implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)
+	private Integer id;
+
+	@Column(name="role_name", length=50)
+	private String roleName;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="department_id")
+	private DepartmentMaster departmentMaster;
+
+	public AppRole() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getRoleName() {
+		return this.roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+}

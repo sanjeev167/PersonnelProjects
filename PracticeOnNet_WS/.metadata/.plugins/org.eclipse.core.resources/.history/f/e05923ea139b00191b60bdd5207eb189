@@ -1,0 +1,118 @@
+package com.admin.pub.en.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the page_master database table.
+ * 
+ */
+@Entity
+@Table(name="page_master")
+@NamedQuery(name="PageMaster.findAll", query="SELECT p FROM PageMaster p")
+public class PageMaster implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	private String baseurl;
+
+	private String name;
+
+	//bi-directional many-to-one association to AccessRightsRbac
+	@OneToMany(mappedBy="pageMaster")
+	private List<AccessRightsRbac> accessRightsRbacs;
+
+	//bi-directional many-to-one association to OperationMaster
+	@OneToMany(mappedBy="pageMaster")
+	private List<OperationMaster> operationMasters;
+
+	//bi-directional many-to-one association to ModuleMaster
+	@ManyToOne
+	@JoinColumn(name="module_id")
+	private ModuleMaster moduleMaster;
+
+	public PageMaster() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getBaseurl() {
+		return this.baseurl;
+	}
+
+	public void setBaseurl(String baseurl) {
+		this.baseurl = baseurl;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<AccessRightsRbac> getAccessRightsRbacs() {
+		return this.accessRightsRbacs;
+	}
+
+	public void setAccessRightsRbacs(List<AccessRightsRbac> accessRightsRbacs) {
+		this.accessRightsRbacs = accessRightsRbacs;
+	}
+
+	public AccessRightsRbac addAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().add(accessRightsRbac);
+		accessRightsRbac.setPageMaster(this);
+
+		return accessRightsRbac;
+	}
+
+	public AccessRightsRbac removeAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().remove(accessRightsRbac);
+		accessRightsRbac.setPageMaster(null);
+
+		return accessRightsRbac;
+	}
+
+	public List<OperationMaster> getOperationMasters() {
+		return this.operationMasters;
+	}
+
+	public void setOperationMasters(List<OperationMaster> operationMasters) {
+		this.operationMasters = operationMasters;
+	}
+
+	public OperationMaster addOperationMaster(OperationMaster operationMaster) {
+		getOperationMasters().add(operationMaster);
+		operationMaster.setPageMaster(this);
+
+		return operationMaster;
+	}
+
+	public OperationMaster removeOperationMaster(OperationMaster operationMaster) {
+		getOperationMasters().remove(operationMaster);
+		operationMaster.setPageMaster(null);
+
+		return operationMaster;
+	}
+
+	public ModuleMaster getModuleMaster() {
+		return this.moduleMaster;
+	}
+
+	public void setModuleMaster(ModuleMaster moduleMaster) {
+		this.moduleMaster = moduleMaster;
+	}
+
+}

@@ -1,0 +1,91 @@
+
+<!-- jQuery 3 -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {	
+	alert("MM");
+
+	//Fetch a e=record based on id
+	 getSpecificTreeTypeStructureForLoggedInUser() {	
+		alert("SSS");
+		/* stop form from submitting normally */
+		var id=1;
+		method = 'GET';
+		url = baseUrl + "/getSpecificTreeTypeStructureForLoggedInUser" + "?id=" + id;
+		// alert("posting url = "+url);
+		$.ajax({
+			type : method,
+			async:false,		
+			url : url,		
+			beforeSend : function(xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+			},
+			success : function(response) {
+				// alert("Response is coming");
+				$('#successMsgId').html("<span style='color:green;font:bold;'>"+response.statusMsg+"</span>");
+				if(response.status){
+					loadTreeStructure(response.formObject,response.recordId);							
+				}else{
+					showBusinessEerror(response.fieldErrMsgMap);
+				}			 
+				// Now load the page with response
+				if (response.status == "ErrorFree")
+					loadRecord(response);
+				else
+					showBusinessEerror(response);			
+			},
+			error : function(jqXHR, exception) {			
+				formatErrorMessage(jqXHR, exception);
+			}
+		});	
+	}// End of getIdBasedRecord
+
+	function loadTreeStructure(treeMenuJsonData,minParentId){	
+		var data =treeMenuJsonData;
+		
+		alert(data);
+
+	var endMenu =getMenu((minParentId*1+0)+"");
+	function getMenu( parentID ){
+	       return data.filter(function(node){ return ( node.parent_id === parentID ) ; }).map(function(node){
+	           var exists = data.some(function(childNode){  return childNode.parent_id === node.id; });	                
+	          // style="display:block; will be used for showing menu opened
+	           var subMenu = (exists) ? '<ul class="treeview-menu"">'+ getMenu(node.id) + '</ul>' : "";
+	           var menu;                
+	           if(exists)	     
+	        	   //menu-open class can be used for showing menu opened
+	        	   menu= '<li class="treeview " >'
+	                          +'<a href="'+node.leafUrl+'"> <i class="'+node.nodeImgUrl+'"></i>'
+	                          + '<span>' +node.name  +'</span>'
+	                          + '<span class="pull-right-container">' 
+	                          +'<i class="fa fa-angle-left pull-right"></i>'
+	                          +'</span>'
+	                          +'</a>'
+	                          + subMenu
+	                          + '</li>';
+	          else		        	
+	        	  menu= '<li >'
+	              +'<a href="'+node.leafUrl+'"> <i class="'+node.nodeImgUrl+'"></i>'
+	              + '<span>' +node.name  +'</span>'                      
+	              +'</a>'
+	           + '</li>' ;
+	         
+	           return menu;
+	                    	   
+	       });
+	   }	
+	//Comma after each li has been inserted. It needs to be removed. g is used for global removal
+	var finalMenu=endMenu.join('').replace(/,/g, "");
+		$('#menu').html('<ul class="sidebar-menu" data-widget="tree" >'+finalMenu+ '</ul>');	
+	}
+
+	
+});// End of document ready
+
+
+
+
+</script>
+<span id="menu"></span>

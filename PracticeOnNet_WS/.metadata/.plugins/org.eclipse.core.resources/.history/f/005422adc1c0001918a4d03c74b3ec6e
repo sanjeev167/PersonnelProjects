@@ -1,0 +1,143 @@
+package com.admin.pvt.sec.rbac.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+import com.admin.pvt.sec.acl.entity.AclDomainAccessRight;
+import com.admin.pvt.sec.env.entity.DepartmentMaster;
+import com.admin.pvt.sec.rbac.dto.AppRoleDTO;
+import com.admin.pvt.sec.rbac.entity.AccessRightsRbac;
+import java.util.List;
+
+
+/**
+ * The persistent class for the app_role database table.
+ * 
+ */
+@Entity
+@Table(name="app_role")
+@NamedQuery(name="AppRole.findAll", query="SELECT a FROM AppRole a")
+@SqlResultSetMapping(
+        name = "AppRoleDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = AppRoleDTO.class,
+                columns = { @ColumnResult(name = "id", type = Integer.class), 
+                            @ColumnResult(name = "departmentName"), 
+                            @ColumnResult(name = "roleName"),                             
+                            @ColumnResult(name = "totalrecords", type = Integer.class),
+                            }))
+public class AppRole implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(name="role_name")
+	private String roleName;
+
+	//bi-directional many-to-one association to AccessRightsRbac
+	@OneToMany(mappedBy="appRole")
+	private List<AccessRightsRbac> accessRightsRbacs;
+
+	//bi-directional many-to-one association to AppGroupRole
+	@OneToMany(mappedBy="appRole")
+	private List<AppGroupRole> appGroupRoles;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="department_id")
+	private DepartmentMaster departmentMaster;
+	
+	//bi-directional many-to-one association to AclDomainAccessRight
+		@OneToMany(mappedBy="appRole")
+		private List<AclDomainAccessRight> aclDomainAccessRights;
+
+	public AppRole() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getRoleName() {
+		return this.roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public List<AccessRightsRbac> getAccessRightsRbacs() {
+		return this.accessRightsRbacs;
+	}
+
+	public void setAccessRightsRbacs(List<AccessRightsRbac> accessRightsRbacs) {
+		this.accessRightsRbacs = accessRightsRbacs;
+	}
+
+	public AccessRightsRbac addAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().add(accessRightsRbac);
+		accessRightsRbac.setAppRole(this);
+
+		return accessRightsRbac;
+	}
+
+	public AccessRightsRbac removeAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().remove(accessRightsRbac);
+		accessRightsRbac.setAppRole(null);
+
+		return accessRightsRbac;
+	}
+
+	public List<AppGroupRole> getAppGroupRoles() {
+		return this.appGroupRoles;
+	}
+
+	public void setAppGroupRoles(List<AppGroupRole> appGroupRoles) {
+		this.appGroupRoles = appGroupRoles;
+	}
+
+	public AppGroupRole addAppGroupRole(AppGroupRole appGroupRole) {
+		getAppGroupRoles().add(appGroupRole);
+		appGroupRole.setAppRole(this);
+
+		return appGroupRole;
+	}
+
+	public AppGroupRole removeAppGroupRole(AppGroupRole appGroupRole) {
+		getAppGroupRoles().remove(appGroupRole);
+		appGroupRole.setAppRole(null);
+
+		return appGroupRole;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+	/**
+	 * @return the aclDomainAccessRights
+	 */
+	public List<AclDomainAccessRight> getAclDomainAccessRights() {
+		return aclDomainAccessRights;
+	}
+
+	/**
+	 * @param aclDomainAccessRights the aclDomainAccessRights to set
+	 */
+	public void setAclDomainAccessRights(List<AclDomainAccessRight> aclDomainAccessRights) {
+		this.aclDomainAccessRights = aclDomainAccessRights;
+	}
+
+	
+	
+}

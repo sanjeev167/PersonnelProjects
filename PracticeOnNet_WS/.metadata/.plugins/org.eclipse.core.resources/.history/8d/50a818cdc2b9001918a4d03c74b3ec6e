@@ -1,0 +1,148 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.util.AntPathMatcher;
+
+import com.util.PathUtilities;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyInvocationSecurityMetadataSourceService implements FilterInvocationSecurityMetadataSource {
+
+	private AntPathMatcher urlMatcher = new AntPathMatcher();
+
+	private static Map<String, Collection<ConfigAttribute>> resourceMap = null;
+
+	@Autowired
+	UrlAndRoleMatcherService urlAndRoleMatcherService;
+
+	/**
+	 * Load URL permission configuration
+	 */
+	private void loadResourceDefine() {
+		long starttime = new Date().getTime();
+
+		resourceMap = new HashMap<String, Collection<ConfigAttribute>>();
+		long endtime = new Date().getTime();
+		Map<String, ArrayList<String>> urlAndAccessRolesMap = urlAndRoleMatcherService.getUrlAndRoleMatcherList();
+
+		Collection<ConfigAttribute> atts = new ArrayList<ConfigAttribute>();
+		
+
+		System.out.println("\n\t ########## Custom Ant Matcher Loading started " + (starttime - endtime) + "  ms ###########");
+		Iterator<Entry<String, ArrayList<String>>> urlAndAccessRolesIterator=null ;
+		if(urlAndAccessRolesMap!=null) {
+		urlAndAccessRolesIterator = urlAndAccessRolesMap.entrySet()
+				.iterator();
+		
+		//Stuff a default Role
+		resourceMap.put("nomatch", prepareConfiAttribute());
+		
+		// Iterate through the hashmap
+		while (urlAndAccessRolesIterator.hasNext()) {
+			Map.Entry mapElement = (Map.Entry) urlAndAccessRolesIterator.next();
+			ArrayList<String> roleList = (ArrayList<String>) mapElement.getValue();
+			String urlPattern = mapElement.getKey().toString();
+			atts = prepareConfiAttribute(roleList);
+			resourceMap.put(urlPattern, atts);
+		}}
+		endtime = new Date().getTime();
+		System.out.println("\n\t ########## Custom Ant Matcher Loading consumed " + (endtime - starttime) + "  ms #########");
+
+	}
+
+	private Collection <ConfigAttribute> prepareConfiAttribute(ArrayList<String> roleArray) {
+		Collection <ConfigAttribute> atts  = new ArrayList < ConfigAttribute >();
+		ConfigAttribute ca;
+		for(String role:roleArray) {
+		 ca=new SecurityConfig(role);		
+		 atts.add(ca);
+		}		
+		return atts;
+	}
+	
+	private Collection <ConfigAttribute> prepareConfiAttribute() {
+		Collection <ConfigAttribute> atts  = new ArrayList < ConfigAttribute >();
+		ConfigAttribute ca=new SecurityConfig("ROLE_ANONYMOUS2");
+		atts.add(ca);	
+		return atts;
+	}
+
+	
+	public boolean isResourceMapEmpty() {
+		if (resourceMap == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public Collection<ConfigAttribute> getAllConfigAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+		Collection<ConfigAttribute> configAttributes=null;
+		if (resourceMap == null) {loadResourceDefine();	}
+		// TODO Auto-generated method stub
+		String url = ((FilterInvocation) object).getRequestUrl();
+		//This test is being carried out for picking the url of method call only
+		if(url.contains("?") && !url.contains("resources")) 						
+			url = url.split("\\?", 2)[0]; 			
+			//This is tested for avoiding url comparison test for those urls which contain resources string.
+		
+		if (resourceMap != null&&!url.contains("resources")) {
+			System.out.println("Coming url = "+url);
+			Set<String> urlPatternSet = resourceMap.keySet();
+			for (String urlPattern : urlPatternSet) {
+				if (!url.contains("resources")&&urlMatcher.match(urlPattern, url)) {
+					System.out.println("\n\t\t"+resourceMap.get(urlPattern)+" has/have access rights on\n\n\t\tRequested Url"+url);								   	
+					configAttributes= resourceMap.get(urlPattern);
+					break;
+				   }				   
+				}
+			}		
+		if(!url.contains("resources")&&configAttributes==null)
+			configAttributes= resourceMap.get("nomatch");
+		if(configAttributes==null) {
+			configAttributes= resourceMap.get("nomatch");}
+		return configAttributes;
+	}//End of getAttributes
+
+	public boolean supports(
+			Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public String resourceSelfMatcher(String resURL) {
+		return null;
+	}
+
+	/**
+	 * Refresh resource allocation
+	 */
+	public void refreshResource() {
+		loadResourceDefine();
+	}
+}

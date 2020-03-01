@@ -1,0 +1,22 @@
+package com.config.security.web;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+public class CommonDao {
+
+	
+
+	List<Properties> queryForResourceList(String sql){
+		return null;
+		
+	}
+
+	@SuppressWarnings("rawtypes")
+	List<Map> queryForRoleList(String string){
+		return null;
+		
+	}
+
+}

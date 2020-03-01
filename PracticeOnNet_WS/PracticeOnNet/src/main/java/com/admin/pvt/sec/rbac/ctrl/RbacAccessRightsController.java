@@ -1,0 +1,191 @@
+
+package com.admin.pvt.sec.rbac.ctrl;
+
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.JsonResponse.JsonResponse;
+import com.admin.pvt.sec.env.dto.PageMasterDTO;
+import com.admin.pvt.sec.env.service.PageService;
+import com.admin.pvt.sec.rbac.service.RbacAccessRightsService;
+import com.base.BaseController;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.google.gson.Gson;
+import com.grid_pagination.DataTableResults;
+import com.util.AppConstants;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+@RequestMapping(value = "/admin/pvt/sec/rbac/monitor/")
+public class RbacAccessRightsController extends BaseController{
+
+	static final Logger log = LoggerFactory.getLogger(RbacAccessRightsController.class);
+	@Autowired
+	PageService pageService;	
+	@Autowired
+	RbacAccessRightsService rbacAccessRightsService;
+
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public String listRbacAccessRights(Model model) {
+		log.info("RbacAccessRightsController :==> listRbacAccessRights :==> Started");
+		String target = "/admin/pvt/sec/rbac/access-rights";
+		log.info("RbacAccessRightsController :==> listRbacAccessRights :==> Ended");
+		return target;
+	}
+
+	@RequestMapping(value = "paginated", method = RequestMethod.POST)
+	@ResponseBody
+	public String listPagePaginated(HttpServletRequest request, HttpServletResponse response, 
+			String departmentNameId,
+			String moduleNameId,
+			String pageNameId,
+			String roleNameId,
+			String pageViewCondition) {  
+		
+		log.info("RbacAccessRightsController :==> listPagePaginated :==> Started");
+		DataTableResults<PageMasterDTO> dataTableResult = null;
+		try {
+		String whereClauseForBaseQuery = "";
+        if(pageViewCondition.equals("B")) {
+		if (!departmentNameId.isEmpty() && !departmentNameId.equals("")&&moduleNameId.isEmpty() && moduleNameId.equals("")&&pageNameId.isEmpty() && pageNameId.equals(""))
+			whereClauseForBaseQuery =  " dm.id=" + Integer.parseInt(departmentNameId);
+
+		
+		if (!departmentNameId.isEmpty() && !departmentNameId.equals("")&& !moduleNameId.isEmpty() && !moduleNameId.equals("")&&pageNameId.isEmpty() && pageNameId.equals(""))
+			whereClauseForBaseQuery =  " dm.id=" + Integer.parseInt(departmentNameId)+
+					                   " and pm.module_id=" + Integer.parseInt(moduleNameId);
+		if (!departmentNameId.isEmpty() && !departmentNameId.equals("")&& !moduleNameId.isEmpty() && !moduleNameId.equals("")&& !pageNameId.isEmpty() && !pageNameId.equals(""))
+			whereClauseForBaseQuery =  " dm.id=" + Integer.parseInt(departmentNameId)+
+					                   " and pm.module_id=" + Integer.parseInt(moduleNameId)+
+					                   " and pm.id=" + Integer.parseInt(pageNameId);
+		
+		dataTableResult=pageService.loadGridForRbacCMP(request, whereClauseForBaseQuery);
+        }else {        	
+        dataTableResult=pageService.loadGridFor_RoleAssignedAndUnassigned(request, moduleNameId,roleNameId,pageViewCondition);    			
+        }
+        
+      
+       
+		
+		} catch (CustomRuntimeException ex) {
+			// Handle this exception
+			String exceptionCause = ex.getExceptionInfo().exceptionCause;
+		} catch (Exception ex) {
+			CustomRuntimeException exLocal = ExceptionApplicationUtility.wrapRunTimeException(ex);
+			// Handle this exception
+			String exceptionCause = exLocal.getExceptionInfo().exceptionCause;
+		}
+		log.info("RbacAccessRightsController :==> listPagePaginated :==> Ended");
+		
+		return new Gson().toJson(dataTableResult);
+	}
+
+	@RequestMapping(value = "getRecord", method = RequestMethod.GET)
+	@ResponseBody
+	public String getRecord(@RequestParam Integer id, HttpServletRequest request, HttpServletResponse response){
+		
+		log.info("RbacAccessRightsController :==> getRecord :==> Started");
+		JsonResponse jsonResponse = new JsonResponse();
+		try {
+			jsonResponse.setFormObject(rbacAccessRightsService.getReordById(id));
+			jsonResponse.setStatus(true);
+			//jsonResponse.setStatusMsg("Record found.");
+		}
+		catch (CustomRuntimeException ex) {
+			// Handle this exception
+			String exceptionCause= ex.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		} catch (Exception ex) {
+			CustomRuntimeException exLocal=ExceptionApplicationUtility.wrapRunTimeException(ex);
+			//Handle this exception
+			String exceptionCause= exLocal.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		}
+		
+		log.info("RbacAccessRightsController :==> getRecord :==> Started");
+		return new Gson().toJson(jsonResponse);
+	}
+	
+	@RequestMapping(value = "loadOperationOnPage", method = RequestMethod.GET)
+	@ResponseBody
+	public String loadOperationOnPage(@RequestParam Integer roleId,@RequestParam Integer pageId, HttpServletRequest request, HttpServletResponse response) {
+		log.info("RbacAccessRightsController :==> loadOperationOnPage :==> Started");
+		
+		JsonResponse jsonResponse = new JsonResponse();
+		try {
+			jsonResponse.setFormObject(rbacAccessRightsService.loadOperationOnPage(roleId,pageId));			
+			jsonResponse.setStatus(true);
+			//jsonResponse.setStatusMsg("Record found.");
+		}
+		catch (CustomRuntimeException ex) {
+			// Handle this exception
+			String exceptionCause= ex.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		} catch (Exception ex) {
+			CustomRuntimeException exLocal=ExceptionApplicationUtility.wrapRunTimeException(ex);
+			//Handle this exception
+			String exceptionCause= exLocal.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		}
+		log.info("RbacAccessRightsController :==> loadOperationOnPage :==> Ended");
+		return new Gson().toJson(jsonResponse);
+	}	
+	
+
+	@RequestMapping(value = "saveAndUpdateRecord", method = RequestMethod.POST)
+	@ResponseBody
+	public String saveAndUpdateRecord(@RequestParam String accessRightsRbacId,
+			@RequestParam String pageId,
+			@RequestParam String roleId,
+			@RequestParam String[] recordIdArray,			                         
+			HttpServletRequest request, 
+			HttpServletResponse response) {
+		log.info("RbacAccessRightsController :==> saveAndUpdateRecord :==> Started");
+		
+		JsonResponse jsonResponse = new JsonResponse();		
+		try {			
+				// Implement business logic to save record into database
+				jsonResponse.setFormObject(rbacAccessRightsService.saveAndUpdate(accessRightsRbacId,pageId,roleId,recordIdArray));
+				jsonResponse.setStatus(true);
+				jsonResponse.setStatusMsg("Updated successfully.");
+				AppConstants.securityUpdate=true;//It is required to set here for updating the access rights
+		}
+		catch (CustomRuntimeException ex) {
+			// Handle this exception
+			String exceptionCause= ex.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		} catch (Exception ex) {
+			CustomRuntimeException exLocal=ExceptionApplicationUtility.wrapRunTimeException(ex);
+			//Handle this exception
+			String exceptionCause= exLocal.getExceptionInfo().exceptionCause;
+			jsonResponse.setStatus(false);
+			jsonResponse.setStatusMsg(exceptionCause);
+		}
+		
+		log.info("RbacAccessRightsController :==> saveAndUpdateRecord :==> Ended");
+		return new Gson().toJson(jsonResponse);
+	}
+
+
+}// End of StateMasterController

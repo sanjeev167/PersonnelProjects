@@ -1,0 +1,20 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleWiseMenuCollection {
+
+Map<String, MenuCollection>  roleWiseMenu=new HashMap<String,MenuCollection>();
+	
+	public RoleWiseMenuCollection(Map<String, MenuCollection> roleWiseMenu) {
+		this.roleWiseMenu = roleWiseMenu;
+	}
+}//End of RoleWiseMenuCollection

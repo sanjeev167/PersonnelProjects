@@ -1,0 +1,135 @@
+package com.admin.pub.en.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import java.util.List;
+
+
+/**
+ * The persistent class for the app_role database table.
+ * 
+ */
+@Entity
+@Table(name="app_role")
+@NamedQuery(name="AppRole.findAll", query="SELECT a FROM AppRole a")
+public class AppRole implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(name="role_name")
+	private String roleName;
+
+	//bi-directional many-to-one association to AccessRightsRbac
+	@OneToMany(mappedBy="appRole")
+	private List<AccessRightsRbac> accessRightsRbacs;
+
+	//bi-directional many-to-one association to AclDomainAccessRight
+	@OneToMany(mappedBy="appRole")
+	private List<AclDomainAccessRight> aclDomainAccessRights;
+
+	//bi-directional many-to-one association to AppGroupRole
+	@OneToMany(mappedBy="appRole")
+	private List<AppGroupRole> appGroupRoles;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="department_id")
+	private DepartmentMaster departmentMaster;
+
+	public AppRole() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getRoleName() {
+		return this.roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public List<AccessRightsRbac> getAccessRightsRbacs() {
+		return this.accessRightsRbacs;
+	}
+
+	public void setAccessRightsRbacs(List<AccessRightsRbac> accessRightsRbacs) {
+		this.accessRightsRbacs = accessRightsRbacs;
+	}
+
+	public AccessRightsRbac addAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().add(accessRightsRbac);
+		accessRightsRbac.setAppRole(this);
+
+		return accessRightsRbac;
+	}
+
+	public AccessRightsRbac removeAccessRightsRbac(AccessRightsRbac accessRightsRbac) {
+		getAccessRightsRbacs().remove(accessRightsRbac);
+		accessRightsRbac.setAppRole(null);
+
+		return accessRightsRbac;
+	}
+
+	public List<AclDomainAccessRight> getAclDomainAccessRights() {
+		return this.aclDomainAccessRights;
+	}
+
+	public void setAclDomainAccessRights(List<AclDomainAccessRight> aclDomainAccessRights) {
+		this.aclDomainAccessRights = aclDomainAccessRights;
+	}
+
+	public AclDomainAccessRight addAclDomainAccessRight(AclDomainAccessRight aclDomainAccessRight) {
+		getAclDomainAccessRights().add(aclDomainAccessRight);
+		aclDomainAccessRight.setAppRole(this);
+
+		return aclDomainAccessRight;
+	}
+
+	public AclDomainAccessRight removeAclDomainAccessRight(AclDomainAccessRight aclDomainAccessRight) {
+		getAclDomainAccessRights().remove(aclDomainAccessRight);
+		aclDomainAccessRight.setAppRole(null);
+
+		return aclDomainAccessRight;
+	}
+
+	public List<AppGroupRole> getAppGroupRoles() {
+		return this.appGroupRoles;
+	}
+
+	public void setAppGroupRoles(List<AppGroupRole> appGroupRoles) {
+		this.appGroupRoles = appGroupRoles;
+	}
+
+	public AppGroupRole addAppGroupRole(AppGroupRole appGroupRole) {
+		getAppGroupRoles().add(appGroupRole);
+		appGroupRole.setAppRole(this);
+
+		return appGroupRole;
+	}
+
+	public AppGroupRole removeAppGroupRole(AppGroupRole appGroupRole) {
+		getAppGroupRoles().remove(appGroupRole);
+		appGroupRole.setAppRole(null);
+
+		return appGroupRole;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+}

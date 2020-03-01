@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.api_mgr;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ApiPermissionController {
+
+}

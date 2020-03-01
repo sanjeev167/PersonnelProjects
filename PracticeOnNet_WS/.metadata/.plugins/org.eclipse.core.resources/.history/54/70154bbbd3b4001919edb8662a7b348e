@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleWiseMenuCollection {
+
+}//End of RoleWiseMenuCollection

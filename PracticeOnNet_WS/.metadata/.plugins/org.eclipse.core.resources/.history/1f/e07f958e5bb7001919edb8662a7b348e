@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package com.exception.ctrl;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+@RequestMapping(path = "/exceptionHandler/")
+public class ExceptionController {
+
+	private static final Logger log = LogManager.getLogger(ExceptionController.class);
+
+	@RequestMapping(value = "401", method = RequestMethod.GET)
+	public String unauthorizedAccess() {
+		System.out.println("San 401 page requested");
+		return "/exceptionHandler/401.jsp";
+	}
+	@RequestMapping(value = "404", method = RequestMethod.GET)
+	public String pageNotFound() {		
+		return "/exceptionHandler/404.jsp";
+	}
+}//End of ExceptionController

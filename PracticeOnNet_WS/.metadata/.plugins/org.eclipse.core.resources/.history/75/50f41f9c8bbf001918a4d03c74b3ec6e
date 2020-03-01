@@ -1,0 +1,84 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.sql.Timestamp;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.custom.validation.classLevelValidator.ModuleRequiredWithTreeNodeType;
+import com.custom.validation.classLevelValidator.PageAsALeafRequiredWithTreeNodeType;
+import com.custom.validation.classLevelValidator.ParentNodeRequiredWithTreeNodeType;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@ParentNodeRequiredWithTreeNodeType(nodeType = "nodeType", parentNodeCount = "parentNodeCount", menuManagerParentNodeName = "menuManagerParentNodeName", menuManagerParentId = "menuManagerParentId",id="id", message = "Parent node is required.")
+
+@ModuleRequiredWithTreeNodeType(nodeType = "nodeType", moduleId = "moduleId", message = "Module is required.")
+
+@PageAsALeafRequiredWithTreeNodeType(nodeType = "nodeType", pageMasterId = "pageMasterId", message = "Leaf is required.")
+
+public class RoleHierarchyDTO {
+
+	private Integer id;
+	@NotNull()
+	@NotBlank(message = "Application context is required.")
+	private String departmentMasterId;
+
+	private String departmentMasterName;
+	
+	private String nodeType;
+
+	// @NotNull()
+	// @NotBlank(message = "Select a parent node.")
+	private String menuManagerParentId;
+	private String menuManagerParentNodeName;
+
+	@NotNull()
+	@NotBlank(message = "Name is required.")
+	private String nodeName;
+
+    private String activeC;
+	private Integer totalrecords;
+
+	private int parentNodeCount;
+
+	// Will be utilized by @Valid
+	public RoleHierarchyDTO() {
+	}
+
+	// Will be utilized by grid
+	public RoleHierarchyDTO(Integer id, String departmentMasterName, String nodeType,
+			String menuManagerParentNodeName, String nodeName, String activeC,int totalrecords) {
+		this.id = id;
+		this.departmentMasterName = departmentMasterName;
+		
+		this.nodeType = nodeType;
+		this.menuManagerParentNodeName = menuManagerParentNodeName;
+		if (nodeType.equals("N"))
+			this.nodeName = "<font color='red'><strong>" + nodeName + "</strong></font>";
+		else
+			this.nodeName = "<font color='green'><strong>" + nodeName + "</strong></font>";
+
+		this.activeC = activeC;
+		this.totalrecords = totalrecords;
+
+	}
+
+	// Will be utilized by getRecord after saving or update
+	public RoleHierarchyDTO(Integer id, String departmentMasterName,  String nodeType,
+			String menuManagerParentNodeName, String nodeName,  String activeC) {
+		this.id = id;
+		this.departmentMasterName = departmentMasterName;
+		
+		this.nodeType = nodeType;
+		this.menuManagerParentNodeName = menuManagerParentNodeName;
+		this.nodeName = nodeName;
+		this.activeC = activeC;
+	}
+
+}

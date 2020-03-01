@@ -1,0 +1,22 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.rbac.ctrl;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Controller
+@RequestMapping(value = "/admin/pvt/sec/rbac")
+public class RoleHierarchyController {
+
+	@RequestMapping(value = "getRoleHierarchy", method = GET)
+	public String getRoleHierarchy() {
+		
+		return "/admin/pvt/sec/rbac/roleHierarchy";
+	}
+}//End of RoleHierarchyController

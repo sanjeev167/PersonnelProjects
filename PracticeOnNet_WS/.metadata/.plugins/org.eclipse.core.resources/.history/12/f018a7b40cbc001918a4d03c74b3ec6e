@@ -1,0 +1,292 @@
+/**
+ *
+ */
+package com.config.security;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyUtils;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.admin.pub.local_en.service.CustomAdministrativeUserDetailsServiceImpl;
+import com.config.filters.AjaxTimeoutRedirectFilter;
+import com.config.security.web.MyAccessDecisionManager;
+import com.config.security.web.MyInvocationSecurityMetadataSourceService;
+import com.config.security.web.UrlAndRoleMatcherService;
+import com.config.security.web.UrlAndRoleMatcherServiceImpl;
+import com.config.security.web.WebHttpSecurityConfiguration;
+import com.user.pub.local_en.service.CustomWebUserDetailsServiceImpl;
+
+/**
+ * @author Sanjeev Kumar
+ */
+
+@Configuration
+@EnableWebSecurity(debug = false)
+//@EnableGlobalMethodSecurity(prePostEnabled=true)  
+public class MultipleEntryPointsSecurityConfig {
+
+	
+	// Create a custom filter, Custom HTTP error code as 440.
+	// This filter is configured in configure(HttpSecurity http) method
+	@Bean
+	public AjaxTimeoutRedirectFilter ajaxTimeoutRedirectFilter() {
+		AjaxTimeoutRedirectFilter ajaxTimeoutRedirectFilter = new AjaxTimeoutRedirectFilter();
+		ajaxTimeoutRedirectFilter.setCustomSessionExpiredErrorCode(440);
+		return ajaxTimeoutRedirectFilter;
+	}
+
+	@Bean
+	public static BCryptPasswordEncoder encoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	// For Concurrent Session Control
+	@Bean
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new HttpSessionEventPublisher();
+	}
+
+	
+	
+	
+	/**
+	 * ######################################################### 
+	 * LOCAL ADMINISTRATIVE USERS CHANNEL SECURITY CONFIGURATION
+	 * #########################################################
+	 **/
+
+	@Autowired
+	CustomAdministrativeUserDetailsServiceImpl customAdministrativeUserDetailsService;
+
+	@Autowired
+	UrlAndRoleMatcherService urlAndRoleMatcherService;
+
+	@Bean
+	public UserDetailsService customAdministrativeUserDetailsServiceInMemory() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(User.withUsername("contactSanjiv@gmail.com").password(encoder().encode("Super@123"))
+				.roles("SUPER_ADMIN").build());
+		manager.createUser(User.withUsername("atulraj@gmail.com").password(encoder().encode("Admin@123"))
+				.roles("ADMIN_SECURITY").build());
+		manager.createUser(User.withUsername("raulpanday@gmail.com").password(encoder().encode("Master@123"))
+				.roles("DEO_MASTER").build());
+		return manager;
+	}
+
+	@Bean
+	public RoleHierarchy roleHierarchy() {
+		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
+		roleHierarchyMap.put("ROLE_SUPER_ADMIN", Arrays.asList("ROLE_ADMIN_SECURITY","ROLE_DEO_MASTER","ROLE_ADMIN_API"));
+		//roleHierarchyMap.put("ROLE_ADMIN", Arrays.asList("ROLE_POST", "ROLE_COMMENT", "ROLE_FILE"));
+		roleHierarchyMap.put("ROLE_ADMIN_API", Arrays.asList("ROLE_DEO_API"));
+		roleHierarchyMap.put("ROLE_ADMIN_SECURITY", Arrays.asList("ROLE_DEO_MASTER"));
+		String roles = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		System.out.println("\n\nSanjeev: Role hierarchy = > \n\n" + roles);
+		roleHierarchy.setHierarchy(roles);
+
+		// roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\nROLE_MANAGER >
+		// ROLE_POST\nROLE_MANAGER > ROLE_COMMENT\nROLE_MANAGER > ROLE_FILE\nROLE_USER >
+		// ROLE_POST");
+		return roleHierarchy;
+	}
+
+	@Bean
+	public SecurityExpressionHandler<FilterInvocation> roleHierarchyExpressionHandler() {
+		DefaultWebSecurityExpressionHandler webSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
+		webSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
+		return webSecurityExpressionHandler;
+	}
+	
+	
+	@Configuration
+	public class LocalAdministrativeWebChannel extends WebSecurityConfigurerAdapter {
+
+		// A constructor which is calling WebSecurityConfigurerAdapter constructor
+		// within it.
+		public LocalAdministrativeWebChannel() {
+			super();
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.userDetailsService(customAdministrativeUserDetailsServiceInMemory());// Through
+			// inmemory
+			// auth.userDetailsService(customAdministrativeUserDetailsService);// Through
+			// DAO
+		}
+
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			
+	        Map<String, ArrayList<String>> urlAndAccessRolesMap=urlAndRoleMatcherService().getUrlAndRoleMatcherList();
+	        
+	        Iterator urlAndAccessRolesIterator;
+			if (urlAndAccessRolesMap != null) {
+				String url_pattern=null;	String roleList[]=null;			
+				urlAndAccessRolesIterator = urlAndAccessRolesMap.entrySet().iterator();
+				// Iterate through the hashmap
+				while (urlAndAccessRolesIterator.hasNext()) {
+					@SuppressWarnings("rawtypes")
+					Map.Entry mapElement = (Map.Entry) urlAndAccessRolesIterator.next();
+					ArrayList<String> roleArr=(ArrayList<String>)mapElement.getValue();
+					Object[] roleObjArr=roleArr.toArray();
+				    roleList=Arrays.copyOf(roleObjArr, roleObjArr.length,String[].class);
+					url_pattern=mapElement.getKey().toString();
+					System.out.println("Url => " + mapElement.getKey() + " : Roles " + mapElement.getValue().toString());					
+					
+					http.authorizeRequests().antMatchers(url_pattern).hasAnyRole(roleList);
+				}
+			}
+	        		
+		// http.requiresChannel().anyRequest().requiresSecure();//Redirect to https
+		 http.addFilterAfter(ajaxTimeoutRedirectFilter(), ExceptionTranslationFilter.class);		
+		 http.csrf().disable();
+		 http.authorizeRequests()         
+            .antMatchers("/","/showError/*", "/admin/pub/*", "/resources/**").permitAll() 
+            //.antMatchers("/admin/pvt/**").hasAnyRole("SUPER_ADMIN")
+            .anyRequest().authenticated().expressionHandler(roleHierarchyExpressionHandler())
+            //.anyRequest().denyAll()	                 
+		.and()
+        	.formLogin()
+        	//For opening a custom login page, specify the controller url which will open the page
+        	.loginPage("/admin/pub/login")
+        	//This is an url at which the login form is submitted. No need
+			//to implement it. Spring security will authenticate the user automatically.
+        	.loginProcessingUrl("/admin/doLogin")
+        	.defaultSuccessUrl("/admin/pvt/postLogin")
+        	.failureUrl("/admin/pub/login?error")
+            .permitAll()
+            
+        .and()
+            .logout()
+          //This is only processing url. We will not implement it.Only logout will be posted at this url
+            .logoutUrl("/admin/doLogout")
+            .logoutSuccessUrl("/admin/pub/login?logout")
+            .invalidateHttpSession(true)
+          //This will clear the session
+            .deleteCookies("JSESSIONID")
+            .permitAll()        
+        
+        .and()
+             .exceptionHandling()
+             .accessDeniedPage("/showError/accessDeniedException")            
+             //Objective: If any unauthenticated users comes with the url /admin/pvt/** , 
+             //it will be redirected to the login page through this default entry point.
+             //User is not authenticated and coming with path matching with /pvt/admin/**.
+     	    .defaultAuthenticationEntryPointFor(adminLoginUrlAuthenticationEntryPoint(),new AntPathRequestMatcher("/admin/pvt/**"))
+     	.and()
+            .sessionManagement()
+            .sessionFixation().migrateSession()
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            .invalidSessionUrl("/admin/pub/login?invalid")//This will be called when wrong session id comes in the cookie
+           
+            .maximumSessions(1)//Maximum current session has been set as 1
+            .expiredUrl("/admin/pub/login?expired"); //This will be called when session is expired
+		}
+		//This will be used for redirecting to the login page of the administrative user channel
+		@Bean
+		public AuthenticationEntryPoint adminLoginUrlAuthenticationEntryPoint() {
+			//This will take the user at login apge
+			return new LoginUrlAuthenticationEntryPoint("/admin/pub/login");
+		}	
+		
+		@Bean
+		UrlAndRoleMatcherService urlAndRoleMatcherService() {
+			return new UrlAndRoleMatcherServiceImpl();
+		}
+		
+		
+		@Bean
+		public FilterInvocationSecurityMetadataSource mySecurityMetadataSource() {
+			MyInvocationSecurityMetadataSourceService securityMetadataSource = new MyInvocationSecurityMetadataSourceService();
+			return securityMetadataSource;
+		}
+
+		@Bean
+		public AccessDecisionManager myAccessDecisionManager() {
+			return new MyAccessDecisionManager();
+		}
+	}// End of AdminWebConfigurationAdapter
+
+	
+	
+	
+	
+	
+	 
+	/**
+	 * ######################################################### 
+	 * LOCAL WEB USERS CHANNEL SECURITY CONFIGURATION
+	 * #########################################################
+	 **/
+	@Autowired
+	CustomWebUserDetailsServiceImpl customWebUserDetailsService;
+
+	@Bean
+	public UserDetailsService customWebUserDetailsServiceInMemory() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(
+				User.withUsername("atul@gmail.com").password(encoder().encode("user@123")).roles("WEB_USER").build());
+		return manager;
+	}
+
+	@Configuration
+	@Order(1)
+	public class LocalWebUserChannel extends WebSecurityConfigurerAdapter {
+		public LocalWebUserChannel() {
+			super();
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// auth.userDetailsService(customWebUserDetailsServiceInMemory());
+			auth.userDetailsService(customWebUserDetailsService);
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			new WebHttpSecurityConfiguration().prepareAntMatcherForWebUserChannel(http);
+		}// End of configure
+
+	}// End of UserWebConfigurationAdapter
+
+	/**
+	 * ######################################################### 
+	 * API USERS CHANNEL SECURITY CONFIGURATION
+	 * #########################################################
+	 **/
+	
+}// End of MultipleEntryPointsSecurityConfig

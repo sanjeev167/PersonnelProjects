@@ -1,0 +1,145 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+import com.admin.pvt.menu_mgr.entity.RoleHierarchy;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.admin.pvt.menu_mgr.repo.MenuManagerRepository;
+import com.admin.pvt.menu_mgr.repo.RoleHierarchyRepository;
+import com.custom.exception.ExceptionApplicationUtility;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentRoleHierarchyNodeIsRequiredValidator
+		implements ConstraintValidator<ParentRoleHierarchyNodeIsRequired, Object> {
+	 
+	
+	private String parentNodeCount;	
+	private String parentName;
+	private String parentId;	
+	private String id;
+	private String message;
+
+	@Override
+	public void initialize(ParentRoleHierarchyNodeIsRequired parentRoleHierarchyNodeIsRequired) {
+		
+		this.parentNodeCount = parentRoleHierarchyNodeIsRequired.parentNodeCount();
+		this.parentName = parentRoleHierarchyNodeIsRequired.parentName();
+		this.parentId = parentRoleHierarchyNodeIsRequired.parentId();
+		this.id=parentRoleHierarchyNodeIsRequired.id();
+		this.message = parentRoleHierarchyNodeIsRequired.message();
+	}
+
+	int parentNodeCountValueForMsg;
+	String parentIdValueForMsg;	
+	String dynamicErrorMsg;
+
+	@Autowired
+	RoleHierarchyRepository roleHierarchyRepository;
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		
+		final Object parentNodeCountValue;
+		final Object parentIdValue;
+		final Object parentNameValue;
+		final Object idValue;
+		boolean isValid = true;
+		int existingNoneNodeChildCount=0;
+		int topNodeId;
+		try {			
+			if(roleHierarchyRepository.findAllTreeNodeListWithSpecificNodeName().size()>0) {
+				RoleHierarchy roleHierarchy=roleHierarchyRepository.findAllTreeNodeListWithSpecificNodeName().get(0);
+			
+			existingNoneNodeChildCount=roleHierarchy.getRoleHierarchies().size();
+			topNodeId=roleHierarchy.getRoleHierarchies().get(0).getId();
+			}		
+			parentNodeCountValue = BeanUtils.getProperty(object, this.parentNodeCount);
+			parentNameValue = BeanUtils.getProperty(object, this.parentName);
+			parentIdValueForMsg = (String) parentNameValue;
+			parentIdValue = (String) BeanUtils.getProperty(object, this.parentId);
+			idValue=BeanUtils.getProperty(object, this.id);
+			System.out.println("parentNodeCountValue = "+parentNodeCountValue);
+			System.out.println("existingNoneNodeChildCount = "+existingNoneNodeChildCount);
+			try {
+				// Write validation logic here
+				
+					if (!parentNodeCountValue.equals("") && Integer.parseInt((String) parentNodeCountValue) > 1
+							&& parentIdValue.equals("")) {
+						parentNodeCountValueForMsg = Integer.parseInt((String) parentNodeCountValue);
+						isValid = false;
+					} else {
+						//This will allow you to create a root node under a parent as "None" if it exists. 
+						//or it will also allow you to create a root node along with this None node if None doesn't exist
+						
+						System.out.println("idValue = "+idValue);
+						System.out.println("parentNameValue = "+parentNameValue);
+						System.out.println("existingNoneNodeChildCount <2 = "+(existingNoneNodeChildCount <1));
+						
+						if(parentNameValue!=null && parentNameValue.equals("None") && existingNoneNodeChildCount<=1) {
+							//Two possiblities
+							// 1. existingNoneNodeChildCount is 0. No tree node has yet been created
+							// 2. existingNoneNodeChildCount is 1 . One top root of tree has already been created
+							// 3. When it is 0. This is always an add case of top tree node
+							// 4. When it is 1. Now possiblities.
+							//4.1 It may be an add case or edit case.
+							//4.2 When it is add case, idValue will come as null
+							//4.3 When it is edit case, idValue will not be null
+							
+							//4.3.1 In case of edit, once again two cases are possible
+							//4.3.1.1 Child node with its parent node as None is coming . It should be allowed
+							//4.3.1.2 Child nod with its non None node as parent wants to change it as none. Should be blocked
+							
+							if(existingNoneNodeChildCount==0) {isValid = true;}
+							if(existingNoneNodeChildCount==1) {
+								if(idValue==null) {isValid = false;
+								dynamicErrorMsg = "None has already been used for a Root-Node. Can't be used more than onece.";
+								
+								}
+								if(idValue!=null) {									
+								   if(topNodeId == Integer.parseInt((String)idValue)) 
+									    isValid = true;//Will allow top root node for editing rest field other than None
+									else
+										{isValid = false;//Will restrict all other
+										dynamicErrorMsg = "None has already been used for a Root-Node. Can't be used more than onece.";
+										 								
+										}
+								}
+						}
+						
+						
+					}
+				
+			} catch (UnsupportedOperationException e) {
+				// TODO Auto-generated catch block
+				ExceptionApplicationUtility.wrapRunTimeException(e);
+			}
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			// Show the error message on menuManagerParentId field only as it is required
+			// there only.
+			if (parentNodeCountValueForMsg < 4 && (parentIdValueForMsg!=null&&parentIdValueForMsg.equals("None")))
+				context.buildConstraintViolationWithTemplate(dynamicErrorMsg).addPropertyNode(this.parentId)
+						.addConstraintViolation();
+			else
+				context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.parentId)
+						.addConstraintViolation();
+		}
+		return isValid;
+	}
+}

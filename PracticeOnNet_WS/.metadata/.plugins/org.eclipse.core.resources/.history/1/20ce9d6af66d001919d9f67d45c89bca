@@ -1,0 +1,215 @@
+
+
+
+<!-- Content Header (Page header) -->
+
+<section class="content-header">
+	<h1>
+		City Master
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		<li class="active">City Master</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">City</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool"
+							data-widget="regresh">
+							<i class="fa fa-refresh"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool"
+							data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						
+					</div>
+				</div>
+				<div class="box-body">
+				   
+					<table id="cityTableId"  class="display table table-bordered table-hover">
+						<thead>
+							<tr>
+								<th width="10%">
+								&nbsp;<button type="button"><i class="fa fa-plus" data-toggle="modal" data-target="#modal-default"></i></button>
+								&nbsp;<button type="button"><i class="fa fa-minus" data-toggle="modal" data-target="#modal-default"></i></button>
+								
+								</th>
+								<th width="5%"># </th>
+								<th>Country</th>
+								<th>State</th>
+								<th>City</th>
+								<th>Edit</th>
+								<th>Delete</th>		
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+							    <td><input type="checkbox"/></td>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td>City-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+							     <td><input type="checkbox"/></td>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>State-1</td>
+								<td>City-1</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+							   <td><input type="checkbox"/></td>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>UP</td>
+								<td>Lukhnow</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Country-1</td>
+								<td>Bihar</td>
+								<td>Patna</td>
+								<td><i class="fa fa-edit"></i></td>
+								<td><i class="fa fa-remove"></i></td>
+								
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->			
+		</div>
+		<!-- /.col -->
+   </div>
+</section>
+<!-- /.content -->
+
+<style>
+    .example-modal .modal {
+      position: relative;
+      top: auto;
+      bottom: auto;
+      right: auto;
+      left: auto;
+      display: block;
+      z-index: 1;
+    }
+
+    .example-modal .modal {
+      background: transparent !important;
+    }
+  </style>
+
+
+<div class="modal fade" id="modal-default">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">City</h4>
+              </div>
+              <div class="modal-body">
+              
+                <!-- form start -->
+			<form class="form-horizontal">
+				<div class="box-body">
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="countryId"
+								placeholder="Country Name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">State</label>
+
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="StateId"
+								placeholder="State Name">
+						</div>
+					</div>	
+					
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">State</label>
+
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="StateId"
+								placeholder="State Name">
+						</div>
+					</div>			
+					
+				</div>
+				<!-- /.box-body -->
+				
+				<!-- /.box-footer -->
+			</form>
+
+                
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+<!-- /.modal -->
+
+<script>
+
+$(document).ready(function() {
+    // Setup - add a text input to each footer cell
+    $('#cityTableId thead tr').clone(true).appendTo( '#cityTableId thead' );
+    $('#cityTableId thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+ 
+    var table = $('#cityTableId').DataTable( {
+        orderCellsTop: true,
+        fixedHeader: true
+        'paging' : true,
+		'lengthChange' : true,
+
+		'searching' : true,
+		'info' : true,
+		'autoWidth' : true,
+		'ordering' : false
+	//"order" : [ [ 1, "desc" ] ],
+    } );
+} );
+
+
+</script>

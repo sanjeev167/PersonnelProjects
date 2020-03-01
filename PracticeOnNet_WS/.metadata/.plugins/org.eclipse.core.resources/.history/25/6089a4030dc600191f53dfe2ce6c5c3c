@@ -1,0 +1,152 @@
+/**
+ * 
+ */
+package com.admin.pub.local_en.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User.UserBuilder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.menu_mgr.dto.MenuDTO;
+import com.admin.pvt.menu_mgr.entity.TreeMenuTypeMaster;
+import com.admin.pvt.menu_mgr.repo.TreeMenuTypeMasterRepository;
+import com.admin.pvt.menu_mgr.service.MenuManagerService;
+import com.admin.pvt.sec.rbac.entity.UserReg;
+import com.admin.pvt.sec.rbac.repo.AppAdminUserRepository;
+import com.custom.exception.CustomRuntimeException;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Service
+public class CustomAdministrativeUserDetailsServiceImpl implements UserDetailsService {
+
+	@Autowired
+	private AppAdminUserRepository appAdminUserRepository;
+
+	@Autowired
+	ServletContext context;
+
+	@Autowired
+	MenuManagerService menuManagerService;
+
+	@Autowired
+	TreeMenuTypeMasterRepository treeMenuTypeMasterRepository;
+
+	private ArrayList<MenuDTO> vMenuCollection;
+
+	@Transactional
+	@Override
+	public UserDetails loadUserByUsername(String email) {
+
+		UserReg userReg = appAdminUserRepository.findByEmail(email).get();
+		CustomAdministrativeUserDetailsImpl customAdministrativeUserDetailsImpl = new CustomAdministrativeUserDetailsImpl();
+		UserBuilder builder = null;
+		if (userReg != null) {
+			builder = org.springframework.security.core.userdetails.User.withUsername(email);
+			builder.password(new BCryptPasswordEncoder().encode(userReg.getPassword()));
+			builder.authorities(customAdministrativeUserDetailsImpl.getAuthorities(userReg));
+			try {
+				prepareMenuListForLoggedInUser((List<SimpleGrantedAuthority>) customAdministrativeUserDetailsImpl.getAuthorities(userReg));
+			} catch (CustomRuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			throw new UsernameNotFoundException("User not found.");
+		}
+		return builder.build();
+	}
+
+	private void prepareMenuListForLoggedInUser(List<SimpleGrantedAuthority> simpleGrantedAuthorityList)
+			throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		Map<String, Map<String, List<MenuDTO>>> roleWiseMenuCollectionMap = (Map<String, Map<String, List<MenuDTO>>>) context
+				.getAttribute("RoleWiseMenuCollectionMap");
+		
+		Map<String, List<MenuDTO>> treeTypeWiseMenuCollectionMap = null;
+		
+		List<MenuDTO> menuDTOListForAllRolesForAUser = new ArrayList<MenuDTO>();
+		
+		String role = "";
+		for (SimpleGrantedAuthority simpleGrantedAuthority : simpleGrantedAuthorityList) {
+			// Take out role one by one
+			role = simpleGrantedAuthority.getAuthority();
+			// Take out all tree type menu collection for this role
+			treeTypeWiseMenuCollectionMap = roleWiseMenuCollectionMap.get(role);// Fetch all tree type wise menu
+																				// collection
+			// Now take out each menu type menuDTOList
+			String treeTypeName;
+			for (Entry<String, List<MenuDTO>> treeTypeMenuEntryForARole : treeTypeWiseMenuCollectionMap.entrySet()) {
+				treeTypeName = treeTypeMenuEntryForARole.getKey();
+				// Take out tree type menu id using tree type name
+				List<TreeMenuTypeMaster> treeMenuTypeMasterList = treeMenuTypeMasterRepository.findAll();
+				int id = 0;
+				for (TreeMenuTypeMaster treeMenuTypeMaster : treeMenuTypeMasterList) {
+					if (treeMenuTypeMaster.getName().equals(treeTypeName)) {
+						id = treeMenuTypeMaster.getId();
+					}
+				}
+				ArrayList<MenuDTO> menuDTOListDefinedForARole = (ArrayList<MenuDTO>) treeTypeMenuEntryForARole.getValue();
+				  // Take out complete vertical tree menu structure available in the system
+				ArrayList<MenuDTO> menuDTOListAvailableInSystem = menuManagerService.getSpecificTreeTypeStructure(id);
+				// Now start collecting those tree structure which is allowed for this role.
+			   // For doing so, we simply pick that menDTO from the existing tree list which is
+			  // allowed for this role
+			 // Collect it into a list.
+				for (MenuDTO menuDTODefinedForRole : menuDTOListDefinedForARole) {
+					for (MenuDTO menuDTOAvailable : menuDTOListAvailableInSystem) {
+						if (menuDTOAvailable.getId() == menuDTODefinedForRole.getId()) {
+							// if matched, collect it in an array list
+							vMenuCollection.add(menuDTOAvailable);
+						}
+					}
+				}
+			}
+		}
+		
+		/////////////
+		int i = 1;
+		for (MenuDTO menuDTO : vMenuCollection) {						
+			System.out.println("\t\t [" + (i++) + "]");
+			System.out.println("\t\t\tNode Type = " + menuDTO.getNodeType());
+			System.out.println("\t\t\tParent Node ID = " + menuDTO.getParent_id());
+			System.out.println("\t\t\tNode Id = " + menuDTO.getId());
+			System.out.println("\t\t\tNode Name = " + menuDTO.getName());
+			System.out.println("\t\t\tUrl = " + menuDTO.getLeafUrl());
+			System.out.println("\t\t\tImage Url = " + menuDTO.getNodeImgUrl());
+		} // Tree node or leaf level looping
+		
+		///////////////
+	}//End of prepareMenuListForLoggedInUser
+
+	/**
+	 * @return the vMenuCollection
+	 */
+	public ArrayList<MenuDTO> getvMenuCollection() {
+		return vMenuCollection;
+	}
+
+	/**
+	 * @param vMenuCollection the vMenuCollection to set
+	 */
+	public void setvMenuCollection(ArrayList<MenuDTO> vMenuCollection) {
+		this.vMenuCollection = vMenuCollection;
+	}
+
+}

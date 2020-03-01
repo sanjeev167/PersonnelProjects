@@ -1,0 +1,106 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.util.AntPathMatcher;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MyInvocationSecurityMetadataSourceService implements FilterInvocationSecurityMetadataSource {
+	
+	private AntPathMatcher urlMatcher = new AntPathMatcher();
+	
+	private static Map<String, Collection<ConfigAttribute>> resourceMap = null;
+	
+	@Autowired
+	UrlAndRoleMatcherService urlAndRoleMatcherService;
+
+	/**
+	 * Load URL permission configuration
+	 */
+	private void loadResourceDefine()  {
+		long starttime = new Date().getTime();
+		
+		resourceMap = new HashMap<String,Collection <ConfigAttribute >> ();
+		long endtime = new Date().getTime();		
+		List<Matcher> urlAndRoleMatchers=urlAndRoleMatcherService.getUrlAndRoleMatcherList(); 
+		Collection <ConfigAttribute> atts;
+		ConfigAttribute ca;
+		
+		System.out.println("Custom Ant Matcher Loading : time-consuming "+(endtime-starttime)+"  ms");
+        for(Matcher m : urlAndRoleMatchers) {        	
+            ca = new SecurityConfig(m.getRole_access());           
+            atts  = new ArrayList < ConfigAttribute >();
+        	atts.add(ca);
+        	resourceMap.put(m.getUrl_pattern(),atts);          
+        }		
+		endtime = new Date().getTime();
+		System.out.println("Loading system permission configuration is complete, time-consuming "+(endtime-starttime)+" ms");
+
+	}
+
+	public boolean isResourceMapEmpty() {
+		if (resourceMap == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public Collection<ConfigAttribute> getAllConfigAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+		if (resourceMap == null) {
+			loadResourceDefine();
+		}
+		// TODO Auto-generated method stub
+		String url = ((FilterInvocation) object).getRequestUrl();
+		System.out.println("Coming Url = "+url);
+		if (resourceMap != null) {
+			Set<String> urlPatternSet = resourceMap.keySet();
+			for (String urlPattern : urlPatternSet) {
+				System.out.println("Coming Url = "+url + " and matching with configured url = "+urlPattern);
+				if (urlMatcher.match(urlPattern, url)) {
+					System.out.println("Url matched and corresponding role  = "+resourceMap.get(urlPattern).toString());
+					return resourceMap.get(urlPattern);
+				}
+			}
+		}
+		return null;
+	}
+
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public String resourceSelfMatcher(String resURL) {
+		return null;
+	}
+
+	/**
+	 * Refresh resource allocation
+	 */
+	public void refreshResource() {
+		loadResourceDefine();
+	}
+}

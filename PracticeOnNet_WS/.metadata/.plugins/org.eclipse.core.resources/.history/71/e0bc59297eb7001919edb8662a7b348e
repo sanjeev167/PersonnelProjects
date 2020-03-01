@@ -1,0 +1,44 @@
+/**
+ * 
+ */
+package com.exception.ctrl;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+@RequestMapping(path = "/exceptionHandler/")
+public class ExceptionController {
+
+	private static final Logger log = LogManager.getLogger(ExceptionController.class);
+
+	@RequestMapping(value = "401", method = RequestMethod.GET)
+	public String unauthorizedAccess() {
+		System.out.println("Sanjeev: --> Unauthorized Access");
+		return "error/401";
+	}
+	@RequestMapping(value = "403", method = RequestMethod.GET)
+	public String CSRFprotection() {
+		System.out.println("Sanjeev: --> CSRFprotection. CSRF token missing.");
+		return "error/403";
+	}
+	@RequestMapping(value = "404", method = RequestMethod.GET)
+	public String pageNotFound() {		
+		System.out.println("Sanjeev: --> Page not found");
+		return "error/404";
+	}
+	
+	@RequestMapping(value = "500", method = RequestMethod.GET)
+	public String serverError() {	
+		System.out.println("Sanjeev: --> Server error");
+		return "error/500";
+	}
+}//End of ExceptionController

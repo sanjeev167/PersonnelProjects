@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.config.selector;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class SiteMeshDecoratorSelector {
+
+}

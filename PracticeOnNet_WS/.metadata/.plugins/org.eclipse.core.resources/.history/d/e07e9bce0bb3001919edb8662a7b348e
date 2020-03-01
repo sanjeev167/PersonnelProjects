@@ -1,0 +1,17 @@
+/**
+ * 
+ */
+package com.config.httpTOhttps;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class CustomContainer implements
+WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
+  public void customize(ConfigurableServletWebServerFactory factory) {
+      factory.setPort(8080);
+      factory.setContextPath("");
+   }
+}

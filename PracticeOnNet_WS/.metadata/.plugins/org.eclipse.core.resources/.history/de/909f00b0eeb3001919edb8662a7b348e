@@ -1,0 +1,86 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.custom.validation.interfaceForServices.FieldValueWithParentIdExists;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentNodeRequiredWithTreeNodeTypeValidator implements ConstraintValidator<ParentNodeRequiredWithTreeNodeType, Object> {
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	private FieldValueWithParentIdExists service;
+	private String fieldName;
+	private String parentId;
+	private String id;
+	private String message;
+	
+
+	@Override
+	public void initialize(ParentNodeRequiredWithTreeNodeType parentNodeRequiredWithTreeNodeType) {
+		Class<? extends FieldValueWithParentIdExists> clazz = parentNodeRequiredWithTreeNodeType.service();
+
+		this.fieldName = parentNodeRequiredWithTreeNodeType.fieldName();
+		this.parentId = parentNodeRequiredWithTreeNodeType.parentId();
+		this.id=parentNodeRequiredWithTreeNodeType.id();
+        this.message=thirdChildUniqueWithParentId.message();
+        
+		String serviceQualifier = thirdChildUniqueWithParentId.serviceQualifier();
+		if (!serviceQualifier.equals("")) {
+			this.service = this.applicationContext.getBean(serviceQualifier, clazz);
+		} else {
+			this.service = this.applicationContext.getBean(clazz);
+		}
+	}
+
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		final Object parentIdValue;
+		final Object fieldvalue;
+		final Object idValue;
+		
+		boolean isValid = true;		
+		try {
+			parentIdValue = BeanUtils.getProperty(object, this.parentId);
+			fieldvalue = BeanUtils.getProperty(object, this.fieldName);	
+			idValue=BeanUtils.getProperty(object, this.id);		
+			
+				try {
+					isValid = !this.service.ThirdChildValueWithParentIdExists(parentIdValue, this.parentId, fieldvalue,
+							this.fieldName, idValue,this.id);
+				} catch (UnsupportedOperationException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				} catch (CustomRuntimeException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				}			
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.fieldName)
+					.addConstraintViolation();
+		}
+
+		
+		return isValid;
+	}
+}

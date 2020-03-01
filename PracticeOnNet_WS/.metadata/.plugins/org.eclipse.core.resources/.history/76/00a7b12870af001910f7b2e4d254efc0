@@ -1,0 +1,82 @@
+
+<!-- jQuery 3 -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {		
+	var data = [
+		        //Dashboard
+		        {"id": "1", "name": "Dashboard", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-dashboard"},
+		        {"id": "2", "name": "Dashboard v1", "parent_id": "1","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+		        {"id": "3", "name": "Profile", "parent_id": "0","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-th"},
+		        
+		        //API Manager
+		        {"id": "4", "name": "API Manager", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-files-o"},
+		        {"id": "5", "name": "Manage Client", "parent_id": "4","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "6", "name": "Manage API", "parent_id": "4","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "7", "name": "Assign API Permission", "parent_id": "4","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "8", "name": "Test API", "parent_id": "4","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+		        //Menu Manager
+		        {"id": "9", "name": "Menu Manager", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-files-o"},
+		        {"id": "10", "name": "Manage Menu", "parent_id": "9","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+		        //Masters
+		        {"id": "11", "name": "Master", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-files-o"},
+		        {"id": "12", "name": "Country Master", "parent_id": "11","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "13", "name": "State Master", "parent_id": "11","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "14", "name": "City Master", "parent_id": "11","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "15", "name": "Name Value Master", "parent_id": "11","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+		        //Security
+		        {"id": "16", "name": "Security", "parent_id": "0","leafUrl":"#","nodeType":"N" ,"nodeImgUrl":"fa fa-share"},
+		        {"id": "18", "name": "Environment", "parent_id": "16","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "19", "name": "RBAC", "parent_id": "16","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "20", "name": "ACL", "parent_id": "16","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        {"id": "21", "name": "ABAC", "parent_id": "16","leafUrl":"#","nodeType":"L" ,"nodeImgUrl":"fa fa-circle-o"},
+		        
+	            ];
+	
+	
+
+	var endMenu =getMenu("0");
+
+	function getMenu( parentID ){
+
+	           return data.filter(function(node){ return ( node.parent_id === parentID ) ; }).map(function(node){
+	               var exists = data.some(function(childNode){  return childNode.parent_id === node.id; });	                
+	               var subMenu = (exists) ? '<ul class="treeview-menu">'+ getMenu(node.id) + '</ul>' : "";
+	               var menu;                
+	               if(exists)	            	 
+	            	   menu= '<li class="treeview">'
+		                          +'<a href="'+node.leafUrl+'"> <i class="'+node.nodeImgUrl+'"></i>'
+		                          + '<span>' +node.name  +'</span>'
+		                          + '<span class="pull-right-container">' 
+		                          +'<i class="fa fa-angle-left pull-right"></i>'
+		                          +'</span>'
+		                          +'</a>'
+		                          +  subMenu
+		                          + '</li>'  ;
+		          else		        	
+		        	  menu= '<li>'
+                      +'<a href="'+node.leafUrl+'"> <i class="'+node.nodeImgUrl+'"></i>'
+                      + '<span>' +node.name  +'</span>'                      
+                      +'</a>'
+                   + '</li>' ;
+	             
+                   return menu;
+		                    	   
+	           });
+	       }
+	
+	$('#menu').html('<ul class="sidebar-menu" data-widget="tree">'+endMenu.join('')+ '</ul>');
+	
+	
+});// End of document ready
+
+
+
+
+</script>
+<div id="menu"></div>

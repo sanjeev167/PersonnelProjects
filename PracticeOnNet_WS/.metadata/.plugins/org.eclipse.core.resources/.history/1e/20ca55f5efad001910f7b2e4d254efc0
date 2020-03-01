@@ -1,0 +1,17 @@
+/**
+ * 
+ */
+package com.admin.pvt.api_mgr;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Controller
+@RequestMapping(value = "/admin/pvt/masters/city/")
+public class TestApiController {
+
+}

@@ -1,0 +1,40 @@
+/**
+ * 
+ */
+package com.config.security.web;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class Matcher {
+  private String url_pattern;
+  private String role_access;
+/**
+ * @return the url_pattern
+ */
+public String getUrl_pattern() {
+	return url_pattern;
+}
+/**
+ * @param url_pattern the url_pattern to set
+ */
+public void setUrl_pattern(String url_pattern) {
+	this.url_pattern = url_pattern;
+}
+/**
+ * @return the role_access
+ */
+public String getRole_access() {
+	return role_access;
+}
+/**
+ * @param role_access the role_access to set
+ */
+public void setRole_access(String role_access) {
+	this.role_access = role_access;
+}
+  
+  
+  
+}

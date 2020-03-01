@@ -1,0 +1,134 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.config.security.web;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+/**
+ * @author Sanjeev Kumar
+ */
+
+
+public class WebHttpSecurityConfiguration {	
+	
+	/**
+	 * ###########################################################################
+	 * Prepare Ant matchers for Local Admi nistrative-User Channel
+	 * ###########################################################################
+	 **/
+	
+	
+    public  void prepareAntMatcherForAdministrativeUserChannel(HttpSecurity http,UrlAndRoleMatcherService urlAndRoleMatcherService) throws Exception {
+    	
+    	List<Matcher> urlAndRoleMatchers=urlAndRoleMatcherService.getUrlAndRoleMatcherList();    	
+        for(Matcher m : urlAndRoleMatchers) {
+          http.authorizeRequests()
+          .antMatchers(m.getUrl_pattern())
+          .hasRole(m.getRole_access());
+        }
+        http.csrf().disable();
+       
+		
+        http.authorizeRequests()        
+	                .antMatchers("/", "/admin/pub/fgotpwd/**", "/admin/pub/register/**", "/resources/**").permitAll()	
+	                //Keep this configuration for super user only
+	                .antMatchers("/admin/pvt/**").hasRole("SUPER_ADMIN")
+	                .anyRequest().denyAll()             
+	                 
+	    		.and()
+                	.formLogin()
+                	//For opening a custom login page, specify the controller url which will open the page
+                	.loginPage("/admin/pub/login")
+                	//This is an url at which the login form is submitted. No need
+					//to implement it. Spring security will authenticate the user automatically.
+                	.loginProcessingUrl("/admin/doLogin")
+                	.defaultSuccessUrl("/admin/pvt/postLogin")
+                	.failureUrl("/admin/pub/login?error")
+                    .permitAll()
+                    
+                .and()
+	                .logout()
+	              //This is only processing url. We will not implement it.Only logout will be posted at this url
+	                .logoutUrl("/admin/doLogout")
+	                .logoutSuccessUrl("/admin/pub/login?logout")
+	                .invalidateHttpSession(true)
+	              //This will clear the session
+	                .deleteCookies("JSESSIONID")
+	                .permitAll()
+	            
+                
+                
+	            .and()
+	                 .exceptionHandling()
+	                 .accessDeniedPage("/exceptionHandler/404")
+	                 
+	              //Objective: If any unauthenticated users comes with the url /admin/pvt/** , it will be redirected to the login page through entry point.
+	         		.defaultAuthenticationEntryPointFor(adminLoginUrlAuthenticationEntryPoint(),new AntPathRequestMatcher("/admin/pvt/**"))
+	         		
+	         	.and()
+	                .sessionManagement()
+	                .invalidSessionUrl("/admin/pub/login?invalid")
+	                .maximumSessions(1).expiredUrl("/admin/pub/login?expired");	
+		  }
+
+  //This will be used for redirecting to the login page of the administrative user channel
+	@Bean
+	public AuthenticationEntryPoint adminLoginUrlAuthenticationEntryPoint() {
+		return new LoginUrlAuthenticationEntryPoint("/admin/pub/login");
+	}	
+	
+	/**
+	 * ###########################################################################
+	 * Prepare Ant matchers for Local Web-User Channel
+	 * ###########################################################################
+	 **/
+
+	
+	 public  void prepareAntMatcherForWebUserChannel(HttpSecurity http) throws Exception {
+		 
+		 http.csrf().disable()// Disable csrf
+			.antMatcher("/user/**")// Necessary for multiple entry
+			.authorizeRequests()
+			.antMatchers("/", "/user/pub/fgotpwd/**", "/user/pub/register/**", "/resources/**").permitAll()
+			.antMatchers("/user/pvt/**").hasRole("WEB_USER")
+			// .antMatchers("/anonymous*").anonymous()
+			.anyRequest().authenticated()// Authenticate all the rest urls before let them access the resources.
+			.and().formLogin().loginPage("/user/pub/login")// For opening a custom login page, specify the
+															// controller url which will open the page
+			.loginProcessingUrl("/user/doLogin")// This is an url at which the login form is submitted. No need
+												// to implement it. Spring security will authenticate the user
+												// automatically.
+			.defaultSuccessUrl("/user/pvt/postLogin")// Control is transfered to postLogin url and do what you
+														// want to.
+			.failureUrl("/user/pub/login?error")// In case of failure of login, this url is invoked. here we are
+												// passing an error object reported by spring authentication
+			.permitAll()// Permit all to invoke login page using /admin/pub/login
+			.and().logout().logoutUrl("/user/doLogout")// This is only processing url. We will not implement it.
+														// Only logut will be posted at this url
+			.logoutSuccessUrl("/user/pub/login?logout")// Transfer the control at this url for preparing the logout message.
+			.invalidateHttpSession(true)// This will simply inavalidate session.
+			.deleteCookies("JSESSIONID")// This will clear the session
+			.permitAll().and().exceptionHandling().accessDeniedPage("/exceptionHandler/404")
+			
+			// Objective: If any unauthenticated users comes with the url /user/pvt/** , it will be redirected to the login page through entry point.
+			.defaultAuthenticationEntryPointFor(userLoginUrlAuthenticationEntryPoint(),	new AntPathRequestMatcher("/user/pvt/**"));		 
+	 }
+	 
+	//This will be used for redirecting to the login page of the web user channel
+			@Bean
+			public AuthenticationEntryPoint userLoginUrlAuthenticationEntryPoint() {
+				return new LoginUrlAuthenticationEntryPoint("/user/pub/login");
+			}
+	
+}//End of WebHttpSecurityConfiguration

@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.config.listener;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class HttpSessionConfig {
+
+}

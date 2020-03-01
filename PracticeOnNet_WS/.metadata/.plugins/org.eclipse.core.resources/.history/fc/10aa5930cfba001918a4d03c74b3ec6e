@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.config.filters;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class AjaxTimeoutRedirectFilter {
+
+}

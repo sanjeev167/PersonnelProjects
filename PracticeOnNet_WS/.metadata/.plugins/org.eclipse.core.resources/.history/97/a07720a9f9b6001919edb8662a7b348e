@@ -1,0 +1,14 @@
+package com;
+
+public class StringTest {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+       String urlPattern="/admin/pvt/**";
+       String url="/admin/pvt/db/";
+       urlPattern.replace("**", "");
+       System.out.println(urlPattern);
+       System.out.println(url.contains(urlPattern));
+	}
+
+}

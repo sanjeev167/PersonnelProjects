@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.repo;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.admin.pvt.menu_mgr.entity.MenuManager;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public interface MenuManagerRepository extends JpaRepository<MenuManager, Integer>{
+
+}

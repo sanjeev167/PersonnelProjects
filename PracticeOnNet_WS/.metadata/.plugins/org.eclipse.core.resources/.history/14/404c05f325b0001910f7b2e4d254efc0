@@ -1,0 +1,25 @@
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
+<style>
+	select{
+		font-family: fontAwesome
+	}
+</style>
+<script type="text/javascript">
+//In your Javascript (external .js resource or <script> tag)
+$(document).ready(function() {alert("CC");
+    $('.js-example-basic-single').select2();
+ // Do this before you initialize any of your modals
+    $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+});
+</script>
+ 
+  <select class="js-example-basic-single" name="state">
+  <option value="AL">Alabama</option>
+   
+  <option value="WY">Wyoming</option>
+</select>
+

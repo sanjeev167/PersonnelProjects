@@ -1,0 +1,83 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.util.ArrayList;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleHierarchyJSON {
+
+	private Integer id;	
+	private String headName;
+	private String contents;
+	private ArrayList<RoleHierarchyJSON> childNameArrayList;
+	
+	
+	public RoleHierarchyJSON(Integer id,String headName, String contents,
+			ArrayList<RoleHierarchyJSON> childNameArrayList) {
+		this.id = id;
+		
+		this.headName = headName;
+		this.contents = contents;
+		this.childNameArrayList = childNameArrayList;
+
+	}
+	
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	/**
+	 * @return the headName
+	 */
+	public String getHeadName() {
+		return headName;
+	}
+	/**
+	 * @param headName the headName to set
+	 */
+	public void setHeadName(String headName) {
+		this.headName = headName;
+	}
+	/**
+	 * @return the contents
+	 */
+	public String getContents() {
+		return contents;
+	}
+	/**
+	 * @param contents the contents to set
+	 */
+	public void setContents(String contents) {
+		this.contents = contents;
+	}
+	/**
+	 * @return the childNameArrayList
+	 */
+	public ArrayList<RoleHierarchyJSON> getChildNameArrayList() {
+		return childNameArrayList;
+	}
+	/**
+	 * @param childNameArrayList the childNameArrayList to set
+	 */
+	public void setChildNameArrayList(ArrayList<RoleHierarchyJSON> childNameArrayList) {
+		this.childNameArrayList = childNameArrayList;
+	} 
+	
+	
+	
+	
+}

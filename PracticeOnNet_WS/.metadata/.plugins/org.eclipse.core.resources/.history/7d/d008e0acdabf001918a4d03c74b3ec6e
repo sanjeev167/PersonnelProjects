@@ -1,0 +1,24 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.entity;
+
+import java.util.ArrayList;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class RoleHierarchyJSON {
+
+	private Integer id;	
+	private String contextName;	
+	private String headName;
+	private String contents;
+	private ArrayList<RoleHierarchyJSON> childNameArrayList; 
+	
+	
+}

@@ -1,0 +1,98 @@
+/**
+ * 
+ */
+package com.custom.validation.classLevelValidator;
+
+import java.lang.reflect.InvocationTargetException;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.custom.validation.interfaceForServices.FieldValueWithParentIdExists;
+import com.custom.validation.interfaceForServices.TreeMenuValidation;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class ParentNodeRequiredWithTreeNodeTypeValidator implements ConstraintValidator<ParentNodeRequiredWithTreeNodeType, Object> {
+	@Autowired
+	private ApplicationContext applicationContext;
+	private TreeMenuValidation service;
+	private String nodeType;
+	private String parentNodeCount;
+	private String menuManagerParentId;
+	private String message;	
+	@Override
+	public void initialize(ParentNodeRequiredWithTreeNodeType parentNodeRequiredWithTreeNodeType) {
+		Class<? extends TreeMenuValidation> clazz = parentNodeRequiredWithTreeNodeType.service();
+
+		this.nodeType = parentNodeRequiredWithTreeNodeType.nodeType();
+		this.parentNodeCount = parentNodeRequiredWithTreeNodeType.parentNodeCount();
+		this.menuManagerParentId=parentNodeRequiredWithTreeNodeType.menuManagerParentId();
+        this.message=parentNodeRequiredWithTreeNodeType.message();        
+		String serviceQualifier = parentNodeRequiredWithTreeNodeType.serviceQualifier();
+		if (!serviceQualifier.equals("")) {
+			this.service = this.applicationContext.getBean(serviceQualifier, clazz);
+		} else {
+			this.service = this.applicationContext.getBean(clazz);
+		}
+	}
+
+	@Override
+	public boolean isValid(Object object, ConstraintValidatorContext context) {
+		final Object nodeTypeValue;
+		final Object parentNodeCountValue;
+		//It has not been used but its corresponding name is required for applying the logic.
+		//So it has been taken. 		
+		//final Object menuManagerParentIdValue;
+		
+		boolean isValid = true;		
+		try {
+			nodeTypeValue = BeanUtils.getProperty(object, this.nodeType);
+			parentNodeCountValue = BeanUtils.getProperty(object, this.parentNodeCount);	
+			//menuManagerParentIdValue=BeanUtils.getProperty(object, this.menuManagerParentId);				
+				try {
+					//Wrie validation logic here
+					if(nodeTypeValue.equals("N")) {
+						//If the node type is "Node", check the parent node count for making it sure that whether the 
+						//the root node ["Root node will be populated in the parent combo as None."] has been created or not.
+						
+						if( Integer.parseInt((String)parentNodeCountValue) >1) {
+							//Root node as "None" has already be created. return true as the validation not required
+							isValid= true;
+						}else {
+							isValid= false;
+						}					
+					}else {
+						//If the nodeType is leaf [ "L" ], the parent node must be selected. 
+						//so the validation is required. No need to check the parentNodeCountValue as 
+						//the leaf selection is allowed when the node count value is greater than 2. 
+						//It has been checked through javascript before page submission.
+						isValid= false;
+					}							
+				} catch (UnsupportedOperationException e) {
+					// TODO Auto-generated catch block
+					ExceptionApplicationUtility.wrapRunTimeException(e);
+				} 			
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			ExceptionApplicationUtility.wrapRunTimeException(e);
+		}
+		// Set the error reporting path
+		if (!isValid) {
+			context.disableDefaultConstraintViolation();
+			//Show the error message on menuManagerParentId field only as it is required there only.
+			context.buildConstraintViolationWithTemplate(this.message).addPropertyNode(this.menuManagerParentId)
+					.addConstraintViolation();
+		}
+
+		
+		return isValid;
+	}
+}

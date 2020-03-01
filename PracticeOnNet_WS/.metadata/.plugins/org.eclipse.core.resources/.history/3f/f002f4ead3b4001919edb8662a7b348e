@@ -1,0 +1,38 @@
+/**
+ * 
+ */
+package com.admin.pvt.menu_mgr.dto;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author Sanjeev
+ *
+ */
+public class MenuCollection {
+
+	Map<String, MenuDTO> menuMap=new HashMap<String,MenuDTO>();
+	
+	public MenuCollection(Map<String, MenuDTO> menuMap) {
+		this.menuMap = menuMap;
+	}
+	
+	/**
+	 * @return the menuMap
+	 */
+	public Map<String, MenuDTO> getMenuMap() {
+		return menuMap;
+	}
+	/**
+	 * @param menuMap the menuMap to set
+	 */
+	public void setMenuMap(Map<String, MenuDTO> menuMap) {
+		this.menuMap = menuMap;
+	}
+	
+	
+	
+}//End of MenuCollection

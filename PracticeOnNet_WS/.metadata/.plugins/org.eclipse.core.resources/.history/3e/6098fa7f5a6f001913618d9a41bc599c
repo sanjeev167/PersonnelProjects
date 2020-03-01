@@ -1,0 +1,167 @@
+
+<!-- Content Header (Page header) -->
+
+<section class="content-header">
+	<h1>Country Master</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		<li class="active">Country Master</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Country</h3>
+					<div class="box-tools pull-right">
+
+						<button type="button" class="btn btn-box-tool"
+							data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+
+					</div>
+				</div>
+
+				<div class="box-body">
+					<div>
+						<button type="button">
+							<i class="fa fa-plus" data-toggle="modal"
+								data-target="#modal-default"></i>
+						</button>
+						<button type="button">
+							<i class="fa fa-remove" data-toggle="modal"
+								data-target="#modal-default"></i>
+						</button>
+						<button type="button">
+							<i class="fa fa-search" data-toggle="modal"
+								data-target="#modal-default"></i>
+						</button>
+						<button type="button">
+							<i class="fa fa-refresh"></i>
+						</button>
+					</div>
+					<p>
+					<table id="example1" class="table table-bordered table-striped ">
+						<thead>
+							<tr>
+								<th><input type="checkbox" /></th>
+								<th>#</th>
+								<th>Country Name</th>
+								<th>Sort Name</th>
+								<th>Phone Code</th>
+								<th>View</th>
+								<th>Edit</th>
+								<th>Delete</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+		<!-- /.col -->
+	</div>
+</section>
+<!-- /.content -->
+
+
+
+<style>
+.example-modal .modal {
+	position: relative;
+	top: auto;
+	bottom: auto;
+	right: auto;
+	left: auto;
+	display: block;
+	z-index: 1;
+}
+
+.example-modal .modal {
+	background: transparent !important;
+}
+</style>
+
+
+<div class="modal fade" id="modal-default">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Country</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- form start -->
+				<form class="form-horizontal">
+					<div class="box-body">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Country</label>
+
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="countryId"
+									placeholder="Country Name">
+							</div>
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+
+					<!-- /.box-footer -->
+				</form>
+
+
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left"
+					data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+
+<script>
+	$(document).ready(function() {
+		$('#paginatedTable').DataTable({
+			"processing" : true,
+			"serverSide" : true,
+			"pageLength" : 5,
+			"ajax" : {
+				"url" : "/admin/pvt/masters/country_master/paginated",
+				"data" : function(data) {
+					//process data before sent to server.
+				}
+			},
+			"columns" : [ {
+				"data" : "id",
+				"name" : "ID",
+				"title" : "ID"
+			}, {
+				"data" : "name",
+				"name" : "Name",
+				"title" : "Name"
+			}, {
+				"data" : "salary",
+				"name" : "Salary",
+				"title" : "Salary"
+			} ]
+		});
+
+		$('#paginatedTable').dataTable().fnSetFilteringEnterPress();
+	});
+</script>

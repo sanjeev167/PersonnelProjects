@@ -1,0 +1,69 @@
+/**
+ * 
+ */
+package com.exception.ctrl;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @author Sanjeev
+ *
+ */
+
+@Controller
+public class ExceptionController implements ErrorController{
+
+	private static final Logger log = LogManager.getLogger(ExceptionController.class);	
+	@RequestMapping("/error")
+	public String handleError(HttpServletRequest request) {
+	    Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+	    String targetErrorPage=null;
+	     System.out.println("ExceptionController => status code = "+Integer.valueOf(status.toString()));
+	    if (status != null) {
+	        Integer statusCode = Integer.valueOf(status.toString());
+	     
+	        if(statusCode == HttpStatus.NOT_FOUND.value()) {
+	        	System.out.println("ExceptionController: --> NOT_FOUND");
+	        	targetErrorPage= "404";
+	        }
+	        else if(statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+	            //return "error-500";
+	        	System.out.println("ExceptionController: -->INTERNAL_SERVER_ERROR");
+	        	targetErrorPage= "500";
+	        }
+	        
+	        else if(statusCode == HttpStatus.UNAUTHORIZED.value()) {
+	        	System.out.println("ExceptionController: --> Unauthorized Access");
+	        	targetErrorPage= "401";
+	        }
+	        
+	        else if(statusCode == HttpStatus.FORBIDDEN.value()) {
+	        	 System.out.println("ExceptionController: -->. 403");
+	        	 targetErrorPage= "403";
+	        }
+	        
+	        else if(statusCode == 440) {
+	        	System.out.println("ExceptionController: -->. Ajax call session expiration error.");	        	
+	        	 return "redirect:/admin/pub/login?invalid";
+	        }
+	      }
+	  
+	   return "redirect:/showError/"+targetErrorPage;
+	    
+	    
+	  
+	}
+	@Override
+	public String getErrorPath() {
+		// TODO Auto-generated method stub
+		return "/error";
+	}
+}//End of ExceptionController

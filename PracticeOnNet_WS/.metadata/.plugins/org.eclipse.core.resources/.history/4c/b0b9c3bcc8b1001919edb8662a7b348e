@@ -1,0 +1,224 @@
+package com.admin.pvt.menu_mgr.entity;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+import com.admin.pvt.menu_mgr.dto.MenuManagerDTO;
+import com.admin.pvt.sec.env.entity.DepartmentMaster;
+import com.admin.pvt.sec.env.entity.PageMaster;
+
+import java.sql.Timestamp;
+import java.util.List;
+
+
+/**
+ * The persistent class for the menu_manager database table.
+ * 
+ */
+@Entity
+@Table(name="menu_manager")
+@NamedQuery(name="MenuManager.findAll", query="SELECT m FROM MenuManager m")
+@SqlResultSetMapping(
+        name = "MenuManagerDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = MenuManagerDTO.class,
+                columns = { @ColumnResult(name = "id", type = Integer.class), 
+                	    @ColumnResult(name = "departmentMasterName", type = String.class), 
+                	    @ColumnResult(name = "treeMenuTypeName", type = String.class), 
+                	    @ColumnResult(name = "nodeType", type = String.class), 
+                	    @ColumnResult(name = "menuManagerParentNodeName", type = String.class), 
+                	    @ColumnResult(name = "nodeName", type = String.class), 
+                	    @ColumnResult(name = "imgUrl", type = String.class),                            
+                	    @ColumnResult(name = "pageBaseUrl", type = String.class), 
+                	    @ColumnResult(name = "activeC", type = String.class),                             
+                	    @ColumnResult(name = "totalrecords", type = Integer.class)
+                            }))
+public class MenuManager implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(name="active_c")
+	private String activeC;
+
+	@Column(name="created_by")
+	private Integer createdBy;
+
+	@Column(name="created_on")
+	private Timestamp createdOn;
+
+	@Column(name="img_url")
+	private String imgUrl;
+
+	@Column(name="node_name")
+	private String nodeName;
+
+	@Column(name="node_type")
+	private String nodeType;
+
+	@Column(name="updated_by")
+	private Integer updatedBy;
+
+	@Column(name="updated_on")
+	private Timestamp updatedOn;
+
+	//bi-directional many-to-one association to DepartmentMaster
+	@ManyToOne
+	@JoinColumn(name="app_context_id")
+	private DepartmentMaster departmentMaster;
+
+	//bi-directional many-to-one association to MenuManager
+	@ManyToOne
+	@JoinColumn(name="parent_node_id")
+	private MenuManager menuManager;
+
+	//bi-directional many-to-one association to MenuManager
+	@OneToMany(mappedBy="menuManager")
+	private List<MenuManager> menuManagers;
+
+	//bi-directional many-to-one association to PageMaster
+	@ManyToOne
+	@JoinColumn(name="page_id")
+	private PageMaster pageMaster;
+
+	
+
+	//bi-directional many-to-one association to TreeMenuTypeMaster
+	@ManyToOne
+	@JoinColumn(name="tree_menu_type")
+	private TreeMenuTypeMaster treeMenuTypeMaster;
+
+	public MenuManager() {
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getActiveC() {
+		return this.activeC;
+	}
+
+	public void setActiveC(String activeC) {
+		this.activeC = activeC;
+	}
+
+	public Integer getCreatedBy() {
+		return this.createdBy;
+	}
+
+	public void setCreatedBy(Integer createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Timestamp getCreatedOn() {
+		return this.createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public String getImgUrl() {
+		return this.imgUrl;
+	}
+
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+
+	public String getNodeName() {
+		return this.nodeName;
+	}
+
+	public void setNodeName(String nodeName) {
+		this.nodeName = nodeName;
+	}
+
+	public String getNodeType() {
+		return this.nodeType;
+	}
+
+	public void setNodeType(String nodeType) {
+		this.nodeType = nodeType;
+	}
+
+	public Integer getUpdatedBy() {
+		return this.updatedBy;
+	}
+
+	public void setUpdatedBy(Integer updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return this.updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public DepartmentMaster getDepartmentMaster() {
+		return this.departmentMaster;
+	}
+
+	public void setDepartmentMaster(DepartmentMaster departmentMaster) {
+		this.departmentMaster = departmentMaster;
+	}
+
+	public MenuManager getMenuManager() {
+		return this.menuManager;
+	}
+
+	public void setMenuManager(MenuManager menuManager) {
+		this.menuManager = menuManager;
+	}
+
+	public List<MenuManager> getMenuManagers() {
+		return this.menuManagers;
+	}
+
+	public void setMenuManagers(List<MenuManager> menuManagers) {
+		this.menuManagers = menuManagers;
+	}
+
+	public MenuManager addMenuManager(MenuManager menuManager) {
+		getMenuManagers().add(menuManager);
+		menuManager.setMenuManager(this);
+
+		return menuManager;
+	}
+
+	public MenuManager removeMenuManager(MenuManager menuManager) {
+		getMenuManagers().remove(menuManager);
+		menuManager.setMenuManager(null);
+
+		return menuManager;
+	}
+
+	public PageMaster getPageMaster() {
+		return this.pageMaster;
+	}
+
+	public void setPageMaster(PageMaster pageMaster) {
+		this.pageMaster = pageMaster;
+	}
+
+	
+
+	public TreeMenuTypeMaster getTreeMenuTypeMaster() {
+		return this.treeMenuTypeMaster;
+	}
+
+	public void setTreeMenuTypeMaster(TreeMenuTypeMaster treeMenuTypeMaster) {
+		this.treeMenuTypeMaster = treeMenuTypeMaster;
+	}
+
+}

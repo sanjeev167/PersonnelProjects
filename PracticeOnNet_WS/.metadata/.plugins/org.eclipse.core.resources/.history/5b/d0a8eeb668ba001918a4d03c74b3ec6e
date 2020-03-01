@@ -1,0 +1,557 @@
+/**
+ * 
+ */
+package com.admin.pvt.sec.env.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
+
+import org.modelmapper.internal.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.admin.pvt.masters.dto.NameValue;
+import com.admin.pvt.sec.env.dto.PageMasterDTO;
+import com.admin.pvt.sec.env.entity.PageMaster;
+import com.admin.pvt.sec.env.repo.DepartmentRepository;
+import com.admin.pvt.sec.env.repo.ModuleRepository;
+import com.admin.pvt.sec.env.repo.PageRepository;
+import com.custom.exception.CustomRuntimeException;
+import com.custom.exception.ExceptionApplicationUtility;
+import com.grid_pagination.DataTableRequest;
+import com.grid_pagination.DataTableResults;
+import com.grid_pagination.PaginationCriteria;
+import com.util.AppConstants;
+import com.util.AppUtil;
+
+/**
+ * @author Sanjeev
+ *
+ */
+@Service
+public class PageServiceImpl implements PageService {
+
+	static final Logger log = LoggerFactory.getLogger(PageServiceImpl.class);
+
+	/** The entity manager. */
+	@Autowired
+	@PersistenceContext(unitName = AppConstants.JPA_UNIT_PRACTICEONNET)
+	private EntityManager entityManager;
+
+	@Autowired
+	DepartmentRepository departmentRepository;
+
+	@Autowired
+	ModuleRepository moduleRepository;
+
+	@Autowired
+	PageRepository pageRepository;
+
+	@Override
+	public DataTableResults<PageMasterDTO> loadGrid(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> loadGrid ==> Started");
+
+		DataTableResults<PageMasterDTO> dataTableResult = null;
+		try {
+			DataTableRequest<PageMaster> dataTableInRQ = new DataTableRequest<PageMaster>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery;
+
+			if (whereClauseForBaseQuery.equals(""))
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm where pm.module_id=mm.id and mm.department_id=dm.id ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm"
+						+ " where pm.module_id=mm.id and mm.department_id=dm.id ";
+			else
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm where pm.module_id=mm.id and mm.department_id=dm.id and "+ whereClauseForBaseQuery +") AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm"
+						+ " where pm.module_id=mm.id and mm.department_id=dm.id and " + whereClauseForBaseQuery;
+			
+				
+
+			// System.out.println("baseQuery ="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "PageMasterDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<PageMasterDTO> pageMasterList = query.getResultList();
+
+			dataTableResult = new DataTableResults<PageMasterDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(pageMasterList);
+			if (!AppUtil.isObjectEmpty(pageMasterList)) {
+				dataTableResult.setRecordsTotal(pageMasterList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(pageMasterList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(pageMasterList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> loadGrid ==> Ended");
+
+		return dataTableResult;
+	}
+
+	@Override
+	public DataTableResults<PageMasterDTO> loadGridForRbacCMP(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP ==> Started");
+
+		DataTableResults<PageMasterDTO> dataTableResult = null;
+		try {
+			DataTableRequest<PageMaster> dataTableInRQ = new DataTableRequest<PageMaster>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery;
+
+			if (whereClauseForBaseQuery.equals(""))
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm where pm.module_id=mm.id and mm.department_id=dm.id ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm"
+						+ " where pm.module_id=mm.id and mm.department_id=dm.id ";
+			else
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm where pm.module_id=mm.id and mm.department_id=dm.id and "+ whereClauseForBaseQuery +") AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm"
+						+ " where pm.module_id=mm.id and mm.department_id=dm.id and " + whereClauseForBaseQuery;
+			
+				
+
+			// System.out.println("baseQuery ="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "PageMasterDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<PageMasterDTO> pageMasterList = query.getResultList();
+
+			dataTableResult = new DataTableResults<PageMasterDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(pageMasterList);
+			if (!AppUtil.isObjectEmpty(pageMasterList)) {
+				dataTableResult.setRecordsTotal(pageMasterList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(pageMasterList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(pageMasterList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP ==> Ended");
+
+		return dataTableResult;
+	}
+
+	@Override
+	public DataTableResults<PageMasterDTO> loadGridForRbacCMP_RA(HttpServletRequest request, String whereClauseForBaseQuery)
+			throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP_RA ==> Started");
+
+		DataTableResults<PageMasterDTO> dataTableResult = null;
+		try {
+			DataTableRequest<PageMaster> dataTableInRQ = new DataTableRequest<PageMaster>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery;
+
+			if (whereClauseForBaseQuery.equals(""))
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm,access_rights_rbac arbc ,app_role ar "
+						+ " where "
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						+"  and arbc.page_id=pm.id "
+						+"  and arbc.role_id = ar.id "
+						+ " ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm ,"
+						+ " access_rights_rbac arbc ,app_role ar"
+						+ " where "
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						+"  and arbc.page_id=pm.id "
+						+"  and arbc.role_id = ar.id ";
+					
+			else
+				baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm,"
+						+ " access_rights_rbac arbc ,app_role ar"
+						+ " where "
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						+"  and arbc.page_id=pm.id "
+						+"  and arbc.role_id = ar.id "
+						+ " and "
+						+ whereClauseForBaseQuery +") AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm,"
+						+ " access_rights_rbac arbc ,app_role ar"
+						+ " where "
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						+"  and arbc.page_id=pm.id "
+						+"  and arbc.role_id = ar.id "
+						+ " and " + whereClauseForBaseQuery;
+
+			 System.out.println("baseQuery RA="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "PageMasterDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<PageMasterDTO> pageMasterList = query.getResultList();
+
+			dataTableResult = new DataTableResults<PageMasterDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(pageMasterList);
+			if (!AppUtil.isObjectEmpty(pageMasterList)) {
+				dataTableResult.setRecordsTotal(pageMasterList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(pageMasterList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(pageMasterList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP_RA ==> Ended");
+
+		return dataTableResult;
+	}
+
+	@Override
+	public DataTableResults<PageMasterDTO> loadGridForRbacCMP_RU(HttpServletRequest request, 
+			                               String moduleId,String roleId)
+			throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP_RU ==> Started");
+
+		DataTableResults<PageMasterDTO> dataTableResult = null;
+		try {
+			DataTableRequest<PageMaster> dataTableInRQ = new DataTableRequest<PageMaster>(request);
+			PaginationCriteria pagination = dataTableInRQ.getPaginationRequest();
+			String baseQuery = "select pm.id as ID," + " dm.name as departmentName," + " mm.name as moduleName,"
+						+ " pm.name as pageName," + " pm.baseurl as baseurl,"
+						+ " (SELECT COUNT(1) FROM page_master pm, module_master mm , department_master dm "
+						+ " where "
+						//Join condition			              
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						//Filter condition 
+						+"  and pm.module_id="
+						+ Integer.parseInt(moduleId)
+						+"  and pm.id NOT IN (select page_id as id from access_rights_rbac where role_id = "
+						+ Integer.parseInt(roleId)
+						+ ") "
+						
+						+ " ) AS totalrecords"
+						+ " from page_master pm, module_master mm , department_master dm "
+						+ " where "
+						//Join condition			              
+						+ " pm.module_id=mm.id "
+						+ " and mm.department_id=dm.id "
+						//Filter condition 
+						+ Integer.parseInt(moduleId)
+						+"  and pm.id NOT IN (select page_id as id from access_rights_rbac where role_id = "
+						+ Integer.parseInt(roleId)
+					
+			
+			
+				
+
+			System.out.println("baseQuery RU ="+baseQuery);
+			String paginatedQuery = AppUtil.buildPaginatedQuery(baseQuery, pagination);
+			Query query = entityManager.createNativeQuery(paginatedQuery, "PageMasterDTOMapping");
+
+			@SuppressWarnings("unchecked")
+			List<PageMasterDTO> pageMasterList = query.getResultList();
+
+			dataTableResult = new DataTableResults<PageMasterDTO>();
+			dataTableResult.setDraw(dataTableInRQ.getDraw());
+			dataTableResult.setListOfDataObjects(pageMasterList);
+			if (!AppUtil.isObjectEmpty(pageMasterList)) {
+				dataTableResult.setRecordsTotal(pageMasterList.get(0).getTotalrecords().toString());
+				if (dataTableInRQ.getPaginationRequest().isFilterByEmpty()) {
+					dataTableResult.setRecordsFiltered(pageMasterList.get(0).getTotalrecords().toString());
+				} else {
+					dataTableResult.setRecordsFiltered(Integer.toString(pageMasterList.size()));
+				}
+			}
+
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> loadGridForRbacCMP_RU ==> Ended");
+
+		return dataTableResult;
+	}
+
+	
+	
+	
+	// This will directly put your result into your mapped dto
+	@Override
+	public PageMasterDTO getReordById(Integer id) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> getReordById ==> Started");
+
+		PageMasterDTO pageMasterDTO = null;
+		try {
+			PageMaster pageMaster = pageRepository.getOne(id);
+			pageMasterDTO = new PageMasterDTO();
+			pageMasterDTO.setId(pageMaster.getId());
+			pageMasterDTO.setDepartmentNameId(pageMaster.getModuleMaster().getDepartmentMaster().getId() + "");
+			pageMasterDTO.setModuleNameId(pageMaster.getModuleMaster().getId() + "");
+			pageMasterDTO.setPageName(pageMaster.getName());
+			pageMasterDTO.setBaseurl(pageMaster.getBaseurl());
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> getReordById ==> Ended");
+
+		return pageMasterDTO;
+	}
+
+	@Transactional
+	@Override
+	public PageMasterDTO saveAndUpdate(PageMasterDTO pageMasterDTO) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> saveAndUpdate ==> Started");
+
+		PageMaster pageMaster = null;
+		PageMasterDTO pageMasterDTONew = null;
+		try {
+			if (pageMasterDTO.getId() != null)
+				pageMaster = pageRepository.getOne(pageMasterDTO.getId());
+			else
+				pageMaster = new PageMaster();
+
+			pageMaster.setId(pageMasterDTO.getId());
+			pageMaster.setName(pageMasterDTO.getPageName());
+			pageMaster.setBaseurl(pageMasterDTO.getBaseurl());
+			pageMaster.setModuleMaster(moduleRepository.getOne(Integer.parseInt(pageMasterDTO.getModuleNameId())));
+			PageMaster returnedPageMaster = pageRepository.saveAndFlush(pageMaster);
+			pageMasterDTONew = new PageMasterDTO(returnedPageMaster.getId(),
+					returnedPageMaster.getModuleMaster().getDepartmentMaster().getId() + "",
+					returnedPageMaster.getModuleMaster().getId() + "", returnedPageMaster.getName(),
+					returnedPageMaster.getBaseurl());
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> saveAndUpdate ==> Ended");
+
+		return pageMasterDTONew;
+	}
+
+	@Override
+	@Transactional
+	public boolean deleteOneRecord(Integer id) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> deleteOneRecord ==> Started");
+
+		boolean isDeleted = true;
+		try {
+			pageRepository.deleteById(id);
+		} catch (Exception ex) {
+			isDeleted = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> deleteOneRecord ==> Ended");
+
+		return isDeleted;
+	}
+
+	@Transactional
+	@Override
+	public void deleteMultipleRecords(Integer[] recordIdArray) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> deleteMultipleRecords ==> Started");
+
+		boolean isDeleted = true;
+		try {
+			pageRepository.deletePageWithIds(recordIdArray);
+		} catch (Exception ex) {
+			isDeleted = false;
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> deleteMultipleRecords ==> Ended");
+
+	}
+
+	@Override
+	public List<NameValue> getPageList(Integer id) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> getPageList ==> Started");
+
+		List<NameValue> moduleList = new ArrayList<NameValue>();
+		NameValue nameValue;
+
+		try {
+			List<PageMaster> pageMasterList = moduleRepository.getOne(id).getPageMasters();
+			for (PageMaster pageMaster : pageMasterList) {
+				nameValue = new NameValue(pageMaster.getId(), pageMaster.getName());
+				moduleList.add(nameValue);
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> getPageList ==> Ended");
+
+		return moduleList;
+	}
+	
+	
+	@Override
+	public List<NameValue> getListBaseUrl(Integer id) throws CustomRuntimeException {
+		log.info("     PageServiceImpl :==> getListBaseUrl ==> Started");
+		List<NameValue> moduleList = new ArrayList<NameValue>();
+		NameValue nameValue;
+		try {
+			List<PageMaster> pageMasterList = moduleRepository.getOne(id).getPageMasters();
+			for (PageMaster pageMaster : pageMasterList) {				
+				nameValue = new NameValue(pageMaster.getId(), pageMaster.getName());
+				moduleList.add(nameValue);
+			}
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+		log.info("     PageServiceImpl :==> getListBaseUrl ==> Ended");
+		return moduleList;
+	}
+	
+	
+	
+
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentIdValue, String parentId, 
+			                                            Object fieldValue,String fieldName,
+			                                            Object idValue, String idFieldName) throws CustomRuntimeException {
+
+		log.info("     PageServiceImpl :==> FieldValueWithParentIdAndChildExists ==> Started");
+
+		boolean recordFound = false;
+		try {
+			Assert.notNull(parentId);Assert.notNull(fieldName);
+
+			if (!parentId.equals("moduleNameId")&&!fieldName.equals("pageName") && !idFieldName.equals("id")) {
+				throw ExceptionApplicationUtility.wrapRunTimeException(new UnsupportedOperationException("Field name not supported"));            
+			}
+
+			if (parentIdValue == null && fieldValue==null) {
+				return false;
+			}
+			if(!parentIdValue.equals("")&&!fieldValue.equals("")&& idValue==null) { 
+				//Case of adding new one				
+				recordFound=this.pageRepository.existsByModuleIdAndPageName(Integer.parseInt(parentIdValue+""),
+						fieldValue.toString());    				
+			}			
+			if(!parentIdValue.equals("")&&!fieldValue.equals("")&& idValue!=null) { 
+				//Case of editing existing one
+				recordFound=this.pageRepository.existsByModuleIdAndPageNameExceptThisId(Integer.parseInt(parentIdValue+""),
+						fieldValue.toString(),Integer.parseInt(idValue.toString()));  
+				
+			}
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		log.info("     PageServiceImpl :==> FieldValueWithParentIdAndChildExists ==> Ended");
+
+		return recordFound;
+	}
+
+	@Override
+	public boolean FieldValueWithParentIdAndChildExists(Object parentValue, String parentId, Object fieldValue,
+			String fieldName) throws UnsupportedOperationException, CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean SecondChildValueWithParentIdExists(Object parentValue, String parentLabel, Object fieldValue,
+			String fieldName,Object idValue, String idFieldName) throws CustomRuntimeException {
+		boolean recordFound = false;
+		try {
+			Assert.notNull(parentLabel);Assert.notNull(fieldName);
+
+			if (!parentLabel.equals("moduleNameId")&&!fieldName.equals("baseurl") && !idFieldName.equals("id")) {
+				throw ExceptionApplicationUtility.wrapRunTimeException(new UnsupportedOperationException("Field name not supported"));            
+			}
+
+			if (parentValue == null && fieldValue==null) {
+				return false;
+			}
+			if(!parentValue.equals("")&&!fieldValue.equals("")&& idValue==null) { 
+				//Case of adding new one				
+				recordFound=this.pageRepository.existsByPageNameAndBaseUrl(Integer.parseInt(parentValue.toString()),fieldValue.toString());    				
+			}			
+			if(!parentValue.equals("")&&!fieldValue.equals("")&& idValue!=null) { 
+				//Case of editing existing one
+				recordFound=this.pageRepository.existsByPageNameAndBaseUrlExceptThisId(Integer.parseInt(parentValue.toString()),fieldValue.toString(),Integer.parseInt(idValue.toString()));  
+				
+			}
+			
+		} catch (Exception ex) {
+			throw ExceptionApplicationUtility.wrapRunTimeException(ex);
+		}
+
+		return recordFound;
+	}
+
+	
+
+	@Override
+	public boolean FirstChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+	@Override
+	public boolean ThirdChildValueWithParentIdExists(Object parentIdValue, String parentId, Object fieldValue,
+			String fieldName, Object idValue, String idFieldName) throws CustomRuntimeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+
+	
+
+	
+
+	
+}
